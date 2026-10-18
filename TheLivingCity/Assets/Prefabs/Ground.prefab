@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4416265634576261174
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5799760469295889772}
+  - component: {fileID: 7697579904052080159}
+  - component: {fileID: 1469693730816571860}
+  - component: {fileID: 7412737748937216116}
+  m_Layer: 0
+  m_Name: Ground
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5799760469295889772
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416265634576261174}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7697579904052080159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416265634576261174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ffad698dbd45b9418f406925709ff3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundAutomatically
+  width: 12
+  length: 24
+  scale: 4
+  noiseScale1: 0.05
+  height1: 10
+  noiseScale2: 0.02
+  height2: 3
+  noiseScale3: 0.01
+  height3: 1
+  type: 0
+  currentDifficulty: 0
+  groundMaterial: {fileID: 2100000, guid: 7d7661196d77a0e44b69dca5839e1f01, type: 2}
+  chunkX: 0
+  chunkZ: 0
+  _generateObstacle: {fileID: 1469693730816571860}
+  _itemGenerate: {fileID: 7412737748937216116}
+  _ground: {fileID: 0}
+  PlayerStartPos: {x: 0, y: 0, z: 0}
+--- !u!114 &1469693730816571860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416265634576261174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07e64273b71065f458467f967a5fd866, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GenerateObstacle
+  obstacles:
+  - {fileID: 7007136516257614928, guid: 8b6367a6608ccb846bbab633377e9328, type: 3}
+  - {fileID: 1448932612098182496, guid: 277656e0cfde75b4eb9570971b1d2164, type: 3}
+  - {fileID: 2736797828097467054, guid: d5cf406eefe57db45984eabcaa86dae4, type: 3}
+  - {fileID: 3637646703001808937, guid: a0cc28019c461be48877ebddb414b613, type: 3}
+  - {fileID: 7574440178883181082, guid: 62bebff5cd4b2944a8852a4815faec02, type: 3}
+  ConnectStartobstacle: {fileID: 2736797828097467054, guid: d5cf406eefe57db45984eabcaa86dae4, type: 3}
+  Connectobstacle:
+  - {fileID: 3637646703001808937, guid: a0cc28019c461be48877ebddb414b613, type: 3}
+  - {fileID: 7574440178883181082, guid: 62bebff5cd4b2944a8852a4815faec02, type: 3}
+  TentaclesObstacles:
+  - {fileID: 7007136516257614928, guid: c4d47c4f78491f24b9b85a4079a3b5c5, type: 3}
+  - {fileID: 1448932612098182496, guid: 50a2a2f6cb54b1d40a3f061f9a8d6edf, type: 3}
+  - {fileID: 2736797828097467054, guid: 322eb6bf67a8b4344a3b4539d8388d4d, type: 3}
+  - {fileID: 3637646703001808937, guid: 4db37f1500c18714b907d91f242a26fd, type: 3}
+  - {fileID: 7574440178883181082, guid: a5b6d1755bf4d234c8193c56bf9c76bc, type: 3}
+  TentaclesConnectStartobstacle: {fileID: 2736797828097467054, guid: 322eb6bf67a8b4344a3b4539d8388d4d, type: 3}
+  TentaclesConnectobstacle:
+  - {fileID: 3637646703001808937, guid: 4db37f1500c18714b907d91f242a26fd, type: 3}
+  - {fileID: 7574440178883181082, guid: a5b6d1755bf4d234c8193c56bf9c76bc, type: 3}
+  Connect: 0
+  ContinueObstacleNumber: 0
+  difficulty: 0
+--- !u!114 &7412737748937216116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416265634576261174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b56d6a981fb759442a63e0e166b192fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemGenerate
+  items:
+  - itemName: Accel
+    prefab: {fileID: 7405678864539802532, guid: e8c0fb9fe212ad542a62c294427fa9a3, type: 3}
+    weight: 1
+  - itemName: Boost
+    prefab: {fileID: 6147782966075383984, guid: 43b1ec3f6f44b1d44808673ab81aa60a, type: 3}
+    weight: 1
+  - itemName: Magnet
+    prefab: {fileID: 6254142501787447915, guid: 0fa4fc3aee913a446bbff1dbcf2e69aa, type: 3}
+    weight: 1
+  - itemName: Speed
+    prefab: {fileID: 1834668313555867435, guid: 66e11e2d30cb3cc4dbcf2667a6de051a, type: 3}
+    weight: 1
+  - itemName: Perseverancel
+    prefab: {fileID: 9093194334690066592, guid: e65073a98a6ea7d47ae823fa6414de72, type: 3}
+    weight: 1
+  - itemName: Turn
+    prefab: {fileID: 4502571127199709571, guid: cd188bffcf435f743b7e8518d04a7b3f, type: 3}
+    weight: 1
+  GenerateCount: 3
+  ItemUpRate: 2

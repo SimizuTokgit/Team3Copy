@@ -1,0 +1,185 @@
+using UnityEngine;
+
+public class ItemGenerate : MonoBehaviour
+{
+    //本庄
+    //アイテムの生成
+
+    [System.Serializable]
+    public class ItemData
+    {
+        //アイテム名
+        public string itemName;
+
+        //Prefab
+        public GameObject prefab;
+
+        //出現率
+        public int weight;
+    }
+
+    //アイテム一覧
+    [SerializeField]
+    private ItemData[] items;
+
+    //生成数
+    public int GenerateCount;
+
+    //浮き倍率
+    [SerializeField]
+    private float ItemUpRate;
+
+    public void DeleteAllItems()
+    {
+        GameObject[] sceneObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+
+        foreach (GameObject obj in sceneObjects)
+        {
+            foreach (ItemData item in items)
+            {
+                if (item == null || item.prefab == null) continue;
+
+                if (obj.name == item.prefab.name || obj.name == item.prefab.name + "(Clone)")
+                {
+                    Destroy(obj);
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// アイテム生成
+    /// </summary>
+    public void ItemGen(Mesh mesh, int width, int length)
+    {
+        for (int i = 0; i < GenerateCount; i++)
+        {
+            int itemNumber = GetWeightedRandom();
+
+            int x = Random.Range(0, width);
+            int z = Random.Range(0, length);
+
+            int index = x + z * (width + 1);
+
+            if (index >= mesh.vertices.Length)
+                continue;
+
+            Vector3 pos = mesh.vertices[index];
+
+            GameObject item = Instantiate(items[itemNumber].prefab, transform);
+
+            float itemup = Random.Range(1.0f, ItemUpRate);
+
+            if (itemup <= 1.3f)
+                itemup = 1.0f;
+
+            item.transform.localPosition = new Vector3(pos.x, pos.y * itemup, pos.z);
+        }
+    }
+
+    /// <summary>
+    /// 重み付きランダム
+    /// </summary>
+    private int GetWeightedRandom()
+    {
+        int totalWeight = 0;
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            totalWeight += items[i].weight;
+        }
+
+        if (totalWeight <= 0)
+            return 0;
+
+        int randomValue = Random.Range(0, totalWeight);
+
+        int currentWeight = 0;
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            currentWeight += items[i].weight;
+
+            if (randomValue < currentWeight)
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// 名前で出現率変更
+    /// </summary>
+    public void SetItemWeight(string itemName, int newWeight)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            //名前比較
+            if (items[i].itemName == itemName)
+            {
+                //0未満防止
+                if (newWeight < 0)
+                    newWeight = 0;
+
+                items[i].weight = newWeight;
+                return;
+            }
+        }
+
+        Debug.LogWarning(itemName + " が見つかりません");
+    }
+
+    /// <summary>
+    /// 名前で出現率加算
+    /// </summary>
+    public void AddItemWeight(string itemName, int addWeight)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].itemName == itemName)
+            {
+                items[i].weight += addWeight;
+
+                //0未満防止
+                if (items[i].weight < 0)
+                    items[i].weight = 0;
+
+                return;
+            }
+        }
+
+        Debug.LogWarning(itemName + " が見つかりません");
+    }
+
+    /// <summary>
+    /// 名前で出現率取得
+    /// </summary>
+    public int GetItemWeight(string itemName)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].itemName == itemName)
+            {
+                return items[i].weight;
+            }
+        }
+
+        Debug.LogWarning(itemName + " が見つかりません");
+
+        return 0;
+    }
+
+    /// <summary>
+    /// アイテム出現確立リセット
+    /// </summary>
+    public void ResetAllWeight()
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            items[i].weight = 1;
+        }
+    }
+}
