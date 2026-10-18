@@ -8,6 +8,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Vector3 StartPos;
     [SerializeField] private GameObject PauseImage;
 
+    //清水 このシーンのモード。Main はエンドレス、StoryGameScene はストーリー
+    [SerializeField] private PlayModeInfo.Mode Mode = PlayModeInfo.Mode.Story;
+    public bool IsEndless => Mode == PlayModeInfo.Mode.Endless;
+
     private TimeManager TimeManager;
     private CountDownManager CountDownManager;
     private ScoreManager ScoreManager;
@@ -32,6 +36,8 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        PlayModeInfo.Current = Mode;
+
         TimeManager = GetComponentInChildren<TimeManager>();
         CountDownManager = GetComponentInChildren<CountDownManager>();
         ScoreManager = GetComponentInChildren<ScoreManager>();

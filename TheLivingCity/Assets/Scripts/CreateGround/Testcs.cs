@@ -13,6 +13,9 @@ public class Testcs : MonoBehaviour
 
     public GeneretoGround generetoGround;
 
+    //清水 チェックポイント通過で残り時間を回復する
+    private TimeManager timeManager;
+
     private void Start()
     {
         PassageNumber = -1;
@@ -21,6 +24,7 @@ public class Testcs : MonoBehaviour
         checkPointObject = FindAnyObjectByType<CheckPointInstance>();
         generetoGround = FindAnyObjectByType<GeneretoGround>();
         itemUI = FindAnyObjectByType<ItemUI>();
+        timeManager = FindAnyObjectByType<TimeManager>();
     }
 
     void Update()
@@ -35,6 +39,7 @@ public class Testcs : MonoBehaviour
             itemUI.ItemNumberCheck();
             generetoGround.PlayerPosGet();
             generetoGround.BranchStartSet();
+            if (timeManager) timeManager.RecoverTime();
             PassageNumber++;
             NextCheckPointNumber++;
         }

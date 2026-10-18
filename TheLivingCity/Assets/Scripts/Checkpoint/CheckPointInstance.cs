@@ -39,8 +39,17 @@ public class CheckPointInstance : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Goleobj = FindAnyObjectByType<Goal>().gameObject;
-        golePosition = Goleobj.transform.position.z;
+        //清水 ゴールが無い（エンドレス、ストーリーのボス戦マネージャー使用時）ならどこまでも生成する
+        Goal goal = FindAnyObjectByType<Goal>();
+        if (goal)
+        {
+            Goleobj = goal.gameObject;
+            golePosition = Goleobj.transform.position.z;
+        }
+        else
+        {
+            golePosition = float.MaxValue;
+        }
 
         checkpointNumber = 1;
 

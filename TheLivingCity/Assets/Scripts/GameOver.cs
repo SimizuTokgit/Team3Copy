@@ -15,6 +15,10 @@ public class GameOver : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Text;
     [SerializeField] private NumberImage ScoreNumber;
 
+    //清水 最高スコア表示。未設定なら何もしない
+    [SerializeField] private NumberImage HighScoreNumber;
+    [SerializeField] private GameObject NewRecordObject;
+
     //清水 ここからSE
     [Header("SE")]
     [SerializeField] private AudioClip alertSE;     //爆発前に鳴らす警告音
@@ -36,6 +40,9 @@ public class GameOver : MonoBehaviour
         float score = PlayerPrefs.GetFloat("Score", 0f);
         ScoreNumber.SetNumber(Mathf.FloorToInt(score));
 
+        if (HighScoreNumber) HighScoreNumber.SetNumber(Mathf.FloorToInt(PlayerPrefs.GetFloat(PlayModeInfo.HighScoreKey, 0f)));
+        if (NewRecordObject) NewRecordObject.SetActive(PlayerPrefs.GetInt("IsNewRecord", 0) == 1);
+
         //清水 スコアを一の位から一桁ずつ出す。付いていなければ自動で付ける
         //ScoreNumber は Texts の下なので、Texts が出た瞬間（GameOver.anim の5.0秒）に始まる
         if (ScoreNumber)
@@ -53,7 +60,8 @@ public class GameOver : MonoBehaviour
     {
         if (!isPushButton)
         {
-            FindFirstObjectByType<FadeImageController>().SceneChange("Main");
+            //清水 遊んでいたモードのシーンでやり直す
+            FindFirstObjectByType<FadeImageController>().SceneChange(PlayModeInfo.GameSceneName);
             isPushButton = true;
         }
     }

@@ -22,5 +22,11 @@ public class ScoreManager : MonoBehaviour
     public void SetScore()
     {
         PlayerPrefs.SetFloat("Score", SCORE);
+
+        //清水 モードごとの最高スコアを更新する
+        bool isNewRecord = SCORE > PlayerPrefs.GetFloat(PlayModeInfo.HighScoreKey, 0f);
+        if (isNewRecord) PlayerPrefs.SetFloat(PlayModeInfo.HighScoreKey, SCORE);
+        PlayerPrefs.SetInt("IsNewRecord", isNewRecord ? 1 : 0);
+        PlayerPrefs.Save();
     }
 }

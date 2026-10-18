@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   StartPos: {x: 0, y: 0, z: 0}
   PauseImage: {fileID: 1652983657}
+  Mode: 0
   _currentState: 0
 --- !u!4 &24952520
 Transform:
@@ -3952,7 +3953,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeManager
   TIME_LIMIT: 300
-  TIME_RECOVERY: 0
+  TIME_RECOVERY: 15
   LOW_TIME_THRESHOLD: 10
   REMAINING_TIME_NUMBER: {fileID: 895768237}
   _remainingTime: 0
