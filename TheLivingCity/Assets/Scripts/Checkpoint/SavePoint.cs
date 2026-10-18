@@ -1,14 +1,14 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SavePoint : MonoBehaviour
 {
-    //–{¯
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg
+    //æœ¬åº„
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆ
 
-    //‰½”Ô–Ú‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚©@0‚©‚çƒXƒ^[ƒg
+    //ä½•ç•ªç›®ã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã‹ã€€0ã‹ã‚‰ã‚¹ã‚¿ãƒ¼ãƒˆ
     public int ChackPointNumber;
 
-    //‚±‚Ìƒ|ƒCƒ“ƒg‚ğ’Ê‰ß‚µ‚½‚©
+    //ã“ã®ãƒã‚¤ãƒ³ãƒˆã‚’é€šéã—ãŸã‹
     public bool Passed;
 
     public CheckPointObj check;

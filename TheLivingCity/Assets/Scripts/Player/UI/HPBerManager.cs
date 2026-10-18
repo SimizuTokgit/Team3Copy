@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 
 public class HPBerManager : MonoBehaviour
@@ -15,7 +15,7 @@ public class HPBerManager : MonoBehaviour
     {
         maskImage = GetComponent<Image>();
 
-        maskImage.fillAmount = 1; //1‚ªHPMaxó‘Ô
+        maskImage.fillAmount = 1; //1ãŒHPMaxçŠ¶æ…‹
         targetFillAmount = 1;
         startHP = hp;
     }

@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-//ˆÀˆä
-//ƒQ[ƒ€ƒV[ƒ“ˆ—
+//å®‰äº•
+//ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³å‡¦ç†
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Vector3 StartPos;
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Œ»İ‚Ìó‘Ô‚É‰‚¶‚Äˆ—‚ğs‚¤
+    /// ç¾åœ¨ã®çŠ¶æ…‹ã«å¿œã˜ã¦å‡¦ç†ã‚’è¡Œã†
     /// </summary>
     private void UpdateState()
     {
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒXƒe[ƒg‚ğˆÚs‚³‚¹‚é(ˆÚs‚·‚éƒXƒe[ƒgæ)
+    /// ã‚¹ãƒ†ãƒ¼ãƒˆã‚’ç§»è¡Œã•ã›ã‚‹(ç§»è¡Œã™ã‚‹ã‚¹ãƒ†ãƒ¼ãƒˆå…ˆ)
     /// </summary>
     public void SetState(GameState gameState)
     {
@@ -89,7 +89,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ‹——£ŒvZ
+    /// è·é›¢è¨ˆç®—
     /// </summary>
     private void GetPlayerDistance()
     {
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ª—‚¿‚½‚©
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒè½ã¡ãŸã‹
     /// </summary>
     private bool PlayerPosJudge()
     {

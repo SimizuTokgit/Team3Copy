@@ -1,7 +1,7 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//ƒS[ƒ‹‚Ìˆ—
+//å®‰äº•
+//ã‚´ãƒ¼ãƒ«ã®å‡¦ç†
 public class Goal : MonoBehaviour
 {
     private GameManager GameManager;

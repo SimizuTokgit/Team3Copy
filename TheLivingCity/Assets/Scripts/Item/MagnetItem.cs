@@ -1,4 +1,4 @@
-public class MagnetItem : Item
+﻿public class MagnetItem : Item
 {
     public override void UpGrade(PlayerStatus playerStatus)
     {

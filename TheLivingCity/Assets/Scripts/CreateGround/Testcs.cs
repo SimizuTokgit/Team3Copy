@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 public class Testcs : MonoBehaviour
 {
-    //‰½”Ô–Ú‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ğ’Ê‚Á‚½‚©
+    //ä½•ç•ªç›®ã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã‚’é€šã£ãŸã‹
     public int PassageNumber;
 
-    //Ÿ’Ê‰ß—\’è‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚Ì”Ô†
+    //æ¬¡é€šéäºˆå®šã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã®ç•ªå·
     public int NextCheckPointNumber;
 
     public CheckPointInstance checkPointObject;

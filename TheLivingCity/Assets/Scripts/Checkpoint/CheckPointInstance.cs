@@ -1,37 +1,37 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class CheckPointInstance : MonoBehaviour
 {
-    //–{¯
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg¶¬
+    //æœ¬åº„
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆç”Ÿæˆ
 
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆ
     [SerializeField]
     private GameObject CheckPoint;
 
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ÌŠÔŠu
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã®é–“éš”
     [SerializeField]
     private float pointIntervals;
 
-    //ƒS[ƒ‹‚ÌƒIƒuƒWƒFƒNƒg
+    //ã‚´ãƒ¼ãƒ«ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     private GameObject Goleobj;
 
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚É¶¬‚·‚éƒIƒuƒWƒFƒNƒg
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã«ç”Ÿæˆã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     [SerializeField]
     private GameObject CheckPointObj;
     private CheckPointObj checkobj;
 
-    //ƒS[ƒ‹‚ÌzÀ•W
+    //ã‚´ãƒ¼ãƒ«ã®zåº§æ¨™
     private float golePosition;
 
-    //‚±‚Ì’†‚Éƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ª“ü‚é
+    //ã“ã®ä¸­ã«ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆãŒå…¥ã‚‹
     public List<GameObject> CheckPoints = new List<GameObject>();
 
-    //‰½ŒÂ–Ú‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚©
+    //ä½•å€‹ç›®ã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã‹
     private int checkpointNumber;
 
-    //¡‚Ü‚Å‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒgÀ•W‚Ì‚¸‚ê
+    //ä»Šã¾ã§ã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆåº§æ¨™ã®ãšã‚Œ
     private float checkpointOffset;
 
     public SavePoint save;
@@ -50,11 +50,11 @@ public class CheckPointInstance : MonoBehaviour
     }
 
     /// <summary>
-    ///ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚Ì¶¬
+    ///ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã®ç”Ÿæˆ
     /// </summary>
     public void InstanceCheckPoints(float moveDis)
     {
-        //Ÿ‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ªƒS[ƒ‹‚ğ’´‚¦‚½‚ç¶¬‚µ‚È‚¢
+        //æ¬¡ã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆãŒã‚´ãƒ¼ãƒ«ã‚’è¶…ãˆãŸã‚‰ç”Ÿæˆã—ãªã„
         if (golePosition <= pointIntervals * checkpointNumber + moveDis + checkpointOffset)
             return;
 

@@ -1,13 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//‰¹—Ê’²ß
+//å®‰äº•
+//éŸ³é‡èª¿ç¯€
 public class VolumeButton : MonoBehaviour
 {
-    //‰¹—Ê
+    //éŸ³é‡
     [SerializeField] private int volumePercent = 100;
 
-    //‰¹—Êİ’è
+    //éŸ³é‡è¨­å®š
     public void SetVolume()
     {
         SoundManager.Instance.SetMasterVolume(volumePercent / 100f);

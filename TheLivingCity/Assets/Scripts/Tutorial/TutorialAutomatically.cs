@@ -1,32 +1,32 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class TutorialAutomatically : MonoBehaviour
 {
-    //–{¯
-    //’nŒ`‚ğ¶¬‚·‚é
+    //æœ¬åº„
+    //åœ°å½¢ã‚’ç”Ÿæˆã™ã‚‹
 
-    // ===== ’nŒ`ƒTƒCƒY =====
+    // ===== åœ°å½¢ã‚µã‚¤ã‚º =====
     public int width;
     public int length;
 
-    // ’nŒ`ƒXƒP[ƒ‹
+    // åœ°å½¢ã‚¹ã‚±ãƒ¼ãƒ«
     public float scale = 4f;
 
-    // ===== ƒmƒCƒYİ’è =====
+    // ===== ãƒã‚¤ã‚ºè¨­å®š =====
 
-    // R
+    // å±±
     public float noiseScale1 = 0.05f;
     public float height1 = 10f;
 
-    // ’†‚­‚ç‚¢
+    // ä¸­ãã‚‰ã„
     public float noiseScale2 = 0.02f;
     public float height2 = 3;
 
-    // ×‚©‚¢
+    // ç´°ã‹ã„
     public float noiseScale3 = 0.01f;
     public float height3 = 1f;
 
-    // ===== •ªŠò—p =====
+    // ===== åˆ†å²ç”¨ =====
     public enum RouteType
     {
         Left,
@@ -36,7 +36,7 @@ public class TutorialAutomatically : MonoBehaviour
 
     public GenerateObstacle.Difficulty currentDifficulty;
 
-    // ===== ‚»‚Ì‘¼ =====
+    // ===== ãã®ä»– =====
     public Material groundMaterial;
 
     public int chunkX;
@@ -48,7 +48,7 @@ public class TutorialAutomatically : MonoBehaviour
     public ItemGenerate _itemGenerate;
     public GeneretoGround _ground;
 
-    //ƒvƒŒƒCƒ„[‚ÌƒXƒ^[ƒgˆÊ’u
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ã‚¿ãƒ¼ãƒˆä½ç½®
     public Vector3 PlayerStartPos;
 
     private float SmallPosY;
@@ -59,24 +59,24 @@ public class TutorialAutomatically : MonoBehaviour
     }
 
     // ===============================
-    // ƒ‹[ƒg‚²‚Æ‚Ìİ’è
+    // ãƒ«ãƒ¼ãƒˆã”ã¨ã®è¨­å®š
     // ===============================
     public void ApplyRouteSettings(RouteType route)
     {
         switch (route)
         {
-            case RouteType.Left: // ˆÀ‘Sƒ‹[ƒg
+            case RouteType.Left: // å®‰å…¨ãƒ«ãƒ¼ãƒˆ
                 currentDifficulty = GenerateObstacle.Difficulty.Easy;
                 break;
 
-            case RouteType.Right: // ŠëŒ¯
+            case RouteType.Right: // å±é™º
                 currentDifficulty = GenerateObstacle.Difficulty.Hard;
                 break;
         }
     }
 
     // ===============================
-    // ŠO•”‚©‚ç¶¬
+    // å¤–éƒ¨ã‹ã‚‰ç”Ÿæˆ
     // ===============================
     public void GenerateGround(int cX, int cZ, float seedX, float seedZ, bool Instance)
     {
@@ -89,7 +89,7 @@ public class TutorialAutomatically : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒƒbƒVƒ…¶¬
+    /// ãƒ¡ãƒƒã‚·ãƒ¥ç”Ÿæˆ
     /// </summary>
     void CreateMesh(float seedX, float seedZ, bool Instance)
     {
@@ -109,52 +109,52 @@ public class TutorialAutomatically : MonoBehaviour
             mesh.Clear();
 
 
-        //’¸“_”‚ÌŒvZ
+        //é ‚ç‚¹æ•°ã®è¨ˆç®—
         int vertCount = (width + 1) * (length + 1);
-        //’¸“_î•ñ
+        //é ‚ç‚¹æƒ…å ±
         Vector3[] vertices = new Vector3[vertCount];
-        //ƒeƒNƒXƒ`ƒƒ“\‚é‚Ì‚É•K—v
+        //ãƒ†ã‚¯ã‚¹ãƒãƒ£è²¼ã‚‹ã®ã«å¿…è¦
         Vector2[] uv = new Vector2[vertCount];
 
-        //OŠpŒ`î•ñ
+        //ä¸‰è§’å½¢æƒ…å ±
         int[] triangles = new int[width * length * 6];
 
 
-        //’¸“_¶¬
+        //é ‚ç‚¹ç”Ÿæˆ
         for (int z = 0; z <= length; z++)
         {
             for (int x = 0; x <= width; x++)
             {
-                //Œ»İ‚Ì’¸“_
+                //ç¾åœ¨ã®é ‚ç‚¹
                 int i = x + z * (width + 1);
 
-                //ƒ[ƒ‹ƒhÀ•W‚ÌŒvZ
+                //ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã®è¨ˆç®—
                 float worldX = seedX + x + chunkX * width;
                 float worldZ = seedZ + z + chunkZ * length;
 
-                //Šî–{’nŒ`‚Ì‚‚³
+                //åŸºæœ¬åœ°å½¢ã®é«˜ã•
                 float baseHeight =
                     Mathf.PerlinNoise(worldX * noiseScale2, worldZ * noiseScale2) * height2 +
                     Mathf.PerlinNoise(worldX * noiseScale3, worldZ * noiseScale3) * height3;
 
-                //R¶¬—pƒmƒCƒY
+                //å±±ç”Ÿæˆç”¨ãƒã‚¤ã‚º
                 float mountainNoise = Mathf.PerlinNoise(worldX * noiseScale1, worldZ * noiseScale1);
 
-                //R‚Ì‚‚³
+                //å±±ã®é«˜ã•
                 float mountainHeight = 0;
 
-                //ˆê’è’lˆÈã‚È‚çR‚ğ¶¬
+                //ä¸€å®šå€¤ä»¥ä¸Šãªã‚‰å±±ã‚’ç”Ÿæˆ
                 if (mountainNoise > 0.25f)
                 {
-                    //R‚ğŠŠ‚ç‚©‚É
+                    //å±±ã‚’æ»‘ã‚‰ã‹ã«
                     float m = Mathf.InverseLerp(0.25f, 0.85f, mountainNoise);
                     mountainHeight = Mathf.SmoothStep(0f, height1, m);
                 }
 
-                //ÅI“I‚È‚‚³
+                //æœ€çµ‚çš„ãªé«˜ã•
                 float y = baseHeight + mountainHeight;
 
-                //’¸“_À•W‚ğİ’è
+                //é ‚ç‚¹åº§æ¨™ã‚’è¨­å®š
                 vertices[i] = new Vector3(x * scale, y, z * scale);
                 uv[i] = new Vector2((float)x / width, (float)z / length);
 
@@ -165,39 +165,39 @@ public class TutorialAutomatically : MonoBehaviour
 
         int t = 0;
 
-        //OŠpŒ`‚Ì¶¬
-        //lŠpŒ`‚ğ2‚Â‚ÌOŠpŒ`‚É•ª‚¯‚é
+        //ä¸‰è§’å½¢ã®ç”Ÿæˆ
+        //å››è§’å½¢ã‚’2ã¤ã®ä¸‰è§’å½¢ã«åˆ†ã‘ã‚‹
         for (int z = 0; z < length; z++)
         {
             for (int x = 0; x < width; x++)
             {
-                //lŠpŒ`‚Ì¶‰º’¸“_
+                //å››è§’å½¢ã®å·¦ä¸‹é ‚ç‚¹
                 int i = x + z * (width + 1);
 
-                //OŠpŒ`‚P
-                //¶‰º
+                //ä¸‰è§’å½¢ï¼‘
+                //å·¦ä¸‹
                 triangles[t++] = i;
-                //¶ã
+                //å·¦ä¸Š
                 triangles[t++] = i + width + 1;
-                //‰E‰º
+                //å³ä¸‹
                 triangles[t++] = i + 1;
 
-                //OŠpŒ`‚Q
-                //‰E‰º
+                //ä¸‰è§’å½¢ï¼’
+                //å³ä¸‹
                 triangles[t++] = i + 1;
-                //¶ã
+                //å·¦ä¸Š
                 triangles[t++] = i + width + 1;
-                //‰Eã
+                //å³ä¸Š
                 triangles[t++] = i + width + 2;
             }
         }
 
-        //ƒƒbƒVƒ…‚É”½‰f
+        //ãƒ¡ãƒƒã‚·ãƒ¥ã«åæ˜ 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uv;
 
-        //–@ü‚ğ©“®ŒvZ
+        //æ³•ç·šã‚’è‡ªå‹•è¨ˆç®—
         mesh.RecalculateNormals();
 
         // ===== MeshFilter =====
@@ -212,7 +212,7 @@ public class TutorialAutomatically : MonoBehaviour
         if (renderer == null)
             renderer = gameObject.AddComponent<MeshRenderer>();
 
-        //ƒ}ƒeƒŠƒAƒ‹‚Ì“–‚Ä‚Í‚ß
+        //ãƒãƒ†ãƒªã‚¢ãƒ«ã®å½“ã¦ã¯ã‚
         if (groundMaterial != null)
             renderer.sharedMaterial = groundMaterial;
 
@@ -221,14 +221,14 @@ public class TutorialAutomatically : MonoBehaviour
         if (collider == null)
             collider = gameObject.AddComponent<MeshCollider>();
 
-        //Colider‚ÌXV
+        //Coliderã®æ›´æ–°
         collider.sharedMesh = null;
         collider.sharedMesh = mesh;
 
-        //ŠO‚Éo‚È‚¢‚æ‚¤‚ÉŒ©‚¦‚È‚¢•Ç‚ğ¶¬
+        //å¤–ã«å‡ºãªã„ã‚ˆã†ã«è¦‹ãˆãªã„å£ã‚’ç”Ÿæˆ
         CreateSideWalls();
 
-        //ƒAƒCƒeƒ€‚ÆáŠQ•¨‚Ì¶¬
+        //ã‚¢ã‚¤ãƒ†ãƒ ã¨éšœå®³ç‰©ã®ç”Ÿæˆ
         if (_generateObstacle != null && Instance)
         {
             if (!_ground._isBoss)
@@ -249,7 +249,7 @@ public class TutorialAutomatically : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€AáŠQ•¨¶¬
+    /// ã‚¢ã‚¤ãƒ†ãƒ ã€éšœå®³ç‰©ç”Ÿæˆ
     /// </summary>
     public void GenObsItem()
     {
@@ -296,7 +296,7 @@ public class TutorialAutomatically : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€‚ÌoŒ»—¦ƒŠƒZƒbƒg
+    /// ã‚¢ã‚¤ãƒ†ãƒ ã®å‡ºç¾ç‡ãƒªã‚»ãƒƒãƒˆ
     /// </summary>
     public void ItemRateReset()
     {
@@ -304,7 +304,7 @@ public class TutorialAutomatically : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€‚ÌoŒ»—¦•ÏX
+    /// ã‚¢ã‚¤ãƒ†ãƒ ã®å‡ºç¾ç‡å¤‰æ›´
     /// </summary>
     public void ItemRateChange(string ItemName, int ItemRate)
     {
@@ -365,12 +365,12 @@ public class TutorialAutomatically : MonoBehaviour
         float mapWidth = width * scale;
         float mapLength = length * scale;
 
-        //¶•Ç
+        //å·¦å£
         CreateWall("LeftWall",
             new Vector3(-wallThickness * 0.5f, wallHeight * 0.5f, mapLength * 0.5f),
             new Vector3(wallThickness, wallHeight, mapLength));
 
-        //‰E•Ç
+        //å³å£
         CreateWall("RightWall",
             new Vector3(mapWidth + wallThickness * 0.5f, wallHeight * 0.5f, mapLength * 0.5f),
             new Vector3(wallThickness, wallHeight, mapLength));

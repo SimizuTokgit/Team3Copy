@@ -1,4 +1,4 @@
-using System.Xml;
+ï»¿using System.Xml;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -18,13 +18,13 @@ public class Player : MonoBehaviour
 
     private int hp = 100;
 
-    private readonly int GuaranteedDamage = 10;     //â‘Îó‚¯‚éÅ’áƒ_ƒ[ƒW
+    private readonly int GuaranteedDamage = 10;     //çµ¶å¯¾å—ã‘ã‚‹æœ€ä½ãƒ€ãƒ¡ãƒ¼ã‚¸
 
     public bool isInvincible { get; private set; } = false;
 
     private Vector3 prevSpeed = Vector3.zero;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«
     public TutorialManager tutorialManager;
 
     private void Awake()
@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
         }
     }
     
-    //ƒ‰ƒbƒp[ŠÖ”‚ÆŒÄ‚Ô
+    //ãƒ©ãƒƒãƒ‘ãƒ¼é–¢æ•°ã¨å‘¼ã¶
     public void Transition(ICharacterState fromState, ICharacterState nextState)
     {
         StateManager.Transition(this, fromState, nextState);
@@ -91,13 +91,13 @@ public class Player : MonoBehaviour
         if(hp <= 0) FindFirstObjectByType<GameManager>().SetState(GameManager.GameState.GameOver) ;
     }
 
-    public void DeadDamage()    //ˆêŒ‚€–S
+    public void DeadDamage()    //ä¸€æ’ƒæ­»äº¡
     {
         PlayerUIManager.Damage(0);
         FindFirstObjectByType<GameManager>().SetState(GameManager.GameState.GameOver);
     }
 
-    //–³“Gó‘Ô‚ğİ’è‚·‚éŠÖ”
+    //ç„¡æ•µçŠ¶æ…‹ã‚’è¨­å®šã™ã‚‹é–¢æ•°
     public void SetInvincibleTime(float invincibleTime)
     {
         isInvincible = true;

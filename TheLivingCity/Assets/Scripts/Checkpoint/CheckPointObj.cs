@@ -1,18 +1,18 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class CheckPointObj : MonoBehaviour
 {
-    //ƒvƒŒƒCƒ„[
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
     private GameObject player;
 
-    //ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg
+    //ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆ
     public GameObject CheckPoint;
 
-    //ƒvƒŒƒCƒ„[‚ÉŒü‚©‚¤‚©‚Ç‚¤‚©
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å‘ã‹ã†ã‹ã©ã†ã‹
     private bool Goplayer;
 
-    //ƒvƒŒƒCƒ„[‚ÉŒü‚©‚¤ƒXƒs[ƒh
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å‘ã‹ã†ã‚¹ãƒ”ãƒ¼ãƒ‰
     [SerializeField]
     private float speed;
 

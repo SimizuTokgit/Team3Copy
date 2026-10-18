@@ -1,20 +1,20 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class GenerateObstacle : MonoBehaviour
 {
-    //–{¯
-    //áŠQ•¨‚Ì¶¬
+    //æœ¬åº„
+    //éšœå®³ç‰©ã®ç”Ÿæˆ
 
-    //áŠQ•¨‚ğ“ü‚ê‚é
+    //éšœå®³ç‰©ã‚’å…¥ã‚Œã‚‹
     [SerializeField]
     private GameObject[] obstacles;
 
-    //‚Â‚È‚°‚½‚¢Å‰‚ÌáŠQ•¨
+    //ã¤ãªã’ãŸã„æœ€åˆã®éšœå®³ç‰©
     [SerializeField]
     private GameObject ConnectStartobstacle;
 
-    //‚Â‚È‚°‚éáŠQ•¨
+    //ã¤ãªã’ã‚‹éšœå®³ç‰©
     [SerializeField]
     private GameObject[] Connectobstacle;
 
@@ -27,10 +27,10 @@ public class GenerateObstacle : MonoBehaviour
     [SerializeField]
     private GameObject[] TentaclesConnectobstacle;
 
-    //Ÿ‚©‚ç‚Â‚È‚°‚é‚©‚Ç‚¤‚©
+    //æ¬¡ã‹ã‚‰ã¤ãªã’ã‚‹ã‹ã©ã†ã‹
     public bool Connect;
 
-    //‚Â‚È‚°‚é‰ñ”
+    //ã¤ãªã’ã‚‹å›æ•°
     public int ContinueObstacleNumber;
 
     public enum Difficulty
@@ -43,7 +43,7 @@ public class GenerateObstacle : MonoBehaviour
 
     public void DeleteAllObstacles()
     {
-        // íœ‘ÎÛ‚ÌƒvƒŒƒnƒu‚ğ‚Ü‚Æ‚ß‚é
+        // å‰Šé™¤å¯¾è±¡ã®ãƒ—ãƒ¬ãƒãƒ–ã‚’ã¾ã¨ã‚ã‚‹
         List<GameObject> prefabs = new List<GameObject>();
 
         prefabs.AddRange(obstacles);
@@ -53,7 +53,7 @@ public class GenerateObstacle : MonoBehaviour
 
         prefabs.AddRange(Connectobstacle);
 
-        // ƒV[ƒ““à‚Ì‘SGameObject‚ğæ“¾
+        // ã‚·ãƒ¼ãƒ³å†…ã®å…¨GameObjectã‚’å–å¾—
         GameObject[] sceneObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
 
         foreach (GameObject obj in sceneObjects)
@@ -62,7 +62,7 @@ public class GenerateObstacle : MonoBehaviour
             {
                 if (prefab == null) continue;
 
-                // Instantiate‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚Í’Êí "(Clone)" ‚ª•t‚­
+                // Instantiateã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯é€šå¸¸ "(Clone)" ãŒä»˜ã
                 if (obj.name == prefab.name || obj.name == prefab.name + "(Clone)")
                 {
                     Destroy(obj);

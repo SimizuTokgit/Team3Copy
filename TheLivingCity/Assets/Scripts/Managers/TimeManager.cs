@@ -1,36 +1,36 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//§ŒÀŠÔ‚ğˆ—
+//å®‰äº•
+//åˆ¶é™æ™‚é–“ã‚’å‡¦ç†
 public class TimeManager : MonoBehaviour
 {
-    [SerializeField] private float TIME_LIMIT;         // §ŒÀŠÔ
-    [SerializeField] private float TIME_RECOVERY;      // ‰ñ•œŠÔ
-    [SerializeField] private float LOW_TIME_THRESHOLD; // c‚èŠÔ‚ª­‚È‚¢”»’è
+    [SerializeField] private float TIME_LIMIT;         // åˆ¶é™æ™‚é–“
+    [SerializeField] private float TIME_RECOVERY;      // å›å¾©æ™‚é–“
+    [SerializeField] private float LOW_TIME_THRESHOLD; // æ®‹ã‚Šæ™‚é–“ãŒå°‘ãªã„åˆ¤å®š
 
-    [SerializeField] private NumberImage REMAINING_TIME_NUMBER; // §ŒÀŠÔ•\¦
-    public float _remainingTime; //c‚èŠÔ
+    [SerializeField] private NumberImage REMAINING_TIME_NUMBER; // åˆ¶é™æ™‚é–“è¡¨ç¤º
+    public float _remainingTime; //æ®‹ã‚Šæ™‚é–“
 
     void Start()
     {
         _remainingTime = TIME_LIMIT;
-        //´… ¬”‚ào‚¹‚é‚æ‚¤‚É float ‚Ì‚Ü‚Ü“n‚·iŒ…”‚Í NumberImage ‚Ì Decimals ‚ÅŒˆ‚ß‚éj
+        //æ¸…æ°´ å°æ•°ã‚‚å‡ºã›ã‚‹ã‚ˆã†ã« float ã®ã¾ã¾æ¸¡ã™ï¼ˆæ¡æ•°ã¯ NumberImage ã® Decimals ã§æ±ºã‚ã‚‹ï¼‰
         REMAINING_TIME_NUMBER.SetNumber(_remainingTime);
     }
 
     /// <summary>
-    /// c‚èŠÔ‚ğŒ¸‚ç‚·E•\¦XV
+    /// æ®‹ã‚Šæ™‚é–“ã‚’æ¸›ã‚‰ã™ãƒ»è¡¨ç¤ºæ›´æ–°
     /// </summary>
     public void RemainingTime()
     {
         _remainingTime -= Time.deltaTime;
         REMAINING_TIME_NUMBER.SetWarning(IsLowTime());
-        //´… ¬”‚ào‚¹‚é‚æ‚¤‚É float ‚Ì‚Ü‚Ü“n‚·
+        //æ¸…æ°´ å°æ•°ã‚‚å‡ºã›ã‚‹ã‚ˆã†ã« float ã®ã¾ã¾æ¸¡ã™
         REMAINING_TIME_NUMBER.SetNumber(_remainingTime);
     }
 
     /// <summary>
-    /// c‚èŠÔ‚ğ‘‚â‚·
+    /// æ®‹ã‚Šæ™‚é–“ã‚’å¢—ã‚„ã™
     /// </summary>
     public void RecoverTime()
     {
@@ -38,7 +38,7 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// c‚èŠÔ‚Ì—L–³‚ğ”»’f‚·‚é
+    /// æ®‹ã‚Šæ™‚é–“ã®æœ‰ç„¡ã‚’åˆ¤æ–­ã™ã‚‹
     /// </summary>
     public bool IsTimeUp()
     {
@@ -46,7 +46,7 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// c‚èŠÔ‚ª­‚È‚¢‚©‚Ç‚¤‚©‚ğ”»’è‚·‚é
+    /// æ®‹ã‚Šæ™‚é–“ãŒå°‘ãªã„ã‹ã©ã†ã‹ã‚’åˆ¤å®šã™ã‚‹
     /// </summary>
     public bool IsLowTime()
     {

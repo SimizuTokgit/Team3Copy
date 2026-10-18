@@ -1,11 +1,11 @@
-using System.Runtime.InteropServices.WindowsRuntime;
+ï»¿using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-//Ä“c
-//ƒvƒŒƒCƒ„[‚Ì‘¬“x‚ğŒvZ‚·‚é‚½‚ß‚ÌƒNƒ‰ƒX
+//æŸ´ç”°
+//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é€Ÿåº¦ã‚’è¨ˆç®—ã™ã‚‹ãŸã‚ã®ã‚¯ãƒ©ã‚¹
 public class PlayerMoveController 
 {
-    private readonly int NiceBoost = 5;         //Nice‚Ìƒu[ƒXƒg’è”
+    private readonly int NiceBoost = 5;         //Niceæ™‚ã®ãƒ–ãƒ¼ã‚¹ãƒˆå®šæ•°
     private readonly int PerfectBoost = 10;
 
     private readonly float AngleLimit = 85.0f;
@@ -13,13 +13,13 @@ public class PlayerMoveController
     private readonly float NormalGravity = -12f;
     private readonly float DiveGravity = -50f;
 
-    private readonly float baseDecel = 0.70f; //70%¸‚¤
+    private readonly float baseDecel = 0.70f; //70%å¤±ã†
 
     private bool isDive = false;
 
     private float nowSpeed = 0;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹‚É•K—v‚È•Ï”
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã«å¿…è¦ãªå¤‰æ•°
     private bool moveleft = false;
     private bool moveright = false;
 
@@ -28,7 +28,7 @@ public class PlayerMoveController
         nowSpeed = status.MAX_SPEED;
     }
 
-    //’nã‚Ì‰Á‘¬ŠÖ”
+    //åœ°ä¸Šã®åŠ é€Ÿé–¢æ•°
     public void GroundAccel(PlayerStatus status)
     {
         if (nowSpeed < status.MAX_SPEED)
@@ -37,7 +37,7 @@ public class PlayerMoveController
         }
     }
 
-    //ƒu[ƒXƒg‚âƒoƒO‚Ì‘¬“xC³ˆ—
+    //ãƒ–ãƒ¼ã‚¹ãƒˆã‚„ãƒã‚°ã®é€Ÿåº¦ä¿®æ­£å‡¦ç†
     public void BoostSpeedCorrection(PlayerStatus status)
     {
         if (nowSpeed > status.MAX_SPEED)
@@ -46,7 +46,7 @@ public class PlayerMoveController
         }
     }
 
-    //’nã‚Ì‘OiŠÖ”
+    //åœ°ä¸Šã®å‰é€²é–¢æ•°
     public Vector3 GroundMoveForward(Vector3 forward)
     {
         Vector3 velocity = forward.normalized * nowSpeed;
@@ -59,7 +59,7 @@ public class PlayerMoveController
         isDive = Dive;
     }
 
-    //‹ó’†‚Ì‘OiŠÖ”
+    //ç©ºä¸­ã®å‰é€²é–¢æ•°
     public Vector3 AirMoveForward(Vector3 currentVelocity, Vector3 forward)
     {
         Vector3 velocity = currentVelocity;
@@ -80,13 +80,13 @@ public class PlayerMoveController
         return velocity;
     }
 
-    //“ü—Í‚É‰‚¶‚Ä‰ñ“]‚·‚éŠÖ”
+    //å…¥åŠ›ã«å¿œã˜ã¦å›è»¢ã™ã‚‹é–¢æ•°
     public void Turn(InputInfo input, Transform transform, PlayerStatus status, TutorialManager manager)
     {
         if (input.Move.x > 0.2f || input.Move.x < -0.2f)
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(transform.localEulerAngles.x, input.Move.x * AngleLimit, transform.localEulerAngles.z), (status.TURNING_POWER / 8) * Time.deltaTime);
 
-        //ƒ`ƒ…[ƒgƒŠƒAƒ‹‚ÌƒNƒŠƒA”»’è
+        //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã®ã‚¯ãƒªã‚¢åˆ¤å®š
         if (manager != null)
         {
             if (input.Move.x < -0.2f)
@@ -100,13 +100,13 @@ public class PlayerMoveController
 
             if (moveleft & moveright & manager.tutorialCount == 0)
             {
-                //ƒ`ƒ…[ƒgƒŠƒAƒ‹1 ƒNƒŠƒA
+                //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«1 ã‚¯ãƒªã‚¢
                 manager.ClearTutorial();
             }
         }
     }
 
-    //Œ¸‘¬ˆ—
+    //æ¸›é€Ÿå‡¦ç†
     public Vector3 Deceleration(Vector3 currentVelocity, PlayerStatus status)
     {
         float lossPercent = baseDecel / (1f + status.PERSEVERANCE_POWER * 0.1f);

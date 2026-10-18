@@ -1,6 +1,6 @@
-using UnityEngine;
-//Ä“c
-//ƒvƒŒƒCƒ„[‚ÌƒRƒ‰ƒCƒ_[‚ªŠÖŒW‚·‚é•”•ª‚ÌƒNƒ‰ƒX
+ï»¿using UnityEngine;
+//æŸ´ç”°
+//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ãŒé–¢ä¿‚ã™ã‚‹éƒ¨åˆ†ã®ã‚¯ãƒ©ã‚¹
 public class PlayerCollider : MonoBehaviour
 {
     private Player _player;
@@ -16,7 +16,7 @@ public class PlayerCollider : MonoBehaviour
 
         if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
         {
-            if (!_player.isInvincible)  //–³“G‚©‚Ç‚¤‚©
+            if (!_player.isInvincible)  //ç„¡æ•µã‹ã©ã†ã‹
             {
                 _damageScreen.Damage();
                 _player.Damage();
@@ -32,10 +32,10 @@ public class PlayerCollider : MonoBehaviour
             }
         }
 
-        //ˆêŒ‚€–SƒIƒuƒWƒFƒNƒg‚É“–‚½‚Á‚½‚Ìˆ—
+        //ä¸€æ’ƒæ­»äº¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å½“ãŸã£ãŸæ™‚ã®å‡¦ç†
         else if(other.gameObject.layer == LayerMask.NameToLayer("Dead"))
         {
-            if (!_player.isInvincible)  //–³“G‚©‚Ç‚¤‚©
+            if (!_player.isInvincible)  //ç„¡æ•µã‹ã©ã†ã‹
             {
                 _damageScreen.Damage();
                 _player.DeadDamage();

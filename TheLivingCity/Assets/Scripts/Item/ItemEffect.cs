@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class ItemEffect : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public class ItemEffect : MonoBehaviour
 
     void Update()
     {
-        // Ä¶‚ªI‚í‚Á‚Ä‚¢‚½‚ç”jŠü
+        // å†ç”ŸãŒçµ‚ã‚ã£ã¦ã„ãŸã‚‰ç ´æ£„
         if (ps != null && !ps.IsAlive())
         {
             Destroy(gameObject);

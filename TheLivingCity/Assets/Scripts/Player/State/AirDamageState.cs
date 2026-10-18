@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class AirDamageState : ICharacterState
 {
@@ -11,17 +11,17 @@ public class AirDamageState : ICharacterState
 
     public void Execute(Player player, InputInfo inputInfo)
     {
-        //‘Oiˆ—
+        //å‰é€²å‡¦ç†
         Vector3 nextVelocity = player.MoveController.AirMoveForward(player.Physics.GetVelocity(), player.transform.forward);
 
-        //‰ñ“]ˆ—
+        //å›è»¢å‡¦ç†
         player.MoveController.Turn(inputInfo, player.transform, player.PlayerStatus, null);
 
-        //‘¬“x“K‰
+        //é€Ÿåº¦é©å¿œ
         player.Physics.SetVelocity(nextVelocity);
 
         player.GroundChecker.MoveAlongGround(player.GroundChecker.GetDownNormalVector(), 10);
-        // ’…’n”»’è‚Æó‘Ô‘JˆÚ
+        // ç€åœ°åˆ¤å®šã¨çŠ¶æ…‹é·ç§»
         if (player.GroundChecker.IsGrounded())
         {
             player.Transition(this, new GroundMoveState());

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerMagnetManager : MonoBehaviour
 {
@@ -6,9 +6,9 @@ public class PlayerMagnetManager : MonoBehaviour
 
     private Player player;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹ƒAƒCƒeƒ€‚ğ‰½ŒÂ‚©æ‚Á‚½‚çƒNƒŠƒA
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚¢ã‚¤ãƒ†ãƒ ã‚’ä½•å€‹ã‹å–ã£ãŸã‚‰ã‚¯ãƒªã‚¢
     private int GetItem = 5;
-    //æ‚Á‚½ŒÂ”
+    //å–ã£ãŸå€‹æ•°
     private int GetItemCount = 0;
 
 
@@ -21,25 +21,25 @@ public class PlayerMagnetManager : MonoBehaviour
     {
         if (other.TryGetComponent<Item>(out Item item))
         {
-            // ƒvƒŒƒCƒ„[•ûŒü
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ–¹å‘
             Vector3 targetPos = transform.position;
 
-            // ‹——£
+            // è·é›¢
             float distance = Vector3.Distance(item.transform.position, targetPos);
 
             /*
-             * ‹ß‚¢‚Ù‚Ç‘¬‚­‹z‚¢Šñ‚¹‚é
+             * è¿‘ã„ã»ã©é€Ÿãå¸ã„å¯„ã›ã‚‹
              */
             float speedMultiplier = Mathf.Lerp(2f, 0.3f, distance / GetComponent<SphereCollider>().radius);
 
-            // ˆÚ“®
+            // ç§»å‹•
             item.transform.position = Vector3.MoveTowards(
                 item.transform.position,
                 targetPos,
                 player.PlayerStatus.MAGNET_POWER * speedMultiplier * Time.deltaTime
             );
 
-            // \•ª‹ß‚Ã‚¢‚½‚çæ“¾
+            // ååˆ†è¿‘ã¥ã„ãŸã‚‰å–å¾—
             if (distance <= collectDistance)
             {
                 item.UpGrade(player.PlayerStatus);

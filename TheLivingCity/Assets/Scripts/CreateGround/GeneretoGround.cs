@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class GeneretoGround : MonoBehaviour
 {
-    //–{¯
-    //’nŒ`‚ğ¶¬‚·‚é
-    //ŒÃ‚¢’nŒ`‚ğÁ‚µ‚ÄV‚µ‚¢’nŒ`‚ğ¶¬‚·‚é
+    //æœ¬åº„
+    //åœ°å½¢ã‚’ç”Ÿæˆã™ã‚‹
+    //å¤ã„åœ°å½¢ã‚’æ¶ˆã—ã¦æ–°ã—ã„åœ°å½¢ã‚’ç”Ÿæˆã™ã‚‹
 
      
     public GameObject groundPrefab;
@@ -22,48 +22,48 @@ public class GeneretoGround : MonoBehaviour
 
     private Queue<GameObject> pool = new Queue<GameObject>();
 
-    //•ªŠò‹æŠÔ‚©‚Ç‚¤‚©
+    //åˆ†å²åŒºé–“ã‹ã©ã†ã‹
     public bool Branches = false;
 
-    //•ªŠò‹æŠÔ‚É•\¦‚·‚éUI
+    //åˆ†å²åŒºé–“ã«è¡¨ç¤ºã™ã‚‹UI
     public GameObject BranchesUI;
 
-    //•ªŠò‹æŠÔ‚Ì•b”
+    //åˆ†å²åŒºé–“ã®ç§’æ•°
     public float BranchesTime;
     private float _branchesTime;
 
-    //•ªŠò‹æŠÔn‚Ü‚Á‚½zÀ•W
+    //åˆ†å²åŒºé–“å§‹ã¾ã£ãŸzåº§æ¨™
     private float brancheStartPos;
 
-    //ƒvƒŒƒCƒ„[‚ª‘O‚¢‚½ƒ`ƒƒƒ“ƒN
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒå‰ã„ãŸãƒãƒ£ãƒ³ã‚¯
     private int currentPlayerChunkZ;
-    //ƒvƒŒƒCƒ„[‚ª¡‚¢‚éƒ`ƒƒƒ“ƒN
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒä»Šã„ã‚‹ãƒãƒ£ãƒ³ã‚¯
     private int playerChunkZ;
-    //1ƒ`ƒƒƒ“ƒN‚ÌzÀ•W‚Ì‘å‚«‚³
+    //1ãƒãƒ£ãƒ³ã‚¯ã®zåº§æ¨™ã®å¤§ãã•
     private float chunkLength;
 
 
     public GroundAutomatically meshInfo;
 
-    //¶¬‚µ‚½’n–Ê‚ª“ü‚Á‚Ä‚¢‚é
+    //ç”Ÿæˆã—ãŸåœ°é¢ãŒå…¥ã£ã¦ã„ã‚‹
     public List<GameObject> ground = new List<GameObject>();
 
     public List<GroundAutomatically> groundScripts = new List<GroundAutomatically>();
 
     private CheckPointInstance checkPointInstance;
 
-    //ƒvƒŒƒCƒ„[‚ÌƒXƒ^[ƒgˆÊ’u
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ã‚¿ãƒ¼ãƒˆä½ç½®
     private Vector3 PlayerStartPosition;
 
-    //ƒuƒ‰ƒ“ƒ`‚Ç‚¿‚ç‚Ì“ïˆÕ“x‚É‚È‚é‚©•ª‚¯‚éxÀ•W
+    //ãƒ–ãƒ©ãƒ³ãƒã©ã¡ã‚‰ã®é›£æ˜“åº¦ã«ãªã‚‹ã‹åˆ†ã‘ã‚‹xåº§æ¨™
     private float BrancheCangeX;
 
     private ItemUI itemUI;
 
-    //‚Ç‚Ì‚­‚ç‚¢“¯‚¶’nŒ`‚ª‘±‚­‚©
+    //ã©ã®ãã‚‰ã„åŒã˜åœ°å½¢ãŒç¶šãã‹
     public int SameGroundCount;
 
-    //ƒ{ƒXí‚©‚Ç‚¤‚©
+    //ãƒœã‚¹æˆ¦ã‹ã©ã†ã‹
     public bool _isBoss = false;
 
     void Start()
@@ -81,7 +81,7 @@ public class GeneretoGround : MonoBehaviour
 
         meshInfo = groundPrefab.GetComponent<GroundAutomatically>();
 
-        //Å‰‚Í‚Ç‚ÌƒAƒCƒeƒ€‚à“¯‚¶Šm—¦‚Åo‚é
+        //æœ€åˆã¯ã©ã®ã‚¢ã‚¤ãƒ†ãƒ ã‚‚åŒã˜ç¢ºç‡ã§å‡ºã‚‹
         meshInfo.ItemRateReset();
 
         checkPointInstance = FindAnyObjectByType<CheckPointInstance>();
@@ -164,7 +164,7 @@ public class GeneretoGround : MonoBehaviour
 
                 int newZ = playerChunkZ + Maxz - 1;
 
-                ////•ªŠò‹æŠÔ
+                ////åˆ†å²åŒºé–“
                 //if (Branches)
                 //{
                 //    for (int x = 0; x <= Maxx - 1; x++)
@@ -172,7 +172,7 @@ public class GeneretoGround : MonoBehaviour
                 //        CreateChunk(x, newZ, true);
                 //    }
                 //}
-                ////’Êí’nŒ`¶¬
+                ////é€šå¸¸åœ°å½¢ç”Ÿæˆ
                 //else
                 //{
                 //    for (int x = 0; x <= Maxx - 1; x++)
@@ -213,7 +213,7 @@ public class GeneretoGround : MonoBehaviour
     }
 
     /// <summary>
-    /// ’nŒ`¶¬
+    /// åœ°å½¢ç”Ÿæˆ
     /// </summary>
     private void CreateChunk(int x, int z, bool Instance)
     {
@@ -240,7 +240,7 @@ public class GeneretoGround : MonoBehaviour
     }
 
     /// <summary>
-    /// ’nŒ`•ªŠò‚Ìˆ—
+    /// åœ°å½¢åˆ†å²æ™‚ã®å‡¦ç†
     /// </summary>
     private void InBranch()
     {
@@ -252,10 +252,10 @@ public class GeneretoGround : MonoBehaviour
             {
                 BranchesUI.SetActive(false);
 
-                //“ïˆÕ“x•ÏX
+                //é›£æ˜“åº¦å¤‰æ›´
                 ChangeDifficult();
 
-                //V‚µ‚­ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ğì‚é
+                //æ–°ã—ããƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã‚’ä½œã‚‹
                 checkPointInstance.InstanceCheckPoints(player.transform.position.z - brancheStartPos);
 
                 Branches = false;
@@ -283,7 +283,7 @@ public class GeneretoGround : MonoBehaviour
     }
 
     /// <summary>
-    /// “ïˆÕ“x•ÏX
+    /// é›£æ˜“åº¦å¤‰æ›´
     /// </summary>
     public void ChangeDifficult()
     {

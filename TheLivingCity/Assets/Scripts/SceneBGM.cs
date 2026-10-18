@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // シーンが始まったらBGMを切り替える
 public class SceneBGM : MonoBehaviour

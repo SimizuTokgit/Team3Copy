@@ -1,4 +1,4 @@
-public class BoostItem : Item
+﻿public class BoostItem : Item
 {
     public override void UpGrade(PlayerStatus playerStatus)
     {

@@ -1,4 +1,4 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerStatusUI : MonoBehaviour
@@ -16,7 +16,7 @@ public class PlayerStatusUI : MonoBehaviour
     {
         playerStatus = FindFirstObjectByType<Player>().PlayerStatus;
 
-        playerStatus.GetMaxSpeedItem += MaxSpeedUp;   // çwì«äJén
+        playerStatus.GetMaxSpeedItem += MaxSpeedUp;   // Ë≥ºË™≠ÈñãÂßã
         playerStatus.GetAcceleratorPowerItem += AcceleratorUp;
         playerStatus.GetPerseverancePowerItem += PerseveranceUp;
         playerStatus.GetBoostPowerItem += BoostUp;
@@ -30,7 +30,7 @@ public class PlayerStatusUI : MonoBehaviour
     {
         if (playerStatus != null)
         {
-            playerStatus.GetMaxSpeedItem -= MaxSpeedUp;   // çwì«âèú
+            playerStatus.GetMaxSpeedItem -= MaxSpeedUp;   // Ë≥ºË™≠Ëß£Èô§
             playerStatus.GetAcceleratorPowerItem -= AcceleratorUp;
             playerStatus.GetPerseverancePowerItem -= PerseveranceUp;
             playerStatus.GetBoostPowerItem -= BoostUp;

@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem.HID;
 
 public class GroundMoveState : ICharacterState
@@ -16,29 +16,29 @@ public class GroundMoveState : ICharacterState
         //if (player.GameManager._currentState == GameManager.GameState.Ready)
         //    return;
 
-        //‰Á‘¬ˆ—
+        //åŠ é€Ÿå‡¦ç†
         player.MoveController.GroundAccel(player.PlayerStatus);
 
-        //‘Oiˆ—
+        //å‰é€²å‡¦ç†
         Vector3 nextVelocity = player.MoveController.GroundMoveForward(player.transform.forward);
 
-        //‰ñ“]ˆ—
+        //å›žè»¢å‡¦ç†
         player.MoveController.Turn(inputInfo, player.transform, player.PlayerStatus, player.tutorialManager);
-        //‘¬“x“K‰ž
+        //é€Ÿåº¦é©å¿œ
         player.Physics.SetVelocity(nextVelocity);
 
         if(player.GroundChecker.IsDownhill())
         {
-            //‰º‚è‚Ìê‡‚Í^‰º‚Ì’n–Ê‚Ì–@üƒxƒNƒgƒ‹‚É‰ˆ‚Á‚Ä‘–‚é
+            //ä¸‹ã‚Šã®å ´åˆã¯çœŸä¸‹ã®åœ°é¢ã®æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã«æ²¿ã£ã¦èµ°ã‚‹
             player.GroundChecker.MoveAlongGround(player.GroundChecker.GetDownNormalVector(), 33);
         }
         else
         {
-            //ã‚è‚Ìê‡‚Í­‚µ‘O‚Ì’n–Ê‚Ì–@üƒxƒNƒgƒ‹‚É‰ˆ‚Á‚Ä‘–‚é
+            //ä¸Šã‚Šã®å ´åˆã¯å°‘ã—å‰ã®åœ°é¢ã®æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã«æ²¿ã£ã¦èµ°ã‚‹
             player.GroundChecker.MoveAlongGround(player.GroundChecker.GetForwardNormalVector(), 20);
         }
 
-        // ’…’n”»’è‚Æó‘Ô‘JˆÚ
+        // ç€åœ°åˆ¤å®šã¨çŠ¶æ…‹é·ç§»
         if (!player.GroundChecker.IsGrounded())
         {
             if (player.Physics.GetVelocity().magnitude >= jumpAbleSpeed)

@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
-//ˆÀˆä
-//ƒ‚[ƒVƒ‡ƒ“ƒuƒ‰[ˆ—
+//å®‰äº•
+//ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ãƒ–ãƒ©ãƒ¼å‡¦ç†
 public class MotionBlurController : MonoBehaviour
 {
     [SerializeField] private PostProcessVolume volume;
@@ -27,19 +27,19 @@ public class MotionBlurController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚Ì‘¬“x”»’è
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é€Ÿåº¦åˆ¤å®š
     /// </summary>
     private void PlayerSpeedCheck()
     {
-        // m/s ¨ km/h •ÏŠ·
+        // m/s â†’ km/h å¤‰æ›
         float speedKmh = Rigidboby.linearVelocity.magnitude * 3.6f;
 
-        // è‡’lƒ`ƒFƒbƒN
+        // é–¾å€¤ãƒã‚§ãƒƒã‚¯
         MotionBur(speedKmh >= thresholdSpeed);
     }
 
     /// <summary>
-    /// ƒ‚[ƒVƒ‡ƒ“ƒuƒ‰[‚Ìˆ—
+    /// ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ãƒ–ãƒ©ãƒ¼ã®å‡¦ç†
     /// </summary>
     private void MotionBur(bool isActive)
     {

@@ -1,14 +1,14 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 
-//ˆÀˆä
-//ƒXƒRƒAŒvZˆ—
+//å®‰äº•
+//ã‚¹ã‚³ã‚¢è¨ˆç®—å‡¦ç†
 public class ScoreManager : MonoBehaviour
 {
     private float SCORE;
 
     /// <summary>
-    /// ƒXƒRƒAŒvZ (‹——£Ac‚èŠÔAŠÔ“à‚ÉƒS[ƒ‹‚µ‚½‚©)
+    /// ã‚¹ã‚³ã‚¢è¨ˆç®— (è·é›¢ã€æ®‹ã‚Šæ™‚é–“ã€æ™‚é–“å†…ã«ã‚´ãƒ¼ãƒ«ã—ãŸã‹)
     /// </summary>
     public void ScoreCalculation(float distance, float remainingTime, bool isGoal)
     {
@@ -17,7 +17,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒXƒRƒA“ü—Í
+    /// ã‚¹ã‚³ã‚¢å…¥åŠ›
     /// </summary>
     public void SetScore()
     {

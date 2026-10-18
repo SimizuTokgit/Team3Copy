@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 public class PlayerStatus
 {
-    // �ύX�ʒm�p�C�x���g
+    // 変更通知用イベント
     public event Action GetMaxSpeedItem;
     public event Action GetAcceleratorPowerItem;
     public event Action GetPerseverancePowerItem;
@@ -11,12 +11,12 @@ public class PlayerStatus
     public event Action GetMagnetPowerItem;
     public event Action GetTurningPowerItem;
 
-    public int MAX_SPEED { get; private set; }              //�ō����x
-    public int ACCELERATOR_POWER { get; private set; }      //������
-    public int PERSEVERANCE_POWER { get; private set; }     //�E�ϗ�
-    public int BOOST_POWER { get; private set; }            //�u�[�X�g��
-    public int MAGNET_POWER { get; private set; }           //�A�C�e�������
-    public int TURNING_POWER { get; private set; }          //������
+    public int MAX_SPEED { get; private set; }              //最高速度
+    public int ACCELERATOR_POWER { get; private set; }      //加速力
+    public int PERSEVERANCE_POWER { get; private set; }     //忍耐力
+    public int BOOST_POWER { get; private set; }            //ブースト力
+    public int MAGNET_POWER { get; private set; }           //アイテム回収力
+    public int TURNING_POWER { get; private set; }          //小回り力
 
 
     public int MAX_SPEED_LIMIT { get; private set; } = 80;
@@ -27,7 +27,7 @@ public class PlayerStatus
     private readonly int TURNING_POWER_LIMIT = 15;
 
 
-    //�R���X�g���N�^(�������֐�)
+    //コンストラクタ(初期化関数)
     public PlayerStatus()
     {
         MAX_SPEED = 40;
@@ -42,20 +42,20 @@ public class PlayerStatus
     {
         if (MAX_SPEED >= MAX_SPEED_LIMIT)
         {
-            Debug.Log("�ō����x�͂���ȏ�オ��Ȃ�");
+            Debug.Log("最高速度はこれ以上上がらない");
             MAX_SPEED = MAX_SPEED_LIMIT;
             return;
         }
         MAX_SPEED += speed;
 
-        GetMaxSpeedItem?.Invoke();   // �� �ω���ʒm
+        GetMaxSpeedItem?.Invoke();   // ← 変化を通知
     }
 
     public void AcceleratorUpGrade(int accel)
     {
         if (ACCELERATOR_POWER >= ACCELERATOR_POWER_LIMIT)
         {
-            Debug.Log("�����͂͂���ȏ�オ��Ȃ�");
+            Debug.Log("加速力はこれ以上上がらない");
             ACCELERATOR_POWER = ACCELERATOR_POWER_LIMIT;
             return;
         }
@@ -68,7 +68,7 @@ public class PlayerStatus
     {
         if (PERSEVERANCE_POWER >= PERSEVERANCE_POWER_LIMIT)
         {
-            Debug.Log("�E�ϗ͂͂���ȏ�オ��Ȃ�");
+            Debug.Log("忍耐力はこれ以上上がらない");
             PERSEVERANCE_POWER = PERSEVERANCE_POWER_LIMIT;
             return;
         }
@@ -81,7 +81,7 @@ public class PlayerStatus
     {
         if (BOOST_POWER >= BOOST_POWER_LIMIT)
         {
-            Debug.Log("�u�[�X�g�͂͂���ȏ�オ��Ȃ�");
+            Debug.Log("ブースト力はこれ以上上がらない");
             BOOST_POWER = BOOST_POWER_LIMIT;
             return;
         }
@@ -94,7 +94,7 @@ public class PlayerStatus
     {
         if (MAGNET_POWER >= MAGNET_POWER_LIMIT)
         {
-            Debug.Log("�}�O�l�b�g�͂���ȏ�オ��Ȃ�");
+            Debug.Log("マグネットはこれ以上上がらない");
             MAGNET_POWER = MAGNET_POWER_LIMIT;
             return;
         }
@@ -107,7 +107,7 @@ public class PlayerStatus
     {
         if (TURNING_POWER >= TURNING_POWER_LIMIT)
         {
-            Debug.Log("����͂͂���ȏ�オ��Ȃ�");
+            Debug.Log("旋回力はこれ以上上がらない");
             TURNING_POWER = TURNING_POWER_LIMIT;
             return;
         }

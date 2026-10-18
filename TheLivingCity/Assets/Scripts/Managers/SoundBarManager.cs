@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Option画面の音量バー。点いている段数がそのまま音量になる

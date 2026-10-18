@@ -1,4 +1,4 @@
-using TMPro;
+ï»¿using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,34 +16,34 @@ public class TutorialManager : MonoBehaviour
     };
     public TutorialState tutorialstate;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹‚ÌƒeƒLƒXƒg
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã®ãƒ†ã‚­ã‚¹ãƒˆ
     public Text tutorialText;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹‚Ì“à—e
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã®å†…å®¹
     [SerializeField]
     private string[] tutorialContents;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹‰½”Ô–Ú‚©
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ä½•ç•ªç›®ã‹
     public int tutorialCount = 0;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹ƒNƒŠƒA‚µ‚½‚©‚Ç‚¤‚©
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚¯ãƒªã‚¢ã—ãŸã‹ã©ã†ã‹
     public bool tutorialClear;
 
-    //Ÿ‚Ìƒ`ƒ…[ƒgƒŠƒAƒ‹‚ÉˆÚ‚é‚½‚ß‚ÌŠÔ
+    //æ¬¡ã®ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã«ç§»ã‚‹ãŸã‚ã®æ™‚é–“
     [SerializeField]
     private float nexttutorialTime;
     private float elapsedTime;
 
-    //ÅŒãáŠQ•¨‚ğ‚æ‚¯‚é@‰½•b”ğ‚¯‚é‚©
+    //æœ€å¾Œéšœå®³ç‰©ã‚’ã‚ˆã‘ã‚‹ã€€ä½•ç§’é¿ã‘ã‚‹ã‹
     [SerializeField]
     private float DodgeTime;
-    //”ğ‚¯‚Ä‚¢‚éŠÔ
+    //é¿ã‘ã¦ã„ã‚‹æ™‚é–“
     private float dodgeTime;
 
-    //ƒ`ƒ…[ƒgƒŠƒAƒ‹‚·‚×‚ÄŠ®—¹‚µ‚½‚©‚Ç‚¤‚©
+    //ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã™ã¹ã¦å®Œäº†ã—ãŸã‹ã©ã†ã‹
     public bool tutorialClearAll;
 
-    //‚·‚×‚ÄŠ®—¹‚µ‚½‚Æ‚«‚Éo‚·ƒeƒLƒXƒg
+    //ã™ã¹ã¦å®Œäº†ã—ãŸã¨ãã«å‡ºã™ãƒ†ã‚­ã‚¹ãƒˆ
     public Text FinishText;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -70,7 +70,7 @@ public class TutorialManager : MonoBehaviour
         {
             dodgeTime += Time.deltaTime;
 
-            tutorialText.text = tutorialContents[tutorialCount] + "(" + dodgeTime.ToString("F0") + "•b/" + DodgeTime.ToString("F0") + "•b)";
+            tutorialText.text = tutorialContents[tutorialCount] + "(" + dodgeTime.ToString("F0") + "ç§’/" + DodgeTime.ToString("F0") + "ç§’)";
 
             if (DodgeTime <= dodgeTime)
             {
@@ -86,7 +86,7 @@ public class TutorialManager : MonoBehaviour
         }
         else if (tutorialstate == TutorialState.Next)
         {
-            //Ÿ‚Ìƒ`ƒ…[ƒgƒŠƒAƒ‹‚Ü‚Å‰½•b‚©‘Ò‚Â
+            //æ¬¡ã®ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã¾ã§ä½•ç§’ã‹å¾…ã¤
 
             elapsedTime += Time.deltaTime;
 
@@ -110,17 +110,17 @@ public class TutorialManager : MonoBehaviour
         }
         else if (tutorialstate == TutorialState.Finish)
         {
-            //‘S‚Ä‚Ìƒ`ƒ…[ƒgƒŠƒAƒ‹‚ğŠ®—¹‚µ‚½‚Æ‚«‚Ìˆ—
+            //å…¨ã¦ã®ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚’å®Œäº†ã—ãŸã¨ãã®å‡¦ç†
 
             if(Input.GetKeyDown(KeyCode.Return))
             {
-                //ƒ^ƒCƒgƒ‹‚É–ß‚é
+                //ã‚¿ã‚¤ãƒˆãƒ«ã«æˆ»ã‚‹
                 SceneManager.LoadScene("Title");
             }
         }
     }
 
-    //Ÿ‚Ìƒ`ƒ…[ƒgƒŠƒAƒ‹‚ÉˆÚ“®
+    //æ¬¡ã®ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã«ç§»å‹•
     public void NextTutorial()
     {
         tutorialCount++;
@@ -128,7 +128,7 @@ public class TutorialManager : MonoBehaviour
         if (tutorialContents.Length == tutorialCount)
         {
             tutorialClearAll = true;
-            Debug.Log("ƒ`ƒ…[ƒgƒŠƒAƒ‹Š®—¹");
+            Debug.Log("ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«å®Œäº†");
 
             tutorialText.text = "AllClear!";
 
@@ -146,19 +146,19 @@ public class TutorialManager : MonoBehaviour
         tutorialstate = TutorialState.Next;
     }
 
-    //ƒAƒCƒeƒ€‚ğƒQƒbƒg‚·‚éƒ`ƒ…[ƒgƒŠƒAƒ‹ƒAƒCƒeƒ€ƒQƒbƒg”
+    //ã‚¢ã‚¤ãƒ†ãƒ ã‚’ã‚²ãƒƒãƒˆã™ã‚‹ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚¢ã‚¤ãƒ†ãƒ ã‚²ãƒƒãƒˆæ•°
     public void ItemGetTextNumberChange(int number)
     {
         tutorialText.text = tutorialContents[tutorialCount] + "(" + number + "/5)";
     }
 
-    //áŠQ•¨‚ğ”ğ‚¯‚éƒ`ƒ…[ƒgƒŠƒAƒ‹‚ÅáŠQ•¨‚É“–‚½‚Á‚½
+    //éšœå®³ç‰©ã‚’é¿ã‘ã‚‹ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã§éšœå®³ç‰©ã«å½“ãŸã£ãŸæ™‚
     public void DodgeTimeReset()
     {
         dodgeTime = 0.0f;
     }
 
-    //ƒNƒŠƒA‚µ‚½‚ÉŒÄ‚Ô
+    //ã‚¯ãƒªã‚¢ã—ãŸæ™‚ã«å‘¼ã¶
     public void ClearTutorial()
     {
         tutorialClear = true;

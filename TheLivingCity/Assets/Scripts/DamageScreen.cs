@@ -1,16 +1,16 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
-//ˆÀˆä
-//ƒ_ƒ[ƒW‚ğó‚¯‚½‚Ì‰‰o
+//å®‰äº•
+//ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ãŸæ™‚ã®æ¼”å‡º
 public class DamageScreen : MonoBehaviour
 {
     [SerializeField] private PostProcessVolume volume;
 
     private Vignette vignette;
 
-    [SerializeField] private float DAMAGE_INTENDITY = 0.625f; //Ô˜g‚Ì‘¾‚³
-    [SerializeField] private float RETURN_SPEED = 2f;         //–ß‚·‘¬“x
+    [SerializeField] private float DAMAGE_INTENDITY = 0.625f; //èµ¤æ ã®å¤ªã•
+    [SerializeField] private float RETURN_SPEED = 2f;         //æˆ»ã™é€Ÿåº¦
 
     private float _returnSpeed;
 
@@ -26,7 +26,7 @@ public class DamageScreen : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ_ƒ[ƒW‚ğó‚¯‚é‰‰o
+    /// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ã‚‹æ¼”å‡º
     /// </summary>
     public void Damage()
     {
@@ -34,7 +34,7 @@ public class DamageScreen : MonoBehaviour
     }
 
     /// <summary>
-    /// ™X‚ÉŒ³‚É–ß‚·
+    /// å¾ã€…ã«å…ƒã«æˆ»ã™
     /// </summary>
     private void Remaining()
     {

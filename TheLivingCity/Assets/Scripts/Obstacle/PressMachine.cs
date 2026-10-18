@@ -1,4 +1,4 @@
-using NUnit.Framework.Internal.Builders;
+ï»¿using NUnit.Framework.Internal.Builders;
 using UnityEngine;
 
 public class PressMachine : MonoBehaviour
@@ -6,12 +6,12 @@ public class PressMachine : MonoBehaviour
     [SerializeField]
     private float MoveSpeed;
 
-    //ã‚Å‘Ò‹@‚·‚éŠÔ
+    //ä¸Šã§å¾…æ©Ÿã™ã‚‹æ™‚é–“
     [SerializeField]
     private float StayTime;
     public float stayTime;
 
-    //‰º‚Å‘Ò‹@‚·‚éŠÔ
+    //ä¸‹ã§å¾…æ©Ÿã™ã‚‹æ™‚é–“
     [SerializeField]
     private float DownStayTime;
     public float downstayTime;
@@ -25,10 +25,10 @@ public class PressMachine : MonoBehaviour
     };
     public MoveState state;
 
-    //Œ»İ‚ÌYÀ•W
+    //ç¾åœ¨ã®Yåº§æ¨™
     private float PosY;
 
-    //‰Šú‚ÌYÀ•W
+    //åˆæœŸã®Yåº§æ¨™
     private float StartPosY;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

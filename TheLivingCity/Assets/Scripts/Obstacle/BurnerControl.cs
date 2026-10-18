@@ -1,14 +1,14 @@
-using NUnit.Framework;
+ï»¿using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BurnerControl : MonoBehaviour
 {
-    //ƒo[ƒi[‚ğ©“®‚Å“ü‚ê‚é
+    //ãƒãƒ¼ãƒŠãƒ¼ã‚’è‡ªå‹•ã§å…¥ã‚Œã‚‹
     [SerializeField]
     private List<GameObject> Burner = new List<GameObject>();
 
-    //ƒo[ƒi[‚ÌƒRƒ‰ƒCƒ_[‚ª“ü‚é
+    //ãƒãƒ¼ãƒŠãƒ¼ã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ãŒå…¥ã‚‹
     [SerializeField]
     private List<BoxCollider> BurnerCollider = new List<BoxCollider>();
 
@@ -16,24 +16,24 @@ public class BurnerControl : MonoBehaviour
 
     private List<List<ParticleSystem>> burnerEffects = new List<List<ParticleSystem>>();
 
-    //Œ»İ‘O”¼‚ğÄ¶‚µ‚Ä‚¢‚é‚©
+    //ç¾åœ¨å‰åŠã‚’å†ç”Ÿã—ã¦ã„ã‚‹ã‹
     private bool isFirstHalf = true;
 
-    //‘O”¼EŒã”¼‹¤’Ê‚ÌÄ¶ŠÔ
+    //å‰åŠãƒ»å¾ŒåŠå…±é€šã®å†ç”Ÿæ™‚é–“
     [SerializeField]
     private float burnerDuration;
 
-    //Œ»İ‚ÌÄ¶ŠÔ
+    //ç¾åœ¨ã®å†ç”Ÿæ™‚é–“
     private float burnerTime = 0f;
 
-    //ƒo[ƒi[‚Ì“–‚½‚è”»’è‚ªon‚É‚È‚éŠÔ
+    //ãƒãƒ¼ãƒŠãƒ¼ã®å½“ãŸã‚Šåˆ¤å®šãŒonã«ãªã‚‹æ™‚é–“
     private float burnerCollidrTime = 5.0f;
 
-    //‘O”¼•”•ª
+    //å‰åŠéƒ¨åˆ†
     public float firstColliderTime;
     public bool OnfirstCollider;
 
-    //Œã”¼•”•ª
+    //å¾ŒåŠéƒ¨åˆ†
     public float secondColliderTime;
     public bool OnsecondCollider;
 
@@ -58,12 +58,12 @@ public class BurnerControl : MonoBehaviour
             BurnerCollider[i].enabled = false;
         }
 
-        //Šeƒo[ƒi[‚©‚çParticleSystem‚ğæ“¾
+        //å„ãƒãƒ¼ãƒŠãƒ¼ã‹ã‚‰ParticleSystemã‚’å–å¾—
         foreach (GameObject burner in Burner)
         {
             List<ParticleSystem> effects = new List<ParticleSystem>();
 
-            //ŠK‘w‚Ì[‚³‚ÉŠÖŒW‚È‚­‚·‚×‚Äæ“¾
+            //éšå±¤ã®æ·±ã•ã«é–¢ä¿‚ãªãã™ã¹ã¦å–å¾—
             ParticleSystem[] particleSystems = burner.GetComponentsInChildren<ParticleSystem>(true);
 
             foreach (ParticleSystem effect in particleSystems)
@@ -83,20 +83,20 @@ public class BurnerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Ä¶ŠÔ‚ğ‰ÁZ
+        //å†ç”Ÿæ™‚é–“ã‚’åŠ ç®—
         burnerTime += Time.deltaTime;
 
-        //İ’èŠÔ‚É“’B‚µ‚½‚ç‘O”¼EŒã”¼‚ğØ‚è‘Ö‚¦‚é
+        //è¨­å®šæ™‚é–“ã«åˆ°é”ã—ãŸã‚‰å‰åŠãƒ»å¾ŒåŠã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
         if (burnerTime >= burnerDuration)
         {
             if (isFirstHalf)
             {
-                //‘O”¼I—¹ ¨ Œã”¼
+                //å‰åŠçµ‚äº† â†’ å¾ŒåŠ
                 PlaySecondHalf();
             }
             else
             {
-                //Œã”¼I—¹ ¨ ‘O”¼
+                //å¾ŒåŠçµ‚äº† â†’ å‰åŠ
                 PlayFirstHalf();
             }
         }
@@ -132,7 +132,7 @@ public class BurnerControl : MonoBehaviour
         }
     }
 
-    //ƒo[ƒi[‘O”¼•ª‚ÌƒGƒtƒFƒNƒgÄ¶
+    //ãƒãƒ¼ãƒŠãƒ¼å‰åŠåˆ†ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆå†ç”Ÿ
     void PlayFirstHalf()
     {
         StopFirstHalfEffects();
@@ -149,14 +149,14 @@ public class BurnerControl : MonoBehaviour
             }
         }
 
-        //Ä¶ŠÔ‚ğƒŠƒZƒbƒg
+        //å†ç”Ÿæ™‚é–“ã‚’ãƒªã‚»ãƒƒãƒˆ
         burnerTime = 0f;
 
         isFirstHalf = true;
     }
 
 
-    //ƒo[ƒi[Œã”¼•ª‚ÌƒGƒtƒFƒNƒgÄ¶
+    //ãƒãƒ¼ãƒŠãƒ¼å¾ŒåŠåˆ†ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆå†ç”Ÿ
     void PlaySecondHalf()
     {
         StopSecondHalfEffects();
@@ -173,13 +173,13 @@ public class BurnerControl : MonoBehaviour
             }
         }
 
-        //Ä¶ŠÔ‚ğƒŠƒZƒbƒg
+        //å†ç”Ÿæ™‚é–“ã‚’ãƒªã‚»ãƒƒãƒˆ
         burnerTime = 0f;
 
         isFirstHalf = false;
     }
 
-    //w’è‚µ‚½ƒo[ƒi[‚ÌƒGƒtƒFƒNƒg‚ğ‚·‚×‚ÄÄ¶
+    //æŒ‡å®šã—ãŸãƒãƒ¼ãƒŠãƒ¼ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’ã™ã¹ã¦å†ç”Ÿ
     void PlayBurnerEffects(int burnerIndex)
     {
         foreach (ParticleSystem effect in burnerEffects[burnerIndex])
@@ -188,7 +188,7 @@ public class BurnerControl : MonoBehaviour
         }
     }
 
-    //‘O”¼‚Ìƒo[ƒi[ƒGƒtƒFƒNƒg‚ğ’â~
+    //å‰åŠã®ãƒãƒ¼ãƒŠãƒ¼ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’åœæ­¢
     void StopFirstHalfEffects()
     {
         int half = BurnerCount / 2;
@@ -203,7 +203,7 @@ public class BurnerControl : MonoBehaviour
     }
 
 
-    //Œã”¼‚Ìƒo[ƒi[ƒGƒtƒFƒNƒg‚ğ’â~
+    //å¾ŒåŠã®ãƒãƒ¼ãƒŠãƒ¼ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’åœæ­¢
     void StopSecondHalfEffects()
     {
         int half = BurnerCount / 2;
@@ -217,7 +217,7 @@ public class BurnerControl : MonoBehaviour
         }
     }
 
-    //‘O”¼‚Ìƒo[ƒi[‚Ì“–‚½‚è”»’è‚ğÁ‚·
+    //å‰åŠã®ãƒãƒ¼ãƒŠãƒ¼ã®å½“ãŸã‚Šåˆ¤å®šã‚’æ¶ˆã™
     private void OffFirstCollider()
     {
         int half = BurnerCount / 2;
@@ -228,7 +228,7 @@ public class BurnerControl : MonoBehaviour
         }
     }
 
-    //Œã”¼‚Ìƒo[ƒi[‚Ì“–‚½‚è”»’è‚ğÁ‚·
+    //å¾ŒåŠã®ãƒãƒ¼ãƒŠãƒ¼ã®å½“ãŸã‚Šåˆ¤å®šã‚’æ¶ˆã™
     private void OffSecondCollider()
     {
         int half = BurnerCount / 2;

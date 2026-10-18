@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class MotherComputer : MonoBehaviour
 {
@@ -7,7 +7,7 @@ public class MotherComputer : MonoBehaviour
 
     private int _hp;
 
-    // ƒA[ƒ`ˆÚ“®İ’è
+    // ã‚¢ãƒ¼ãƒç§»å‹•è¨­å®š
     [SerializeField] private float MOVE_DISTANCE = 1000f;
     [SerializeField] private float MOVE_DURATION = 2.0f;
     [SerializeField] private float ARC_HEIGHT = 0f;
@@ -50,21 +50,21 @@ public class MotherComputer : MonoBehaviour
             float t = _moveTime / MOVE_DURATION;
             t = Mathf.Clamp01(t);
 
-            // ŠJnˆÊ’u‚©‚çI—¹ˆÊ’u‚ÖˆÚ“®
+            // é–‹å§‹ä½ç½®ã‹ã‚‰çµ‚äº†ä½ç½®ã¸ç§»å‹•
             Vector3 position = Vector3.Lerp(
                 _startPosition,
                 _targetPosition,
                 t
             );
 
-            // ƒA[ƒ`‚Ì‚‚³
+            // ã‚¢ãƒ¼ãƒã®é«˜ã•
             float arc = 4f * ARC_HEIGHT * t * (1f - t);
 
             position.y += arc;
 
             transform.position = position;
 
-            // ˆÚ“®I—¹
+            // ç§»å‹•çµ‚äº†
             if (t >= 1f)
             {
                 transform.position = _targetPosition;
@@ -84,14 +84,14 @@ public class MotherComputer : MonoBehaviour
         {
             --_hp;
 
-            // HP‚ª0‚É‚È‚Á‚½‚çƒQ[ƒ€ƒNƒŠƒA
+            // HPãŒ0ã«ãªã£ãŸã‚‰ã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢
             if (_hp <= 0)
             {
                 GameManager._currentState = GameManager.GameState.GameClear;
                 return;
             }
 
-            // ƒA[ƒ`ˆÚ“®ŠJn
+            // ã‚¢ãƒ¼ãƒç§»å‹•é–‹å§‹
             _startPosition = transform.position;
 
             _targetPosition = new Vector3(

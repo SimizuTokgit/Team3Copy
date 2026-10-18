@@ -1,31 +1,31 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class ItemGenerate : MonoBehaviour
 {
-    //–{¯
-    //ƒAƒCƒeƒ€‚Ì¶¬
+    //æœ¬åº„
+    //ã‚¢ã‚¤ãƒ†ãƒ ã®ç”Ÿæˆ
 
     [System.Serializable]
     public class ItemData
     {
-        //ƒAƒCƒeƒ€–¼
+        //ã‚¢ã‚¤ãƒ†ãƒ å
         public string itemName;
 
         //Prefab
         public GameObject prefab;
 
-        //oŒ»—¦
+        //å‡ºç¾ç‡
         public int weight;
     }
 
-    //ƒAƒCƒeƒ€ˆê——
+    //ã‚¢ã‚¤ãƒ†ãƒ ä¸€è¦§
     [SerializeField]
     private ItemData[] items;
 
-    //¶¬”
+    //ç”Ÿæˆæ•°
     public int GenerateCount;
 
-    //•‚‚«”{—¦
+    //æµ®ãå€ç‡
     [SerializeField]
     private float ItemUpRate;
 
@@ -49,7 +49,7 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€¶¬
+    /// ã‚¢ã‚¤ãƒ†ãƒ ç”Ÿæˆ
     /// </summary>
     public void ItemGen(Mesh mesh, int width, int length)
     {
@@ -79,7 +79,7 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
-    /// d‚İ•t‚«ƒ‰ƒ“ƒ_ƒ€
+    /// é‡ã¿ä»˜ããƒ©ãƒ³ãƒ€ãƒ 
     /// </summary>
     private int GetWeightedRandom()
     {
@@ -111,16 +111,16 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
-    /// –¼‘O‚ÅoŒ»—¦•ÏX
+    /// åå‰ã§å‡ºç¾ç‡å¤‰æ›´
     /// </summary>
     public void SetItemWeight(string itemName, int newWeight)
     {
         for (int i = 0; i < items.Length; i++)
         {
-            //–¼‘O”äŠr
+            //åå‰æ¯”è¼ƒ
             if (items[i].itemName == itemName)
             {
-                //0–¢––h~
+                //0æœªæº€é˜²æ­¢
                 if (newWeight < 0)
                     newWeight = 0;
 
@@ -129,11 +129,11 @@ public class ItemGenerate : MonoBehaviour
             }
         }
 
-        Debug.LogWarning(itemName + " ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+        Debug.LogWarning(itemName + " ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“");
     }
 
     /// <summary>
-    /// –¼‘O‚ÅoŒ»—¦‰ÁZ
+    /// åå‰ã§å‡ºç¾ç‡åŠ ç®—
     /// </summary>
     public void AddItemWeight(string itemName, int addWeight)
     {
@@ -143,7 +143,7 @@ public class ItemGenerate : MonoBehaviour
             {
                 items[i].weight += addWeight;
 
-                //0–¢––h~
+                //0æœªæº€é˜²æ­¢
                 if (items[i].weight < 0)
                     items[i].weight = 0;
 
@@ -151,11 +151,11 @@ public class ItemGenerate : MonoBehaviour
             }
         }
 
-        Debug.LogWarning(itemName + " ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+        Debug.LogWarning(itemName + " ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“");
     }
 
     /// <summary>
-    /// –¼‘O‚ÅoŒ»—¦æ“¾
+    /// åå‰ã§å‡ºç¾ç‡å–å¾—
     /// </summary>
     public int GetItemWeight(string itemName)
     {
@@ -167,13 +167,13 @@ public class ItemGenerate : MonoBehaviour
             }
         }
 
-        Debug.LogWarning(itemName + " ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+        Debug.LogWarning(itemName + " ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“");
 
         return 0;
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€oŒ»Šm—§ƒŠƒZƒbƒg
+    /// ã‚¢ã‚¤ãƒ†ãƒ å‡ºç¾ç¢ºç«‹ãƒªã‚»ãƒƒãƒˆ
     /// </summary>
     public void ResetAllWeight()
     {

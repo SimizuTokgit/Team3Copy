@@ -1,4 +1,4 @@
-public class PerseveranceItem : Item
+﻿public class PerseveranceItem : Item
 {
     public override void UpGrade(PlayerStatus playerStatus)
     {

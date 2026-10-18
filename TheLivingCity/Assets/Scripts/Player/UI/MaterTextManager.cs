@@ -1,17 +1,17 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
 public class MaterText
 {
-    public List<Sprite> images = new List<Sprite>(10); // 9–‡‚ÌImage‚ğ•Û
+    public List<Sprite> images = new List<Sprite>(10); // 9æšã®Imageã‚’ä¿æŒ
 }
 
 public class MaterTextManager : MonoBehaviour
 {
     [SerializeField]
-    private List<MaterText> materTextSets = new List<MaterText>(4); // 4ƒZƒbƒg
+    private List<MaterText> materTextSets = new List<MaterText>(4); // 4ã‚»ãƒƒãƒˆ
 
     [SerializeField] private Image onesPlaceImage;
     [SerializeField] private Image tensPlaceImage;

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // 小さい状態からドンと大きく出して、一度行き過ぎてから戻って止まる演出
 // カウントダウンの数字と GO に付ける（CountDownManager が付いていなければ自動で付ける）

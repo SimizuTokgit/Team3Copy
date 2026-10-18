@@ -1,60 +1,60 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//ƒJƒEƒ“ƒgƒ_ƒEƒ“ˆ—
+//å®‰äº•
+//ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³å‡¦ç†
 public class CountDownManager : MonoBehaviour
 {
-    [SerializeField] private NumberImage countdownNumber; // ƒJƒEƒ“ƒgƒ_ƒEƒ“•\¦
-    [SerializeField] private GameObject goImage;          // ƒXƒ^[ƒg•\¦
+    [SerializeField] private NumberImage countdownNumber; // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³è¡¨ç¤º
+    [SerializeField] private GameObject goImage;          // ã‚¹ã‚¿ãƒ¼ãƒˆè¡¨ç¤º
 
-    //´… ‚±‚±‚©‚çSE‚Æ‰‰o
+    //æ¸…æ°´ ã“ã“ã‹ã‚‰SEã¨æ¼”å‡º
     [Header("SE")]
     [SerializeField] private AudioClip startSE;
 
-    //´… 1•b‚¸‚Â‚Å‚Í‚È‚­AStartSE.mp3 ‚Ì”gŒ`‚©‚ç‘ª‚Á‚½u‰¹‚ª–Â‚é•bv‚ÅØ‚è‘Ö‚¦‚é
-    //ƒsƒb‚ÌŠÔŠu‚Í–ñ0.87•b‚ÅA1•b‚İ‚¾‚Æ‚¾‚ñ‚¾‚ñ‰¹‚É’u‚¢‚Ä‚¢‚©‚ê‚Ä‚¢‚½
-    [Header("ƒ^ƒCƒ~ƒ“ƒOiSE‚ª–Â‚è‚Í‚¶‚ß‚Ä‚©‚ç‚Ì•bj")]
-    [SerializeField] private float startDelay = 0.6f;  //ƒV[ƒ“‚ÌFadeIn(0.67•b)‚ª–¾‚¯‚é‚Ì‚ğ‘Ò‚Á‚Ä‚©‚çn‚ß‚é
-    [SerializeField] private float count3Time = 0.00f; //1‰ñ–Ú‚Ìƒsƒb
-    [SerializeField] private float count2Time = 0.88f; //2‰ñ–Ú‚Ìƒsƒb
-    [SerializeField] private float count1Time = 1.74f; //3‰ñ–Ú‚Ìƒsƒb
-    [SerializeField] private float goTime = 2.59f;     //ƒs[[iGOj
-    [SerializeField] private float finishTime = 3.59f; //GO‚ğÁ‚µ‚ÄƒQ[ƒ€ŠJnB‰¹‚ª–Â‚è~‚Ş‚Ì‚Í3.90•b
-    [SerializeField] private float cueOffset = 0f;     //‘S‘Ì‚Ì”÷’²®B{‚É‚·‚é‚ÆŒ©‚½–Ú‚ª’x‚ê‚é
+    //æ¸…æ°´ 1ç§’ãšã¤ã§ã¯ãªãã€StartSE.mp3 ã®æ³¢å½¢ã‹ã‚‰æ¸¬ã£ãŸã€ŒéŸ³ãŒé³´ã‚‹ç§’ã€ã§åˆ‡ã‚Šæ›¿ãˆã‚‹
+    //ãƒ”ãƒƒã®é–“éš”ã¯ç´„0.87ç§’ã§ã€1ç§’åˆ»ã¿ã ã¨ã ã‚“ã ã‚“éŸ³ã«ç½®ã„ã¦ã„ã‹ã‚Œã¦ã„ãŸ
+    [Header("ã‚¿ã‚¤ãƒŸãƒ³ã‚°ï¼ˆSEãŒé³´ã‚Šã¯ã˜ã‚ã¦ã‹ã‚‰ã®ç§’ï¼‰")]
+    [SerializeField] private float startDelay = 0.6f;  //ã‚·ãƒ¼ãƒ³ã®FadeIn(0.67ç§’)ãŒæ˜ã‘ã‚‹ã®ã‚’å¾…ã£ã¦ã‹ã‚‰å§‹ã‚ã‚‹
+    [SerializeField] private float count3Time = 0.00f; //1å›ç›®ã®ãƒ”ãƒƒ
+    [SerializeField] private float count2Time = 0.88f; //2å›ç›®ã®ãƒ”ãƒƒ
+    [SerializeField] private float count1Time = 1.74f; //3å›ç›®ã®ãƒ”ãƒƒ
+    [SerializeField] private float goTime = 2.59f;     //ãƒ”ãƒ¼ãƒ¼ï¼ˆGOï¼‰
+    [SerializeField] private float finishTime = 3.59f; //GOã‚’æ¶ˆã—ã¦ã‚²ãƒ¼ãƒ é–‹å§‹ã€‚éŸ³ãŒé³´ã‚Šæ­¢ã‚€ã®ã¯3.90ç§’
+    [SerializeField] private float cueOffset = 0f;     //å…¨ä½“ã®å¾®èª¿æ•´ã€‚ï¼‹ã«ã™ã‚‹ã¨è¦‹ãŸç›®ãŒé…ã‚Œã‚‹
 
-    [Header("‰‰o")]
-    //¬‚³‚¢ó‘Ô‚©‚çƒhƒ“‚Æ‘å‚«‚­o‚·B•t‚¢‚Ä‚¢‚È‚¯‚ê‚Î Start ‚Å©“®‚Å•t‚¯‚é
-    [SerializeField] private CountDownPop numberPop; //3,2,1 —p
-    [SerializeField] private CountDownPop goPop;     //GO —p
+    [Header("æ¼”å‡º")]
+    //å°ã•ã„çŠ¶æ…‹ã‹ã‚‰ãƒ‰ãƒ³ã¨å¤§ããå‡ºã™ã€‚ä»˜ã„ã¦ã„ãªã‘ã‚Œã° Start ã§è‡ªå‹•ã§ä»˜ã‘ã‚‹
+    [SerializeField] private CountDownPop numberPop; //3,2,1 ç”¨
+    [SerializeField] private CountDownPop goPop;     //GO ç”¨
 
-    //4=‚Ü‚¾‰½‚ào‚³‚È‚¢ / 3,2,1 / 0=GO / -1=I—¹
+    //4=ã¾ã ä½•ã‚‚å‡ºã•ãªã„ / 3,2,1 / 0=GO / -1=çµ‚äº†
     private int _count = 4;
 
-    private float _waitTime = 0f;     //startDelay ‚ğ”‚¦‚é
+    private float _waitTime = 0f;     //startDelay ã‚’æ•°ãˆã‚‹
     private bool _isStarted = false;
 
-    //´… ‰¹‚Æ“¯‚¶ŒviAudioSettings.dspTimej‚Åi‚ß‚é‚Ì‚ÅAˆ——‚¿‚µ‚Ä‚à‰¹‚Æ‚¸‚ê‚È‚¢
+    //æ¸…æ°´ éŸ³ã¨åŒã˜æ™‚è¨ˆï¼ˆAudioSettings.dspTimeï¼‰ã§é€²ã‚ã‚‹ã®ã§ã€å‡¦ç†è½ã¡ã—ã¦ã‚‚éŸ³ã¨ãšã‚Œãªã„
     private bool _useAudioClock = false;
     private double _startDspTime;
-    private float _elapsedNoAudio = 0f; //SoundManager‚ª‚¢‚È‚¢‚Æ‚«‚¾‚¯g‚¤
+    private float _elapsedNoAudio = 0f; //SoundManagerãŒã„ãªã„ã¨ãã ã‘ä½¿ã†
 
     void Start()
     {
-        //´… ‰‰o‚ª•t‚¢‚Ä‚¢‚È‚¯‚ê‚Î©“®‚Å•t‚¯‚éBGO‚Ì‚Ù‚¤‚ğ¬‚³‚­o‚µ‚Ä‘å‚«‚­s‚«‰ß‚¬‚³‚¹‚é
+        //æ¸…æ°´ æ¼”å‡ºãŒä»˜ã„ã¦ã„ãªã‘ã‚Œã°è‡ªå‹•ã§ä»˜ã‘ã‚‹ã€‚GOã®ã»ã†ã‚’å°ã•ãå‡ºã—ã¦å¤§ããè¡Œãéãã•ã›ã‚‹
         if (!numberPop && countdownNumber) numberPop = GetOrAddPop(countdownNumber.gameObject, 0.2f, 0.25f, 2.5f, false);
         if (!goPop && goImage) goPop = GetOrAddPop(goImage, 0.1f, 0.35f, 3.5f, true);
 
-        //´… Å‰‚Ìƒsƒb‚Ü‚Å‚Í‰½‚ào‚³‚È‚¢
+        //æ¸…æ°´ æœ€åˆã®ãƒ”ãƒƒã¾ã§ã¯ä½•ã‚‚å‡ºã•ãªã„
         countdownNumber.gameObject.SetActive(false);
         goImage.SetActive(false);
     }
 
     /// <summary>
-    /// ƒJƒEƒ“ƒgƒ_ƒEƒ“ˆ—
+    /// ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³å‡¦ç†
     /// </summary>
     public void CountDown()
     {
-        //´… ƒtƒF[ƒhƒCƒ“‚ª–¾‚¯‚é‚Ü‚Å‘Ò‚Â
+        //æ¸…æ°´ ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ãŒæ˜ã‘ã‚‹ã¾ã§å¾…ã¤
         if (!_isStarted)
         {
             _waitTime += Time.deltaTime;
@@ -68,7 +68,7 @@ public class CountDownManager : MonoBehaviour
         if (next != _count) ChangeCount(next);
     }
 
-    //´… SE‚ğ–Â‚ç‚µ‚ÄA“¯‚¶uŠÔ‚©‚çŒv‚ğ‰ñ‚µ‚Í‚¶‚ß‚é
+    //æ¸…æ°´ SEã‚’é³´ã‚‰ã—ã¦ã€åŒã˜ç¬é–“ã‹ã‚‰æ™‚è¨ˆã‚’å›ã—ã¯ã˜ã‚ã‚‹
     private void StartCount()
     {
         _isStarted = true;
@@ -87,7 +87,7 @@ public class CountDownManager : MonoBehaviour
         return _elapsedNoAudio;
     }
 
-    //´… ‚»‚Ì•b‚Éo‚·‚×‚«‚à‚Ì
+    //æ¸…æ°´ ãã®ç§’ã«å‡ºã™ã¹ãã‚‚ã®
     private int CountAt(float time)
     {
         if (time < count3Time) return 4;
@@ -111,7 +111,7 @@ public class CountDownManager : MonoBehaviour
         else if (_count == 0)
         {
             countdownNumber.gameObject.SetActive(false);
-            goImage.SetActive(true); //GO‘¤‚ÍCountDownPop‚ÌOnEnable‚ÅŸè‚É“®‚­
+            goImage.SetActive(true); //GOå´ã¯CountDownPopã®OnEnableã§å‹æ‰‹ã«å‹•ã
         }
         else if (_count < 0)
         {
@@ -120,7 +120,7 @@ public class CountDownManager : MonoBehaviour
         }
     }
 
-    //´… ©•ª‚Å•t‚¯‚Ä‚ ‚ê‚Î‚»‚Ìİ’è‚ğg‚¤B–³‚¯‚ê‚Î•t‚¯‚Ä‹­‚³‚ğŒˆ‚ß‚é
+    //æ¸…æ°´ è‡ªåˆ†ã§ä»˜ã‘ã¦ã‚ã‚Œã°ãã®è¨­å®šã‚’ä½¿ã†ã€‚ç„¡ã‘ã‚Œã°ä»˜ã‘ã¦å¼·ã•ã‚’æ±ºã‚ã‚‹
     private CountDownPop GetOrAddPop(GameObject target, float startScale, float duration, float bounce, bool pulse)
     {
         CountDownPop pop = target.GetComponent<CountDownPop>();
@@ -131,14 +131,14 @@ public class CountDownManager : MonoBehaviour
         return pop;
     }
 
-    //´… ”š‚ğo‚µ’¼‚µ‚½‚Æ‚«‚Ì‰‰o
+    //æ¸…æ°´ æ•°å­—ã‚’å‡ºã—ç›´ã—ãŸã¨ãã®æ¼”å‡º
     private void PlayPop()
     {
         if (numberPop) numberPop.Play();
     }
 
     /// <summary>
-    /// ƒJƒEƒ“ƒgƒ_ƒEƒ“‚ªI—¹‚µ‚½‚©
+    /// ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ãŒçµ‚äº†ã—ãŸã‹
     /// </summary>
     public bool CountFinishJudge()
     {

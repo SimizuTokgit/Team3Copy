@@ -1,16 +1,16 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//Ä“c
-//Upgrade‚µ‚½ƒXƒe[ƒ^ƒX‚ğ•Û‘¶‚·‚éƒNƒ‰ƒX
-//ƒXƒe[ƒW‚ğ‚Ü‚½‚®ƒNƒ‰ƒX
+//æŸ´ç”°
+//Upgradeã—ãŸã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ä¿å­˜ã™ã‚‹ã‚¯ãƒ©ã‚¹
+//ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’ã¾ãŸãã‚¯ãƒ©ã‚¹
 
 public class PlayerUpGradeStatusHolder :SingletonMonoBehaviour<PlayerUpGradeStatusHolder>
 {
-    //ƒXƒe[ƒW‚ğ‚Ü‚½‚®‚Æ‚«‚ÉƒXƒe[ƒ^ƒX‚ğˆê“I‚É•Û‘¶‚µ‚Ä‚¨‚­‚½‚ß‚Ì•Ï”
+    //ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’ã¾ãŸãã¨ãã«ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ä¸€æ™‚çš„ã«ä¿å­˜ã—ã¦ãŠããŸã‚ã®å¤‰æ•°
     private PlayerStatus playerStatus;
 
-    //ƒXƒe[ƒW‚ğ‚Ü‚½‚®‚Æ‚«‚ÉƒXƒe[ƒ^ƒX‚ğˆê“I‚É•Û‘¶‚µ‚Ä‚¨‚­‚½‚ß‚ÌŠÖ”
-    //ƒS[ƒ‹‚µ‚½‚ÉŒÄ‚Ño‚·
+    //ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’ã¾ãŸãã¨ãã«ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ä¸€æ™‚çš„ã«ä¿å­˜ã—ã¦ãŠããŸã‚ã®é–¢æ•°
+    //ã‚´ãƒ¼ãƒ«ã—ãŸæ™‚ã«å‘¼ã³å‡ºã™
     public void SaveUpGradeStatus(PlayerStatus nowStatus)
     {
         playerStatus = nowStatus;

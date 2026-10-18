@@ -1,4 +1,4 @@
-using NUnit.Framework;
+ï»¿using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,14 +8,14 @@ public class ItemUI : MonoBehaviour
     [System.Serializable]
     public class ItemUIData
     {
-        //ƒAƒCƒeƒ€–¼
+        //ã‚¢ã‚¤ãƒ†ãƒ å
         public string itemName;
 
         //UI
         public Sprite prefab;
     }
 
-    //ƒAƒCƒeƒ€UIˆê——
+    //ã‚¢ã‚¤ãƒ†ãƒ UIä¸€è¦§
     [SerializeField]
     private ItemUIData[] items;
 

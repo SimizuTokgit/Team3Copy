@@ -1,9 +1,9 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-//ˆÀˆä
-//ƒQ[ƒ€ƒI[ƒo[ƒV[ƒ“
+//å®‰äº•
+//ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼ã‚·ãƒ¼ãƒ³
 public class GameOver : MonoBehaviour
 {
     [SerializeField] private GameObject Explosion;
@@ -15,29 +15,29 @@ public class GameOver : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Text;
     [SerializeField] private NumberImage ScoreNumber;
 
-    //´… ‚±‚±‚©‚çSE
+    //æ¸…æ°´ ã“ã“ã‹ã‚‰SE
     [Header("SE")]
-    [SerializeField] private AudioClip alertSE;     //”š”­‘O‚É–Â‚ç‚·Œx‰¹
-    [SerializeField] private AudioClip explosionSE; //”š”­‚ÌuŠÔ‚É–Â‚ç‚·‰¹
-    [SerializeField] private AudioClip scoreTickSE; //ƒXƒRƒA‚ª1Œ…~‚Ü‚é‚½‚Ñ‚É–Â‚ç‚·‰¹
+    [SerializeField] private AudioClip alertSE;     //çˆ†ç™ºå‰ã«é³´ã‚‰ã™è­¦å‘ŠéŸ³
+    [SerializeField] private AudioClip explosionSE; //çˆ†ç™ºã®ç¬é–“ã«é³´ã‚‰ã™éŸ³
+    [SerializeField] private AudioClip scoreTickSE; //ã‚¹ã‚³ã‚¢ãŒ1æ¡æ­¢ã¾ã‚‹ãŸã³ã«é³´ã‚‰ã™éŸ³
 
-    //”š”­‚Í GameOver.anim ‚ÌƒCƒxƒ“ƒg‚Å 3.5 •b‚Ì‚Æ‚±‚ë‚É“ü‚Á‚Ä‚¢‚é
-    [SerializeField] private float alertStartTime = 0.2f; //ƒV[ƒ“ŠJn‚©‚ç‰½•b‚ÅŒx‰¹‚ğ–Â‚ç‚·‚©
+    //çˆ†ç™ºã¯ GameOver.anim ã®ã‚¤ãƒ™ãƒ³ãƒˆã§ 3.5 ç§’ã®ã¨ã“ã‚ã«å…¥ã£ã¦ã„ã‚‹
+    [SerializeField] private float alertStartTime = 0.2f; //ã‚·ãƒ¼ãƒ³é–‹å§‹ã‹ã‚‰ä½•ç§’ã§è­¦å‘ŠéŸ³ã‚’é³´ã‚‰ã™ã‹
 
-    //Œx‰¹‚Í”š”­‚ÌuŠÔ‚É~‚ß‚½‚¢‚Ì‚ÅASoundManager‚Å‚Í‚È‚­ê—p‚ÌAudioSource‚Å–Â‚ç‚·
-    //–¢İ’è‚È‚çÀs‚É©•ª‚Å‘«‚·BOutput‚ÉSE‚Ìƒ~ƒLƒT[ƒOƒ‹[ƒv‚ğ“ü‚ê‚é‚ÆOption‚Ì‰¹—Ê‚ªŒø‚­
+    //è­¦å‘ŠéŸ³ã¯çˆ†ç™ºã®ç¬é–“ã«æ­¢ã‚ãŸã„ã®ã§ã€SoundManagerã§ã¯ãªãå°‚ç”¨ã®AudioSourceã§é³´ã‚‰ã™
+    //æœªè¨­å®šãªã‚‰å®Ÿè¡Œæ™‚ã«è‡ªåˆ†ã§è¶³ã™ã€‚Outputã«SEã®ãƒŸã‚­ã‚µãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚’å…¥ã‚Œã‚‹ã¨Optionã®éŸ³é‡ãŒåŠ¹ã
     [SerializeField] private AudioSource alertSource;
 
     private bool isPushButton = false;
 
     void Start()
     {
-        //ƒXƒRƒAæ“¾&•\¦
+        //ã‚¹ã‚³ã‚¢å–å¾—&è¡¨ç¤º
         float score = PlayerPrefs.GetFloat("Score", 0f);
         ScoreNumber.SetNumber(Mathf.FloorToInt(score));
 
-        //´… ƒXƒRƒA‚ğˆê‚ÌˆÊ‚©‚çˆêŒ…‚¸‚Âo‚·B•t‚¢‚Ä‚¢‚È‚¯‚ê‚Î©“®‚Å•t‚¯‚é
-        //ScoreNumber ‚Í Texts ‚Ì‰º‚È‚Ì‚ÅATexts ‚ªo‚½uŠÔiGameOver.anim ‚Ì5.0•bj‚Én‚Ü‚é
+        //æ¸…æ°´ ã‚¹ã‚³ã‚¢ã‚’ä¸€ã®ä½ã‹ã‚‰ä¸€æ¡ãšã¤å‡ºã™ã€‚ä»˜ã„ã¦ã„ãªã‘ã‚Œã°è‡ªå‹•ã§ä»˜ã‘ã‚‹
+        //ScoreNumber ã¯ Texts ã®ä¸‹ãªã®ã§ã€Texts ãŒå‡ºãŸç¬é–“ï¼ˆGameOver.anim ã®5.0ç§’ï¼‰ã«å§‹ã¾ã‚‹
         if (ScoreNumber)
         {
             NumberReveal reveal = ScoreNumber.GetComponent<NumberReveal>();
@@ -45,7 +45,7 @@ public class GameOver : MonoBehaviour
             reveal.SetSE(scoreTickSE, null);
         }
 
-        //”š”­‰¹‚ÍƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒg‚Å–Â‚ç‚·‚Ì‚ÅA‚±‚±‚Å‚ÍŒx‰¹‚¾‚¯—\–ñ‚·‚é
+        //çˆ†ç™ºéŸ³ã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã§é³´ã‚‰ã™ã®ã§ã€ã“ã“ã§ã¯è­¦å‘ŠéŸ³ã ã‘äºˆç´„ã™ã‚‹
         if (alertSE) Invoke(nameof(PlayAlertSE), Mathf.Max(alertStartTime, 0f));
     }
 
@@ -71,7 +71,7 @@ public class GameOver : MonoBehaviour
     {
         Explosion.SetActive(true);
 
-        //´… Œx‰¹‚ğ~‚ß‚Ä‚©‚ç”š”­‰¹‚ğ–Â‚ç‚·
+        //æ¸…æ°´ è­¦å‘ŠéŸ³ã‚’æ­¢ã‚ã¦ã‹ã‚‰çˆ†ç™ºéŸ³ã‚’é³´ã‚‰ã™
         StopAlertSE();
         PlaySE(explosionSE);
     }
@@ -96,7 +96,7 @@ public class GameOver : MonoBehaviour
         Noise.SetActive(true);
     }
 
-    //´… Start‚©‚ç—\–ñ‚µ‚Ä–Â‚ç‚·
+    //æ¸…æ°´ Startã‹ã‚‰äºˆç´„ã—ã¦é³´ã‚‰ã™
     private void PlayAlertSE()
     {
         if (!alertSE) return;

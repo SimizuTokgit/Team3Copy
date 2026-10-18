@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 
-//ˆÀˆä
-//ƒvƒŒƒCƒ„‚ÉŠÖ‚·‚éî•ñŠÇ—
+//å®‰äº•
+//ãƒ—ãƒ¬ã‚¤ãƒ¤ã«é–¢ã™ã‚‹æƒ…å ±ç®¡ç†
 public class PlayerStatusTextManager : MonoBehaviour
 {
     private Player Player;
@@ -23,7 +23,7 @@ public class PlayerStatusTextManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚Ì‘¬“x•\¦
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é€Ÿåº¦è¡¨ç¤º
     /// </summary>
     private void UpdateSpeedText()
     {

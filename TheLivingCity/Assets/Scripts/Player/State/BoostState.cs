@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class BoostState : ICharacterState
 {
@@ -18,24 +18,24 @@ public class BoostState : ICharacterState
     {
         Vector3 nextVelocity = player.MoveController.GroundMoveForward(player.transform.forward);
 
-        //‰ñ“]ˆ—
+        //å›è»¢å‡¦ç†
         player.MoveController.Turn(inputInfo, player.transform, player.PlayerStatus, null);
 
-        //‘¬“x“K‰
+        //é€Ÿåº¦é©å¿œ
         player.Physics.SetVelocity(nextVelocity);
 
         if (player.GroundChecker.IsDownhill())
         {
-            //‰º‚è‚Ìê‡‚Í^‰º‚Ì’n–Ê‚Ì–@üƒxƒNƒgƒ‹‚É‰ˆ‚Á‚Ä‘–‚é
+            //ä¸‹ã‚Šã®å ´åˆã¯çœŸä¸‹ã®åœ°é¢ã®æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã«æ²¿ã£ã¦èµ°ã‚‹
             player.GroundChecker.MoveAlongGround(player.GroundChecker.GetDownNormalVector(), 33);
         }
         else
         {
-            //ã‚è‚Ìê‡‚Í­‚µ‘O‚Ì’n–Ê‚Ì–@üƒxƒNƒgƒ‹‚É‰ˆ‚Á‚Ä‘–‚é
+            //ä¸Šã‚Šã®å ´åˆã¯å°‘ã—å‰ã®åœ°é¢ã®æ³•ç·šãƒ™ã‚¯ãƒˆãƒ«ã«æ²¿ã£ã¦èµ°ã‚‹
             player.GroundChecker.MoveAlongGround(player.GroundChecker.GetForwardNormalVector(), 20);
         }
 
-        //ƒu[ƒXƒg’†‚ÍƒWƒƒƒ“ƒv‚Å‚«‚È‚¢‚æ‚¤‚É‚µ‚Ä‚İ‚é
+        //ãƒ–ãƒ¼ã‚¹ãƒˆä¸­ã¯ã‚¸ãƒ£ãƒ³ãƒ—ã§ããªã„ã‚ˆã†ã«ã—ã¦ã¿ã‚‹
         //if (!player.GroundChecker.IsGrounded() && !player.GroundChecker.IsDownhill())
         //{
         //    player.Physics.SetVelocity(player.MoveController.Jump(player.Physics.GetVelocity(), player.transform));

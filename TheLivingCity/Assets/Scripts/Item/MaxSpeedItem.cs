@@ -1,4 +1,4 @@
-public class MaxSpeedItem : Item
+﻿public class MaxSpeedItem : Item
 {
     public override void UpGrade(PlayerStatus playerStatus)
     {

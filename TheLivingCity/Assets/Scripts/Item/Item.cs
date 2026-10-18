@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//‹­‰»ƒAƒCƒeƒ€
+//å®‰äº•
+//å¼·åŒ–ã‚¢ã‚¤ãƒ†ãƒ 
 public abstract class Item : MonoBehaviour
 {
-    [SerializeField] protected int UP_NUMBER; //‚Ç‚ê‚¾‚¯ã‚°‚é‚©
+    [SerializeField] protected int UP_NUMBER; //ã©ã‚Œã ã‘ä¸Šã’ã‚‹ã‹
     [SerializeField] public ParticleSystem ItemEffect;
     [SerializeField] public AudioClip ItemSE;
 

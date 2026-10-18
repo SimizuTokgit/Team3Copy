@@ -1,14 +1,14 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-//ˆÀˆä
-//ResultƒV[ƒ“‚Ìˆ—
+//å®‰äº•
+//Resultã‚·ãƒ¼ãƒ³ã®å‡¦ç†
 public class Result : MonoBehaviour
 {
     [SerializeField] private NumberImage ScoreNumber;
 
     void Start()
     {
-        //ƒXƒRƒAæ“¾&•\¦
+        //ã‚¹ã‚³ã‚¢å–å¾—&è¡¨ç¤º
         float score = PlayerPrefs.GetFloat("Score", 0f);
         ScoreNumber.SetNumber(Mathf.FloorToInt(score));
     }

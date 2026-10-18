@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -15,13 +15,13 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
         }
 
         public AudioClip audioClip;
-        public float playedTime; //Ä¶ŠÔ
+        public float playedTime; //å†ç”Ÿæ™‚é–“
     }
 
-    //ˆê“xÄ¶‚µ‚Ä‚©‚çAŸÄ¶o—ˆ‚é‚Ü‚Å‚ÌŠÔŠu(•b)
+    //ä¸€åº¦å†ç”Ÿã—ã¦ã‹ã‚‰ã€æ¬¡å†ç”Ÿå‡ºæ¥ã‚‹ã¾ã§ã®é–“éš”(ç§’)
     private float INTERVAL = 0.2f;
 
-    //AudioSourceiƒXƒs[ƒJ[j‚ğ“¯‚É–Â‚ç‚µ‚½‚¢‰¹‚Ì”‚¾‚¯—pˆÓ
+    //AudioSourceï¼ˆã‚¹ãƒ”ãƒ¼ã‚«ãƒ¼ï¼‰ã‚’åŒæ™‚ã«é³´ã‚‰ã—ãŸã„éŸ³ã®æ•°ã ã‘ç”¨æ„
     private AudioSource[] _seSources = new AudioSource[20];
     private AudioSource[] _bgmSources = new AudioSource[3];
 
@@ -93,9 +93,9 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// –¢g—p‚ÌAudioSource(SE)‚ğŒŸõ‚µAæ“¾‚·‚éŠÖ”
+    /// æœªä½¿ç”¨ã®AudioSource(SE)ã‚’æ¤œç´¢ã—ã€å–å¾—ã™ã‚‹é–¢æ•°
     /// </summary>
-    /// <returns>–¢g—p‚ÌAudioSource(SE)B‘S‚Äg—p’†‚Ìê‡‚Ínull‚ğ•Ô‹p</returns>
+    /// <returns>æœªä½¿ç”¨ã®AudioSource(SE)ã€‚å…¨ã¦ä½¿ç”¨ä¸­ã®å ´åˆã¯nullã‚’è¿”å´</returns>
     private AudioSource GetUnusedSourceSE()
     {
         for (var i = 0; i < _seSources.Length; ++i)
@@ -107,9 +107,9 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// –¢g—p‚ÌAudioSource(BGM)‚ğŒŸõ‚µAæ“¾‚·‚éŠÖ”
+    /// æœªä½¿ç”¨ã®AudioSource(BGM)ã‚’æ¤œç´¢ã—ã€å–å¾—ã™ã‚‹é–¢æ•°
     /// </summary>
-    /// <returns>–¢g—p‚ÌAudioSource(BGM)B‘S‚Äg—p’†‚Ìê‡‚Ínull‚ğ•Ô‹p</returns>
+    /// <returns>æœªä½¿ç”¨ã®AudioSource(BGM)ã€‚å…¨ã¦ä½¿ç”¨ä¸­ã®å ´åˆã¯nullã‚’è¿”å´</returns>
     private AudioSource GetUnusedSourceBGM()
     {
         for (var i = 0; i < _bgmSources.Length; ++i)
@@ -121,9 +121,9 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// –¼‘O‚Åw’è‚µ‚½SE‚ğÄ¶‚·‚éŠÖ”
+    /// åå‰ã§æŒ‡å®šã—ãŸSEã‚’å†ç”Ÿã™ã‚‹é–¢æ•°
     /// </summary>
-    /// <param seName="seName">SE–¼</param>
+    /// <param seName="seName">SEå</param>
     public void PlaySE(string seName)
     {
         if (_seData.ContainsKey(seName))
@@ -154,9 +154,9 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// –¼‘O‚Åw’è‚µ‚½BGM‚ğÄ¶‚·‚éŠÖ”
+    /// åå‰ã§æŒ‡å®šã—ãŸBGMã‚’å†ç”Ÿã™ã‚‹é–¢æ•°
     /// </summary>
-    /// <param bgmName="bgmName">BGM–¼</param>
+    /// <param bgmName="bgmName">BGMå</param>
     public void PlayBGM(string bgmName)
     {
         if (_bgmData.ContainsKey(bgmName))
@@ -176,7 +176,7 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// BGM‚ğ’â~‚·‚éŠÖ”
+    /// BGMã‚’åœæ­¢ã™ã‚‹é–¢æ•°
     /// </summary>
     public void StopBGM(string bgmName)
     {
@@ -190,14 +190,14 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
     }
 
     /// <summary>
-    /// —¬‚ê‚Ä‚¢‚éBGM‚ğ~‚ß‚ÄAw’è‚µ‚½BGM‚ÉØ‚è‘Ö‚¦‚éŠÖ”
+    /// æµã‚Œã¦ã„ã‚‹BGMã‚’æ­¢ã‚ã¦ã€æŒ‡å®šã—ãŸBGMã«åˆ‡ã‚Šæ›¿ãˆã‚‹é–¢æ•°
     /// </summary>
-    /// <param name="bgmClip">BGMBnull‚Ì‚Æ‚«‚Í~‚ß‚é‚¾‚¯</param>
+    /// <param name="bgmClip">BGMã€‚nullã®ã¨ãã¯æ­¢ã‚ã‚‹ã ã‘</param>
     public void ChangeBGM(AudioClip bgmClip)
     {
         foreach (var bgmSource in _bgmSources)
         {
-            //“¯‚¶BGM‚ª—¬‚ê‚Ä‚¢‚é‚Æ‚«‚Í‚»‚Ì‚Ü‚Ü
+            //åŒã˜BGMãŒæµã‚Œã¦ã„ã‚‹ã¨ãã¯ãã®ã¾ã¾
             if (bgmClip && bgmSource.isPlaying && bgmSource.clip == bgmClip) return;
         }
 

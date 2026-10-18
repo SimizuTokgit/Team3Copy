@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        _inputInfo.IsDiveHeld = diveAction.IsPressed(); //‹}~‰º‚Ì’·‰Ÿ‚µ”»’è
+        _inputInfo.IsDiveHeld = diveAction.IsPressed(); //æ€¥é™ä¸‹ã®é•·æŠ¼ã—åˆ¤å®š
 
         _player.Execute(_inputInfo);
         InputClear();

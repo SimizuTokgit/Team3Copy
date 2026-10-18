@@ -1,6 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-//�ēc
+//柴田
 public class PlayerPhysics : MonoBehaviour
 {
     private Rigidbody _rigidBody;
