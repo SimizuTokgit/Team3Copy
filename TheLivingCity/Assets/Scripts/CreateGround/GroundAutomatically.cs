@@ -100,6 +100,10 @@ public class GroundAutomatically : MonoBehaviour
             if (transform.GetChild(i).name == "LeftWall" || transform.GetChild(i).name == "RightWall")
                 continue;
 
+            //清水 道の外の地面は使い回す
+            if (MapDecoration.IsPersistentChild(transform.GetChild(i).name))
+                continue;
+
             Destroy(transform.GetChild(i).gameObject);
         }
 
@@ -228,6 +232,10 @@ public class GroundAutomatically : MonoBehaviour
         //外に出ないように見えない壁を生成
         CreateSideWalls();
 
+        //清水 道の外の街並み
+        if (_ground != null && _ground.Decoration != null)
+            _ground.Decoration.Decorate(this);
+
         //アイテムと障害物の生成
         if (_generateObstacle != null && Instance)
         {
@@ -343,6 +351,31 @@ public class GroundAutomatically : MonoBehaviour
         int z = Mathf.Clamp(Mathf.RoundToInt(localZ / scale), 0, length);
 
         return mesh.vertices[x + z * (width + 1)].y;
+    }
+
+    /// <summary>
+    /// 清水 置いた障害物を地面の高さに合わせる
+    /// 今までは高さ0に置いていたので、山の中に埋まった見えない障害物に当たっていた
+    /// 子がいれば子ごとに、その場所の地面の高さだけ持ち上げる
+    /// </summary>
+    public void SnapToGround(Transform obj)
+    {
+        if (obj.childCount == 0)
+        {
+            SnapOne(obj);
+            return;
+        }
+
+        foreach (Transform child in obj)
+        {
+            SnapOne(child);
+        }
+    }
+
+    private void SnapOne(Transform t)
+    {
+        Vector3 local = transform.InverseTransformPoint(t.position);
+        t.position += transform.up * GetLocalHeight(local.x, local.z);
     }
 
     private void CheckScript()

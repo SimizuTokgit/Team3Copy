@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class MotherComputer : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class MotherComputer : MonoBehaviour
     private Transform PlayerTransform;
 
     private int _hp;
+
+    public int MaxHp => MAX_HP;
 
     // アーチ移動設定
     [SerializeField] private float MOVE_DISTANCE = 1000f;
@@ -106,6 +109,13 @@ public class MotherComputer : MonoBehaviour
         {
             --_hp;
 
+            //清水 当てた手ごたえ（一瞬止める・揺らす・光らせる・ボスを点滅）
+            ScreenEffects.Get().HitStop(0.12f);
+            ScreenEffects.Get().Shake(1.2f, 0.45f);
+            ScreenEffects.Get().FlashExposure(1.2f);
+            GameHUD.Get().Flash(new Color(1f, 1f, 1f, 0.6f), 0.2f);
+            StartCoroutine(Blink());
+
             // HPが0になったらゲームクリア
             if (_hp <= 0)
             {
@@ -115,7 +125,34 @@ public class MotherComputer : MonoBehaviour
                 return;
             }
 
+            if (BattleManager) BattleManager.OnBossHit(this, _hp, MAX_HP);
+
             StartJump();
+        }
+    }
+
+    //清水 当てられたら赤く点滅する
+    private IEnumerator Blink()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        MaterialPropertyBlock block = new MaterialPropertyBlock();
+
+        for (int i = 0; i < 6; i++)
+        {
+            Color c = (i % 2 == 0) ? new Color(1f, 0.2f, 0.2f) : Color.white;
+            foreach (Renderer r in renderers)
+            {
+                if (!r) continue;
+                r.GetPropertyBlock(block);
+                block.SetColor("_BaseColor", c);
+                r.SetPropertyBlock(block);
+            }
+            yield return new WaitForSecondsRealtime(0.08f);
+        }
+
+        foreach (Renderer r in renderers)
+        {
+            if (r) r.SetPropertyBlock(null);
         }
     }
 

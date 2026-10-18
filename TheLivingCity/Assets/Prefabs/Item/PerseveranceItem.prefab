@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b70237f67baecd42a051ff3c8fd5ca3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PerseveranceItem
-  UP_NUMBER: 1
+  UP_NUMBER: 2
   ItemEffect: {fileID: 3638767404758105562, guid: 6908b21162bdc3f4386c608ef8a627c4, type: 3}
   ItemSE: {fileID: 8300000, guid: ec24cc849fb47fa42a9c4be0ddf530b9, type: 3}
 --- !u!54 &2459352477844637029

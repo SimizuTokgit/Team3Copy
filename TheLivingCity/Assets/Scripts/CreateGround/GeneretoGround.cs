@@ -69,9 +69,13 @@ public class GeneretoGround : MonoBehaviour
     //清水 ストーリーのボス戦を進めるマネージャー（エンドレスにはいない）
     public BossBattleManager BossBattle { get; private set; }
 
+    //清水 道の外の飾り（無くてもよい）
+    public MapDecoration Decoration { get; private set; }
+
     void Start()
     {
         BossBattle = FindAnyObjectByType<BossBattleManager>();
+        Decoration = FindAnyObjectByType<MapDecoration>();
 
         SameGroundCount = -2;
         BranchesUI.SetActive(false);

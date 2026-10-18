@@ -11,6 +11,9 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private NumberImage REMAINING_TIME_NUMBER; // 制限時間表示
     public float _remainingTime; //残り時間
 
+    //清水 チェックポイントで回復する秒数（UI に出す用）
+    public float RecoveryTime => TIME_RECOVERY;
+
     void Start()
     {
         _remainingTime = TIME_LIMIT;

@@ -1,24 +1,19 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 //安井
 //モーションブラー処理
+//清水 URP では Post Processing Stack v2 が出ないので ScreenEffects で出す。速さに合わせて強くする
 public class MotionBlurController : MonoBehaviour
 {
-    [SerializeField] private PostProcessVolume volume;
-
-    private MotionBlur MotionBlur;
-    private Player Player;
     private Rigidbody Rigidboby;
 
-    [SerializeField] private float thresholdSpeed = 100f; // km/h
+    [SerializeField] private float thresholdSpeed = 160f; // km/h ここからブラーがかかり始める
+    [SerializeField] private float maxSpeed = 300f;       // km/h ここで最大
 
     void Start()
     {
-        volume.profile.TryGetSettings(out MotionBlur);
-
-        Player = FindAnyObjectByType<Player>();
-        Rigidboby = Player.GetComponent<Rigidbody>();
+        Player player = FindAnyObjectByType<Player>();
+        if (player) Rigidboby = player.GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -31,31 +26,11 @@ public class MotionBlurController : MonoBehaviour
     /// </summary>
     private void PlayerSpeedCheck()
     {
+        if (!Rigidboby) return;
+
         // m/s → km/h 変換
         float speedKmh = Rigidboby.linearVelocity.magnitude * 3.6f;
 
-        // 閾値チェック
-        MotionBur(speedKmh >= thresholdSpeed);
-    }
-
-    /// <summary>
-    /// モーションブラーの処理
-    /// </summary>
-    private void MotionBur(bool isActive)
-    {
-        if (isActive)
-        {
-            MotionBlur.active = true;
-
-            MotionBlur.shutterAngle.overrideState = true;
-            MotionBlur.sampleCount.overrideState = true;
-
-            MotionBlur.shutterAngle.value = 360f;
-            MotionBlur.sampleCount.value = 32;
-        }
-        else
-        {
-            MotionBlur.active = false;
-        }
+        ScreenEffects.Get().SetSpeedBlur(Mathf.InverseLerp(thresholdSpeed, maxSpeed, speedKmh));
     }
 }

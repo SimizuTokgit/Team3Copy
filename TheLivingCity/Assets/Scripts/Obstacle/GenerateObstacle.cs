@@ -33,6 +33,13 @@ public class GenerateObstacle : MonoBehaviour
     //つなげる回数
     public int ContinueObstacleNumber;
 
+    //清水 障害物を見やすくするアウトライン（QuickOutline）
+    [SerializeField] private bool UseOutline = true;
+    [SerializeField] private Color ObstacleOutlineColor = new Color(1f, 0.55f, 0.1f);
+    [SerializeField] private float ObstacleOutlineWidth = 4f;
+
+    private GroundAutomatically _groundMesh;
+
     public enum Difficulty
     {
         Easy,
@@ -114,12 +121,14 @@ public class GenerateObstacle : MonoBehaviour
                 GameObject obj = Instantiate(obstacles[objNumber], transform);
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
+                Place(obj);
             }
             else
             {
                 GameObject obj = Instantiate(Connectobstacle[Random.Range(0, Connectobstacle.Length)], transform);
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
+                Place(obj);
 
                 if (ContinueObstacleNumber == 0)
                 {
@@ -154,12 +163,14 @@ public class GenerateObstacle : MonoBehaviour
                 GameObject obj = Instantiate(TentaclesObstacles[objNumber], transform);
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
+                Place(obj);
             }
             else
             {
-                GameObject obj = Instantiate(TentaclesConnectobstacle[Random.Range(0, Connectobstacle.Length)], transform);
+                GameObject obj = Instantiate(TentaclesConnectobstacle[Random.Range(0, TentaclesConnectobstacle.Length)], transform);
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
+                Place(obj);
 
                 if (ContinueObstacleNumber == 0)
                 {
@@ -167,6 +178,26 @@ public class GenerateObstacle : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 清水 地面に合わせて置き直し、アウトラインを付ける
+    /// </summary>
+    private void Place(GameObject obj)
+    {
+        if (!_groundMesh) _groundMesh = GetComponent<GroundAutomatically>();
+        if (_groundMesh) _groundMesh.SnapToGround(obj.transform);
+
+        if (UseOutline) AddOutline(obj, ObstacleOutlineColor, ObstacleOutlineWidth);
+    }
+
+    public static void AddOutline(GameObject obj, Color color, float width)
+    {
+        Outline outline = obj.GetComponent<Outline>();
+        if (!outline) outline = obj.AddComponent<Outline>();
+        outline.OutlineMode = Outline.Mode.OutlineVisible;
+        outline.OutlineColor = color;
+        outline.OutlineWidth = width;
     }
 
     public bool Connectobj()

@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     public PlayerStatus PlayerStatus { get; private set; }
 
     private int hp = 100;
+    private readonly int MAX_HP = 100;
 
     private readonly int GuaranteedDamage = 10;     //絶対受ける最低ダメージ
 
@@ -29,6 +30,10 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        //清水 画面効果と追加UIを用意しておく
+        ScreenEffects.Get();
+        GameHUD.Get();
+
         Animation = GetComponent<PlayerAnimation>();
         Physics = GetComponent<PlayerPhysics>();
         GroundChecker = GetComponent<PlayerGroundChecker>();
@@ -89,6 +94,15 @@ public class Player : MonoBehaviour
         PlayerUIManager.Damage(hp);
 
         if(hp <= 0) FindFirstObjectByType<GameManager>().SetState(GameManager.GameState.GameOver) ;
+    }
+
+    //清水 体力を回復する（チェックポイントなど）。実際に回復した量を返す
+    public int Heal(int amount)
+    {
+        int before = hp;
+        hp = Mathf.Min(hp + amount, MAX_HP);
+        PlayerUIManager.Damage(hp);
+        return hp - before;
     }
 
     public void DeadDamage()    //一撃死亡

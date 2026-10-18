@@ -54,11 +54,15 @@ public class PlayerCamera : MonoBehaviour
     {
         targetAberrationIntensity = 1;
         targetDistortionIntensity = -60;
+        //清水 URP では v2 の色ズレが出ないので ScreenEffects でも出す
+        ScreenEffects.Get().SetJustLand(true);
+        ScreenEffects.Get().Shake(0.4f, 0.25f);
     }
 
     public void JustLandEffectOff()
     {
         targetAberrationIntensity = 0;
         targetDistortionIntensity = 0;
+        ScreenEffects.Get().SetJustLand(false);
     }
 }

@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 272a088e379e500428cfaa507bf65617, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaxSpeedItem
-  UP_NUMBER: 1
+  UP_NUMBER: 5
   ItemEffect: {fileID: 3638767404758105562, guid: 53fc53b061eaec945b1645b229c53f74, type: 3}
   ItemSE: {fileID: 8300000, guid: 6ca6f5376f398d34aaf4440589d10eb4, type: 3}
 --- !u!54 &1962319824676144684

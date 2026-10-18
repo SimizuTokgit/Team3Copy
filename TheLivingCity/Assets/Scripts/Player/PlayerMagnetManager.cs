@@ -11,6 +11,9 @@ public class PlayerMagnetManager : MonoBehaviour
     //取った個数
     private int GetItemCount = 0;
 
+    //清水 アイテムを取った瞬間に上乗せする速さ（少しずつ元に戻る）
+    [SerializeField] private float ItemSpeedKick = 8f;
+
 
     private void Start()
     {
@@ -44,6 +47,10 @@ public class PlayerMagnetManager : MonoBehaviour
             {
                 item.UpGrade(player.PlayerStatus);
                 Instantiate(item.ItemEffect,player.transform);
+
+                //清水 何を取ったか分かるように文字を出して、少しだけ加速させる
+                GameHUD.Get().Popup(item.GetPopupText(player.PlayerStatus), item.PopupColor);
+                player.MoveController.AddSpeed(ItemSpeedKick);
 
                 if (player.tutorialManager != null)
                 {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -20,6 +21,7 @@ public class BossBattleManager : MonoBehaviour
     public class BossEncounter
     {
         public string BossName;
+        public string DisplayName = "MID BOSS";  //HPバーに出す名前（TMPに日本語フォントが無いので英語）
         public GameObject BossPrefab;
         public BossAttack Attack;
         public float RunDistance = 2000f;  //前のボスを倒してから（1体目はスタートから）出てくるまでの距離
@@ -38,6 +40,12 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private GameObject CutSceneDirectorObject; //ボス登場のカットシーン
     [SerializeField] private GameObject DefeatEffect;         //倒したときのエフェクト（無くてもよい）
     [SerializeField] private AudioClip DefeatSE;
+
+    [Header("ボスに当てたときの演出")]
+    [SerializeField] private GameObject HitEffect;            //当てたときのエフェクト（爆発など）
+    [SerializeField] private AudioClip HitSE;
+    [SerializeField] private AudioClip WarningSE;             //ボス出現の警告音
+    [SerializeField] private float ClearDelay = 2.0f;         //ラスボスを倒してからクリア画面に行くまで（実時間）
 
     [Header("2 感電触手")]
     [SerializeField] private GameObject[] ElectricBasePrefabs; //触手が巻き付く土台（電柱など）
@@ -71,6 +79,11 @@ public class BossBattleManager : MonoBehaviour
 
     private BossEncounter Current => Encounters[_index];
     private bool IsLastBoss => _index >= Encounters.Count - 1;
+
+    //HUD 用
+    public int BossNumber => _index + 1;
+    public int BossCount => Encounters.Count;
+    public float DistanceToNextBoss => _isStarted ? Mathf.Max(0f, _nextBossZ - _player.position.z) : (Encounters.Count > 0 ? Encounters[0].RunDistance : 0f);
 
     private void Start()
     {
@@ -125,6 +138,24 @@ public class BossBattleManager : MonoBehaviour
         }
 
         PlayCutScene(boss.transform);
+
+        //何が始まったかを見せる
+        GameHUD.Get().Banner(IsLastBoss ? "FINAL BATTLE!!" : "WARNING!!\n<size=60%>BOSS APPROACHING</size>", GameHUD.Danger, 2.2f);
+        GameHUD.Get().ShowBossBar(Current.DisplayName, _currentBoss.MaxHp, _currentBoss.MaxHp);
+        ScreenEffects.Get().Shake(0.5f, 0.8f);
+        if (WarningSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(WarningSE);
+    }
+
+    /// <summary>
+    /// ボスに当てた（MotherComputer から呼ばれる。倒したときは OnBossDefeated）
+    /// </summary>
+    public void OnBossHit(MotherComputer boss, int hp, int maxHp)
+    {
+        SpawnEffect(HitEffect, boss.transform.position);
+        if (HitSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(HitSE);
+
+        GameHUD.Get().ShowBossBar(Current.DisplayName, hp, maxHp);
+        GameHUD.Get().Banner($"HIT!  {maxHp - hp}/{maxHp}", GameHUD.Gold, 1.0f);
     }
 
     private void PlayCutScene(Transform boss)
@@ -150,17 +181,37 @@ public class BossBattleManager : MonoBehaviour
     /// </summary>
     public void OnBossDefeated(MotherComputer boss)
     {
-        if (DefeatEffect) Instantiate(DefeatEffect, boss.transform.position, Quaternion.identity);
+        //倒したときは爆発を何発か重ねる
+        GameObject defeatEffect = DefeatEffect ? DefeatEffect : HitEffect;
+        for (int i = 0; i < 4; i++)
+        {
+            SpawnEffect(defeatEffect, boss.transform.position + Random.insideUnitSphere * 8f);
+        }
         if (DefeatSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(DefeatSE);
+
+        GameHUD.Get().ShowBossBar(Current.DisplayName, 0, boss.MaxHp);
+        GameHUD.Get().Flash(new Color(1, 1, 1, 0.9f), 0.6f);
+        ScreenEffects.Get().Shake(2.0f, 1.0f);
+        ScreenEffects.Get().SlowMotion(0.25f, 1.0f);
 
         if (IsLastBoss)
         {
             //マザーコンピューターを倒した。世界を救った
-            _gameManager.SetState(GameManager.GameState.GameClear);
+            GameHUD.Get().Banner("MOTHER COMPUTER\nDESTROYED!!", GameHUD.Gold, ClearDelay + 1f);
+
+            //クリア画面に行くまでの間にやられたり時間切れにならないように
+            Player player = _player.GetComponent<Player>();
+            if (player) player.SetInvincibleTime(ClearDelay + 1f);
+            if (_timeManager) _timeManager.AddTime(ClearDelay + 5f);
+            StartCoroutine(ClearRoutine());
             return;
         }
 
-        Destroy(boss.gameObject);
+        GameHUD.Get().Banner($"BOSS DEFEATED!\n<size=55%>TIME +{TimeBonusOnDefeat:0}</size>", GameHUD.Gold, 2.0f);
+        GameHUD.Get().HideBossBar();
+
+        //爆発が見えるように少しだけ残してから消す
+        Destroy(boss.gameObject, 0.3f);
         _currentBoss = null;
 
         //ボスのギミックを片付けて、ふつうのランに戻す
@@ -173,6 +224,18 @@ public class BossBattleManager : MonoBehaviour
 
         _index++;
         _nextBossZ = _player.position.z + Current.RunDistance;
+    }
+
+    private void SpawnEffect(GameObject effect, Vector3 position)
+    {
+        if (!effect) return;
+        Destroy(Instantiate(effect, position, Quaternion.identity), 3f);
+    }
+
+    private IEnumerator ClearRoutine()
+    {
+        yield return new WaitForSecondsRealtime(ClearDelay);
+        _gameManager.SetState(GameManager.GameState.GameClear);
     }
 
     /// <summary>
@@ -247,6 +310,7 @@ public class BossBattleManager : MonoBehaviour
         }
 
         root.AddComponent<ElectricHazard>();
+        GenerateObstacle.AddOutline(root, new Color(0.3f, 0.9f, 1f), 6f); //一撃死は太く目立たせる
     }
 
     // 3 ガスバーナー：道幅いっぱいに並べる
@@ -288,6 +352,7 @@ public class BossBattleManager : MonoBehaviour
         GameObject root = CreateHazardRoot(chunk, "Train", pos);
         root.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(0, TrainModelYaw, 0);
         Instantiate(TrainPrefab, root.transform).transform.localPosition = Vector3.zero;
+        GenerateObstacle.AddOutline(root, GameHUD.Danger, 6f);
 
         TrainHazard train = root.AddComponent<TrainHazard>();
         if (crossing)

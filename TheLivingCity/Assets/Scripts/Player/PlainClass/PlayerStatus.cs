@@ -46,7 +46,7 @@ public class PlayerStatus
             MAX_SPEED = MAX_SPEED_LIMIT;
             return;
         }
-        MAX_SPEED += speed;
+        MAX_SPEED = Mathf.Min(MAX_SPEED + speed, MAX_SPEED_LIMIT); //清水 上がり幅を大きくしたので上限で止める
 
         GetMaxSpeedItem?.Invoke();   // ← 変化を通知
     }
@@ -59,7 +59,7 @@ public class PlayerStatus
             ACCELERATOR_POWER = ACCELERATOR_POWER_LIMIT;
             return;
         }
-        ACCELERATOR_POWER += accel;
+        ACCELERATOR_POWER = Mathf.Min(ACCELERATOR_POWER + accel, ACCELERATOR_POWER_LIMIT);
 
         GetAcceleratorPowerItem?.Invoke();
     }
@@ -72,7 +72,7 @@ public class PlayerStatus
             PERSEVERANCE_POWER = PERSEVERANCE_POWER_LIMIT;
             return;
         }
-        PERSEVERANCE_POWER += perseverance;
+        PERSEVERANCE_POWER = Mathf.Min(PERSEVERANCE_POWER + perseverance, PERSEVERANCE_POWER_LIMIT);
 
         GetPerseverancePowerItem?.Invoke();
     }
@@ -85,7 +85,7 @@ public class PlayerStatus
             BOOST_POWER = BOOST_POWER_LIMIT;
             return;
         }
-        BOOST_POWER += boost;
+        BOOST_POWER = Mathf.Min(BOOST_POWER + boost, BOOST_POWER_LIMIT);
 
         GetBoostPowerItem?.Invoke();
     }
@@ -98,7 +98,7 @@ public class PlayerStatus
             MAGNET_POWER = MAGNET_POWER_LIMIT;
             return;
         }
-        MAGNET_POWER += magnet;
+        MAGNET_POWER = Mathf.Min(MAGNET_POWER + magnet, MAGNET_POWER_LIMIT);
 
         GetMagnetPowerItem?.Invoke();
     }
@@ -111,7 +111,7 @@ public class PlayerStatus
             TURNING_POWER = TURNING_POWER_LIMIT;
             return;
         }
-        TURNING_POWER += turning;
+        TURNING_POWER = Mathf.Min(TURNING_POWER + turning, TURNING_POWER_LIMIT);
 
         GetTurningPowerItem?.Invoke();
     }

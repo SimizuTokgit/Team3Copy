@@ -70,6 +70,12 @@ public class TrainHazard : MonoBehaviour
                 if (_route == Route.Oncoming)
                 {
                     transform.position = new Vector3(playerPos.x, transform.position.y, transform.position.z);
+                    GameHUD.Get().Popup("TRAIN AHEAD!", GameHUD.Danger);
+                }
+                else
+                {
+                    //どっちから来るかを画面の端に出す
+                    GameHUD.Get().WarnTrain(_moveDir.x > 0f);
                 }
             }
             return;

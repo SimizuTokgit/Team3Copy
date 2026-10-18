@@ -9,4 +9,8 @@ public abstract class Item : MonoBehaviour
     [SerializeField] public AudioClip ItemSE;
 
     public abstract void UpGrade(PlayerStatus playerStatus);
+
+    //清水 取ったときに画面に出す文字と色（取った後のステータスを渡す）
+    public abstract string GetPopupText(PlayerStatus playerStatus);
+    public virtual Color PopupColor => GameHUD.Gold;
 }

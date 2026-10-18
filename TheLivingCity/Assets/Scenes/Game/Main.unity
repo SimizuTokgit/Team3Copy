@@ -6774,10 +6774,72 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138162526}
   m_CullTransparentMesh: 1
+--- !u!1 &1900000101
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1900000102}
+  - component: {fileID: 1900000103}
+  m_Layer: 0
+  m_Name: MapDecoration
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1900000102
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000101}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1900000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2faab9512ba948d887f97a690da487f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapDecoration
+  DecorPrefabs:
+  - {fileID: 8986046936278229012, guid: 08566f449d9873c43bfc620f535affa7, type: 3}
+  - {fileID: 8986046936278229012, guid: 08566f449d9873c43bfc620f535affa7, type: 3}
+  - {fileID: 7463116473633307018, guid: 885d1fcfe9864074e92066c8dd7b56b5, type: 3}
+  - {fileID: 4511490384920867975, guid: fe2ca6a9d5c1f8e4ca4705ca3998ccf3, type: 3}
+  - {fileID: 8892343456633581616, guid: 805dc2663c20f734e93e8c8086000316, type: 3}
+  - {fileID: 5232132230735783200, guid: 045647cef2f3fca4aa5a08bf14921fcb, type: 3}
+  - {fileID: 8750926727478872677, guid: fd46e7064a5aa114e8573ce289dd607e, type: 3}
+  - {fileID: 8704232302061981018, guid: 5fba0fee66bdaf14c9c811f33bf74f3a, type: 3}
+  - {fileID: 11224431479098188, guid: e4860768532ed934495168f3445394bc, type: 3}
+  SideWidth: 90
+  RoadMargin: 6
+  DecorPerSide: 6
+  ScaleRange: {x: 1.2, y: 2.8}
+  MaxTilt: 18
+  MaxSink: 3
+  SideGroundY: -0.3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1900000102}
   - {fileID: 1278571669}
   - {fileID: 1463460549}
   - {fileID: 1596022861}

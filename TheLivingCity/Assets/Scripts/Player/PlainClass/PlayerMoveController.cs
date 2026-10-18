@@ -37,6 +37,12 @@ public class PlayerMoveController
         }
     }
 
+    //清水 一時的に速さを上乗せする（最高速度を超えた分は BoostSpeedCorrection で戻る）
+    public void AddSpeed(float amount)
+    {
+        nowSpeed += amount;
+    }
+
     //ブーストやバグの速度修正処理
     public void BoostSpeedCorrection(PlayerStatus status)
     {
