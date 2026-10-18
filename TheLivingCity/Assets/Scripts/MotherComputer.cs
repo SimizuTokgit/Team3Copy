@@ -5,6 +5,13 @@ public class MotherComputer : MonoBehaviour
     [SerializeField] private int MAX_HP = 10;
     private GameManager GameManager;
 
+    //清水 ストーリーで何体も出すときの進行役。いなければ倒した時点でクリア
+    private BossBattleManager BattleManager;
+
+    //清水 プレイヤーにどつかれずに追い越されたら、前に回り込む
+    [SerializeField] private float OVERTAKEN_DISTANCE = 30f;
+    private Transform PlayerTransform;
+
     private int _hp;
 
     // アーチ移動設定
@@ -33,10 +40,25 @@ public class MotherComputer : MonoBehaviour
         _hp = MAX_HP;
         GameManager = FindAnyObjectByType<GameManager>();
         _animator = GetComponent<Animator>();
+
+        Player player = FindAnyObjectByType<Player>();
+        if (player) PlayerTransform = player.transform;
+    }
+
+    public void SetBattleManager(BossBattleManager battleManager)
+    {
+        BattleManager = battleManager;
     }
 
     private void Update()
     {
+        //清水 追い越されたままだと二度と当てられないので、ダメージ無しで前へ跳ぶ
+        if (!_isMoving && PlayerTransform && PlayerTransform.position.z > transform.position.z + OVERTAKEN_DISTANCE)
+        {
+            StartJump();
+            return;
+        }
+
         if (!_isMoving) return;
 
         if(_state == State.Attack)
@@ -87,24 +109,32 @@ public class MotherComputer : MonoBehaviour
             // HPが0になったらゲームクリア
             if (_hp <= 0)
             {
-                GameManager._currentState = GameManager.GameState.GameClear;
+                _isMoving = true; //倒された後にもう一度当たらないように
+                if (BattleManager) BattleManager.OnBossDefeated(this);
+                else GameManager._currentState = GameManager.GameState.GameClear;
                 return;
             }
 
-            // アーチ移動開始
-            _startPosition = transform.position;
-
-            _targetPosition = new Vector3(
-                transform.position.x,
-                transform.position.y,
-                transform.position.z + MOVE_DISTANCE
-            );
-
-            _moveTime = 0f;
-            _isMoving = true;
-            _animator.ResetTrigger("attack");
-            _animator.SetTrigger("damage");
-            _state = State.Damage;
+            StartJump();
         }
+    }
+
+    //清水 前へアーチ移動する処理を、追い越されたときにも使えるように関数にした
+    private void StartJump()
+    {
+        // アーチ移動開始
+        _startPosition = transform.position;
+
+        _targetPosition = new Vector3(
+            transform.position.x,
+            transform.position.y,
+            transform.position.z + MOVE_DISTANCE
+        );
+
+        _moveTime = 0f;
+        _isMoving = true;
+        _animator.ResetTrigger("attack");
+        _animator.SetTrigger("damage");
+        _state = State.Damage;
     }
 }

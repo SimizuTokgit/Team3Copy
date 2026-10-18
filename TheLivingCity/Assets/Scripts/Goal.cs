@@ -12,6 +12,17 @@ public class Goal : MonoBehaviour
 
     [SerializeField] private float POS_Z = 2000f;
 
+    private void Awake()
+    {
+        //清水 エンドレスにはゴールもボスも無い
+        //ストーリーで BossBattleManager がいるときは、そちらがボス戦を進めるのでこのゴールは使わない
+        GameManager gameManager = FindAnyObjectByType<GameManager>();
+        if ((gameManager && gameManager.IsEndless) || FindAnyObjectByType<BossBattleManager>())
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
     private void Start()
     {
         GameManager = FindAnyObjectByType<GameManager>();

@@ -233,6 +233,9 @@ public class GroundAutomatically : MonoBehaviour
         {
             if (!_ground._isBoss)
                 GenObsItem();
+            //清水 ストーリーのボス戦はボスごとのギミックを置く
+            else if (_ground.BossBattle != null)
+                _ground.BossBattle.SpawnHazards(this);
             else
                 GenTentacles();
         }
@@ -323,6 +326,23 @@ public class GroundAutomatically : MonoBehaviour
         CheckScript();
 
         _generateObstacle.ConnectStart(_ground.SameGroundCount);
+    }
+
+    //清水 チャンクの大きさ（ローカル座標）
+    public float ChunkWidth => width * scale;
+    public float ChunkLength => length * scale;
+
+    /// <summary>
+    /// チャンク内のローカル座標から地面の高さを返す
+    /// </summary>
+    public float GetLocalHeight(float localX, float localZ)
+    {
+        if (mesh == null) return 0f;
+
+        int x = Mathf.Clamp(Mathf.RoundToInt(localX / scale), 0, width);
+        int z = Mathf.Clamp(Mathf.RoundToInt(localZ / scale), 0, length);
+
+        return mesh.vertices[x + z * (width + 1)].y;
     }
 
     private void CheckScript()

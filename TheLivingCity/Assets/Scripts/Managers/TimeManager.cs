@@ -38,6 +38,14 @@ public class TimeManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 清水 指定した秒数だけ残り時間を増やす（ボス撃破ボーナスなど）
+    /// </summary>
+    public void AddTime(float seconds)
+    {
+        _remainingTime += seconds;
+    }
+
+    /// <summary>
     /// 残り時間の有無を判断する
     /// </summary>
     public bool IsTimeUp()

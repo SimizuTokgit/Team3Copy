@@ -6775,10 +6775,103 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138162526}
   m_CullTransparentMesh: 1
+--- !u!1 &1900000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1900000002}
+  - component: {fileID: 1900000003}
+  m_Layer: 0
+  m_Name: BossBattleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1900000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1900000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 055a62e3efb947d1931e696bef4f5dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossBattleManager
+  Encounters:
+  - BossName: "\u4E2D\u30DC\u30B91 \u89E6\u624B"
+    BossPrefab: {fileID: 8862430266276665174, guid: b2d099d9b2724e34faf1d28b8d6b39f9, type: 3}
+    Attack: 0
+    RunDistance: 1500
+    HazardsPerChunk: 1
+  - BossName: "\u4E2D\u30DC\u30B92 \u611F\u96FB\u89E6\u624B"
+    BossPrefab: {fileID: 8862430266276665174, guid: b2d099d9b2724e34faf1d28b8d6b39f9, type: 3}
+    Attack: 1
+    RunDistance: 2000
+    HazardsPerChunk: 1
+  - BossName: "\u4E2D\u30DC\u30B93 \u30AC\u30B9\u30D0\u30FC\u30CA\u30FC"
+    BossPrefab: {fileID: 8862430266276665174, guid: b2d099d9b2724e34faf1d28b8d6b39f9, type: 3}
+    Attack: 2
+    RunDistance: 2000
+    HazardsPerChunk: 1
+  - BossName: "\u4E2D\u30DC\u30B94 \u96FB\u8ECA"
+    BossPrefab: {fileID: 8862430266276665174, guid: b2d099d9b2724e34faf1d28b8d6b39f9, type: 3}
+    Attack: 3
+    RunDistance: 2000
+    HazardsPerChunk: 2
+  - BossName: "\u30DE\u30B6\u30FC\u30B3\u30F3\u30D4\u30E5\u30FC\u30BF\u30FC"
+    BossPrefab: {fileID: 8775288618822789962, guid: 21ebeff9676f5a34d9b8233c89c682f7, type: 3}
+    Attack: 4
+    RunDistance: 2500
+    HazardsPerChunk: 2
+  BossSpawnAhead: 1000
+  BossSpawnX: 24
+  BossSpawnY: 20
+  TimeBonusOnDefeat: 30
+  SafeDistanceOnStart: 200
+  CutSceneDirectorObject: {fileID: 2016945105}
+  DefeatEffect: {fileID: 0}
+  DefeatSE: {fileID: 8300000, guid: b051d9717c7e46149b4c5886738dfc7d, type: 3}
+  ElectricBasePrefabs:
+  - {fileID: 8750926727478872677, guid: fd46e7064a5aa114e8573ce289dd607e, type: 3}
+  - {fileID: 11224431479098188, guid: e4860768532ed934495168f3445394bc, type: 3}
+  TentaclePrefab: {fileID: 8425902883667229875, guid: 3ca2873843d4cb74fb9bd48d58c6655a, type: 3}
+  TentacleScale: 0.5
+  BurnerPrefab: {fileID: 4949453384338027331, guid: d67e01a57c490d04fa898cd0629b32a3, type: 3}
+  BurnerSpacing: 4
+  TrainPrefab: {fileID: 4063595758742268178, guid: 910008dd0adf84d4ea631b5d769a760d, type: 3}
+  TrainModelYaw: 0
+  CrossingTrainSpeed: 30
+  CrossingTriggerDistance: 130
+  OncomingTrainSpeed: 35
+  OncomingTriggerDistance: 260
+  TrainWarningSE: {fileID: 8300000, guid: dde2555025c8b6b4a85f0e53f8959915, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1900000002}
   - {fileID: 1278571669}
   - {fileID: 1463460549}
   - {fileID: 1596022861}

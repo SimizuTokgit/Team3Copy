@@ -66,8 +66,13 @@ public class GeneretoGround : MonoBehaviour
     //ボス戦かどうか
     public bool _isBoss = false;
 
+    //清水 ストーリーのボス戦を進めるマネージャー（エンドレスにはいない）
+    public BossBattleManager BossBattle { get; private set; }
+
     void Start()
     {
+        BossBattle = FindAnyObjectByType<BossBattleManager>();
+
         SameGroundCount = -2;
         BranchesUI.SetActive(false);
 
@@ -304,12 +309,14 @@ public class GeneretoGround : MonoBehaviour
 
                 grounds.Connectend();
 
+                //清水 return だと1枚目の地面しか難易度が変わらなかったので continue にした
+                //BossBattleManager がいるときは地面ができたときにギミックを置くのでここでは置かない
                 if (grounds.chunkZ > playerChunkZ + 1)
                 {
                     if (!_isBoss)
-                        return;
+                        continue;
                     //grounds.GenObsItem();
-                    else
+                    else if (BossBattle == null)
                         grounds.GenTentacles();
 
                 }
@@ -332,12 +339,14 @@ public class GeneretoGround : MonoBehaviour
 
                 grounds.Connectend();
 
+                //清水 return だと1枚目の地面しか難易度が変わらなかったので continue にした
+                //BossBattleManager がいるときは地面ができたときにギミックを置くのでここでは置かない
                 if (grounds.chunkZ > playerChunkZ + 1)
                 {
                     if (!_isBoss)
-                        return;
+                        continue;
                     //grounds.GenObsItem();
-                    else
+                    else if (BossBattle == null)
                         grounds.GenTentacles();
                 }
             }
