@@ -83,11 +83,13 @@ public class ItemGenerate : MonoBehaviour
     /// 今までは高さが「地面の高さ×最大ItemUpRate倍」で、山の上だと10m以上浮いて取れなかった
     /// 障害物の中も避ける。一部は必ず通れる道の上に置く
     /// </summary>
-    public void ItemGenReachable(GroundAutomatically chunk, ChunkLayout layout, float corridorRate)
+    public void ItemGenReachable(GroundAutomatically chunk, ChunkLayout layout, float corridorRate, float airRate)
     {
         const int tries = 10;          //置ける場所が見つかるまで試す回数
         const float edgeMargin = 3f;   //壁ぎわは避ける
         const float floatHeight = 1.2f; //地面からの高さ
+        const float airMin = 4f;       //空中に置くときの高さ（ジャンプで届く）
+        const float airMax = 8f;
 
         for (int i = 0; i < GenerateCount; i++)
         {
@@ -110,10 +112,34 @@ public class ItemGenerate : MonoBehaviour
 
                 if (!layout.IsFree(x, z, 1.5f)) continue;
 
+                //一部はジャンプで取る高さに浮かせる
+                float height = Random.value < airRate ? Random.Range(airMin, airMax) : floatHeight;
+
                 GameObject item = Instantiate(items[itemNumber].prefab, transform);
-                item.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, z) + floatHeight, z);
+                item.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, z) + height, z);
                 break;
             }
+        }
+    }
+
+    /// <summary>
+    /// 清水 ジャンプ台の上の端（ローカル座標）から飛び出したときの軌道に沿ってアイテムを並べる
+    /// だいたい秒速45mで飛び出したときの放物線（AirMoveState の重力 12）
+    /// </summary>
+    public void SpawnArc(Vector3 rampTop, int count)
+    {
+        const float speed = 45f;
+        const float jumpSpeed = 2f + speed * 0.2f; //PlayerMoveController.Jump と同じ
+        const float gravity = 12f;
+        const float interval = 0.28f;              //アイテムの間隔（秒）
+
+        for (int i = 1; i <= count; i++)
+        {
+            float t = interval * i;
+            float up = jumpSpeed * t - 0.5f * gravity * t * t;
+
+            GameObject item = Instantiate(items[GetWeightedRandom()].prefab, transform);
+            item.transform.localPosition = rampTop + new Vector3(0f, up + 1f, speed * t);
         }
     }
 

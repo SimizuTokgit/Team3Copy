@@ -59,6 +59,7 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField] private float CorridorDrift = 16f;  //地面1枚で道が横にずれてよい量
     [SerializeField] private float CorridorMargin = 3f;  //壁からどれだけ離すか
     [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
+    [SerializeField, Range(0f, 1f)] private float ItemInAirRate = 0.2f;      //ジャンプで取る高さに置く割合
     private ChunkLayout _layout;
 
     //清水 たまに置くジャンプ台（Highway を傾ける）
@@ -66,6 +67,7 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField] private GameObject RampPrefab;
     [SerializeField, Range(0f, 1f)] private float RampChance = 0.15f;  //地面1枚あたりに置く確率
     [SerializeField] private float RampAngle = 12f;
+    [SerializeField] private int RampArcItems = 4;   //飛び出した先に並べるアイテムの数
     [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
 
     private void Awake()
@@ -317,7 +319,7 @@ public class GroundAutomatically : MonoBehaviour
         TryPlaceRamp();
         _generateObstacle.ApplyOutlines();
 
-        _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate);
+        _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate, ItemInAirRate);
     }
 
     public void GenTentacles()
@@ -444,9 +446,14 @@ public class GroundAutomatically : MonoBehaviour
         //ジャンプ台の下と、飛び出した先を少し空ける
         _layout.ClearArea(new Rect(x - half, startZ - 2f, half * 2f, length + 20f));
 
-        Vector3 start = transform.TransformPoint(new Vector3(x, GetLocalHeight(x, startZ), startZ));
+        float startY = GetLocalHeight(x, startZ);
+        Vector3 start = transform.TransformPoint(new Vector3(x, startY, startZ));
         BossRamp ramp = BossRamp.Create(RampPrefab, start, RampAngle, null, RampOutlineColor);
         ramp.transform.SetParent(transform, true);
+
+        //飛び出した先の軌道に沿ってアイテムを並べる（ごほうび）
+        Vector3 top = new Vector3(x, startY + rampLength * Mathf.Sin(RampAngle * Mathf.Deg2Rad), startZ + length);
+        _itemGenerate.SpawnArc(top, RampArcItems);
     }
 
     //清水 左右の端に、地形に沿った半透明の壁を作る
