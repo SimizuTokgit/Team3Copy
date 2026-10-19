@@ -38,7 +38,10 @@ public class GameHUD : MonoBehaviour
     private GameObject _bossBar;
     private TextMeshProUGUI _bossName;
     private RectTransform _bossFill;
+    private Image _bossFillImage;
     private float _bossFillTarget = 1f;
+    private bool _bossBarIsHp = false; //false のときは「次のボスまで」のゲージ
+    private static readonly Color ApproachColor = new Color(0.3f, 0.75f, 1f);
 
     private Coroutine _bannerCoroutine;
     private Coroutine _flashCoroutine;
@@ -130,6 +133,7 @@ public class GameHUD : MonoBehaviour
         SetRect(back.rectTransform, new Vector2(0.5f, 0f), new Vector2(900, 30), new Vector2(0.5f, 0f), Vector2.zero);
 
         Image fill = CreateImage("Fill", back.rectTransform, Danger);
+        _bossFillImage = fill;
         _bossFill = fill.rectTransform;
         _bossFill.anchorMin = new Vector2(0, 0);
         _bossFill.anchorMax = new Vector2(1, 1);
@@ -160,11 +164,11 @@ public class GameHUD : MonoBehaviour
     {
         if (!_player || !_gameManager) return;
 
-        //ボス戦中は距離を消して HP バーだけにする
-        if (_bossBattle && _bossBattle.InBattle)
+        //ストーリーは右上を使わず、上のバーで「次のボスまで」と「ボスのHP」を切り替える
+        if (_bossBattle)
         {
             _info.text = "";
-            return;
+            if (_bossBattle.InBattle) return;
         }
 
         if (_gameManager._currentState != GameManager.GameState.Playing) return;
@@ -178,7 +182,7 @@ public class GameHUD : MonoBehaviour
         if (_bossBattle)
         {
             if (_bossBattle.BossNumber <= _bossBattle.BossCount)
-                _info.text = $"NEXT BOSS  {Mathf.CeilToInt(_bossBattle.DistanceToNextBoss):N0}m\n<size=70%>BOSS {_bossBattle.BossNumber}/{_bossBattle.BossCount}</size>";
+                ShowApproach(_bossBattle.DistanceToNextBoss, _bossBattle.CurrentRunDistance, _bossBattle.BossNumber, _bossBattle.BossCount);
         }
         else
         {
@@ -297,6 +301,17 @@ public class GameHUD : MonoBehaviour
     {
         _bossBar.SetActive(true);
         _bossName.text = bossName;
+        _bossFillImage.color = Danger;
+
+        //「次のボスまで」から切り替わったときも満タンから
+        if (!_bossBarIsHp)
+        {
+            _bossBarIsHp = true;
+            Vector2 full = _bossFill.anchorMax;
+            full.x = 1f;
+            _bossFill.anchorMax = full;
+        }
+
         _bossFillTarget = maxHp > 0 ? Mathf.Clamp01((float)hp / maxHp) : 0f;
 
         //出したばかりのときは満タンから
@@ -311,6 +326,20 @@ public class GameHUD : MonoBehaviour
     public void HideBossBar()
     {
         _bossBar.SetActive(false);
+        _bossBarIsHp = false;
+    }
+
+    /// <summary>
+    /// ボスのHPバーと同じ場所に「次のボスまで◯m」を出す（近づくほどゲージがたまる）
+    /// </summary>
+    public void ShowApproach(float distance, float totalDistance, int bossNumber, int bossCount)
+    {
+        if (_bossBarIsHp) return;
+
+        _bossBar.SetActive(true);
+        _bossFillImage.color = ApproachColor;
+        _bossName.text = $"NEXT BOSS  {Mathf.CeilToInt(distance):N0}m   <size=70%>{bossNumber}/{bossCount}</size>";
+        _bossFillTarget = totalDistance > 0f ? 1f - Mathf.Clamp01(distance / totalDistance) : 1f;
     }
 
     /// <summary>

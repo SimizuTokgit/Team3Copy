@@ -17,6 +17,10 @@ public class MotherComputer : MonoBehaviour
 
     public int MaxHp => MAX_HP;
 
+    //清水 跳んでいる途中なら着地する予定の位置（ジャンプ台や障害物を減らす場所を決めるのに使う）
+    public bool IsMoving => _isMoving;
+    public float RestZ => _isMoving ? _targetPosition.z : transform.position.z;
+
     // アーチ移動設定
     [SerializeField] private float MOVE_DISTANCE = 1000f;
     [SerializeField] private float MOVE_DURATION = 2.0f;

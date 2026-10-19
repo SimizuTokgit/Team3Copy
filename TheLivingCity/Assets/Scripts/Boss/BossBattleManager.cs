@@ -48,6 +48,14 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private float ClearDelay = 2.0f;         //ラスボスを倒してからクリア画面に行くまで（実時間）
     [SerializeField] private float MinIntroTime = 2.5f;       //ボス登場で止めておく最短の秒数（カットシーンが無いとき用）
 
+    [Header("ボスの手前のジャンプ台")]
+    [SerializeField] private GameObject RampPrefab;              //Highway を傾けて坂にする
+    [SerializeField] private float RampAngle = 15f;              //坂の角度
+    [SerializeField] private float RampGap = 110f;               //坂の上の端からボスまでの距離
+    [SerializeField] private float RampSpawnDistance = 600f;     //ボスがこの距離まで近づいたら置く
+    [SerializeField] private float NoHazardBeforeBoss = 350f;    //ボスの手前この距離はギミックを置かない
+    [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
+
     [Header("2 感電触手")]
     [SerializeField] private GameObject[] ElectricBasePrefabs; //触手が巻き付く土台（電柱など）
     [SerializeField] private GameObject TentaclePrefab;
@@ -75,6 +83,8 @@ public class BossBattleManager : MonoBehaviour
     private float _nextBossZ;
     private bool _isStarted = false;
     private MotherComputer _currentBoss;
+    private BossRamp _ramp;
+    private float _rampForZ = float.NaN;
 
     public bool InBattle { get; private set; } = false;
 
@@ -84,6 +94,7 @@ public class BossBattleManager : MonoBehaviour
     //HUD 用
     public int BossNumber => _index + 1;
     public int BossCount => Encounters.Count;
+    public float CurrentRunDistance => _index < Encounters.Count ? Current.RunDistance : 0f;
     public float DistanceToNextBoss => _isStarted ? Mathf.Max(0f, _nextBossZ - _player.position.z) : (Encounters.Count > 0 ? Encounters[0].RunDistance : 0f);
 
     private void Start()
@@ -110,6 +121,39 @@ public class BossBattleManager : MonoBehaviour
         {
             StartBattle();
         }
+
+        //ボスが止まっていて近づいてきたら、手前にジャンプ台を置く
+        if (InBattle && _currentBoss && !_currentBoss.IsMoving)
+        {
+            float bossZ = _currentBoss.transform.position.z;
+            if (_rampForZ != bossZ && bossZ - _player.position.z <= RampSpawnDistance) PlaceRamp(bossZ);
+        }
+    }
+
+    /// <summary>
+    /// 清水 ボスの手前を空けて、ボスに突撃できるジャンプ台を置く
+    /// </summary>
+    private void PlaceRamp(float bossZ)
+    {
+        if (!RampPrefab)
+        {
+            _rampForZ = bossZ;
+            return;
+        }
+
+        float startZ = bossZ - RampGap - 50f * Mathf.Cos(RampAngle * Mathf.Deg2Rad);
+
+        //登り口の地面の高さ（まだ地面ができていなければ次のフレームでもう一度）
+        Vector3 from = new Vector3(BossSpawnX, 300f, startZ);
+        if (!Physics.Raycast(from, Vector3.down, out RaycastHit hit, 600f, LayerMask.GetMask("Ground"))) return;
+
+        _rampForZ = bossZ;
+
+        //ボスの手前のギミックを片付ける
+        BossHazard.DestroyInRange(bossZ - NoHazardBeforeBoss, bossZ + 100f);
+
+        if (_ramp) Destroy(_ramp.gameObject);
+        _ramp = BossRamp.Create(RampPrefab, hit.point, RampAngle, _currentBoss.transform, RampOutlineColor);
     }
 
     /// <summary>
@@ -248,6 +292,8 @@ public class BossBattleManager : MonoBehaviour
         _currentBoss = null;
 
         //ボスのギミックを片付けて、ふつうのランに戻す
+        if (_ramp) Destroy(_ramp.gameObject);
+        _rampForZ = float.NaN;
         InBattle = false;
         _ground._isBoss = false;
         _ground.ConnectEnd();
@@ -277,6 +323,15 @@ public class BossBattleManager : MonoBehaviour
     public void SpawnHazards(GroundAutomatically chunk)
     {
         if (!InBattle) return;
+
+        //ボスの手前（ジャンプ台のあたり）は障害物を置かない
+        if (_currentBoss)
+        {
+            float restZ = _currentBoss.RestZ;
+            float chunkStart = chunk.chunkZ * chunk.ChunkLength;
+            float chunkEnd = chunkStart + chunk.ChunkLength;
+            if (chunkEnd > restZ - NoHazardBeforeBoss && chunkStart < restZ + 100f) return;
+        }
 
         for (int i = 0; i < Current.HazardsPerChunk; i++)
         {

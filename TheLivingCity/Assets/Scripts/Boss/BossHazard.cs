@@ -31,6 +31,19 @@ public class BossHazard : MonoBehaviour
     }
 
     /// <summary>
+    /// 奥行き zMin〜zMax にあるボスギミックを消す（ボスの手前を空けるときなど）
+    /// </summary>
+    public static void DestroyInRange(float zMin, float zMax)
+    {
+        foreach (BossHazard hazard in new List<BossHazard>(hazards))
+        {
+            if (!hazard) continue;
+            float z = hazard.transform.position.z;
+            if (z >= zMin && z <= zMax) Destroy(hazard.gameObject);
+        }
+    }
+
+    /// <summary>
     /// 触れたら一撃死になるようにする（Deadレイヤー＋トリガー）
     /// </summary>
     public static void MakeDeadly(GameObject root)
