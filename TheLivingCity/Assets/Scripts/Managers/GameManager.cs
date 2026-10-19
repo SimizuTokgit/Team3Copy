@@ -29,7 +29,8 @@ public class GameManager : MonoBehaviour
         Playing,
         Pause,
         GameClear,
-        GameOver
+        GameOver,
+        Event      //清水 ボス登場などの演出中。プレイヤーも時間も止まる
     }
 
     public GameState _currentState;
@@ -83,6 +84,10 @@ public class GameManager : MonoBehaviour
         else if (_currentState == GameState.GameOver)
         {
             if (!isGameOver) GameOver();
+        }
+        else if (_currentState == GameState.Event)
+        {
+            PauseImage.SetActive(false);
         }
     }
 

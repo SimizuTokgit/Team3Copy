@@ -11,12 +11,23 @@ public class TimeManager : MonoBehaviour
     [SerializeField] private NumberImage REMAINING_TIME_NUMBER; // 制限時間表示
     public float _remainingTime; //残り時間
 
+    //清水 制限時間を使うか（ストーリーは使わない。表示も消す）
+    [SerializeField] private bool USE_TIME_LIMIT = true;
+    public bool UseTimeLimit => USE_TIME_LIMIT;
+
     //清水 チェックポイントで回復する秒数（UI に出す用）
-    public float RecoveryTime => TIME_RECOVERY;
+    public float RecoveryTime => USE_TIME_LIMIT ? TIME_RECOVERY : 0f;
 
     void Start()
     {
         _remainingTime = TIME_LIMIT;
+
+        if (!USE_TIME_LIMIT)
+        {
+            REMAINING_TIME_NUMBER.gameObject.SetActive(false);
+            return;
+        }
+
         //清水 小数も出せるように float のまま渡す（桁数は NumberImage の Decimals で決める）
         REMAINING_TIME_NUMBER.SetNumber(_remainingTime);
     }
@@ -26,6 +37,8 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public void RemainingTime()
     {
+        if (!USE_TIME_LIMIT) return;
+
         _remainingTime -= Time.deltaTime;
         REMAINING_TIME_NUMBER.SetWarning(IsLowTime());
         //清水 小数も出せるように float のまま渡す
@@ -53,7 +66,7 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public bool IsTimeUp()
     {
-        return _remainingTime <= 0.0f;
+        return USE_TIME_LIMIT && _remainingTime <= 0.0f;
     }
 
     /// <summary>
@@ -61,7 +74,7 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public bool IsLowTime()
     {
-        return _remainingTime <= LOW_TIME_THRESHOLD;
+        return USE_TIME_LIMIT && _remainingTime <= LOW_TIME_THRESHOLD;
     }
 
 }

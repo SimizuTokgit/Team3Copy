@@ -3957,6 +3957,7 @@ MonoBehaviour:
   LOW_TIME_THRESHOLD: 10
   REMAINING_TIME_NUMBER: {fileID: 895768237}
   _remainingTime: 0
+  USE_TIME_LIMIT: 0
 --- !u!1 &1278571666
 GameObject:
   m_ObjectHideFlags: 0

@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviour
     private GameManager.GameState prevState;
     private void OnPause(InputValue value)
     {
+        //清水 演出中はポーズさせない
+        if (_gameManager._currentState == GameManager.GameState.Event) return;
+
         if (_gameManager._currentState != GameManager.GameState.Pause)
         {
             prevState = _gameManager._currentState;

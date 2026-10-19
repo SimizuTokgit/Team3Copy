@@ -21,7 +21,9 @@ public class Player : MonoBehaviour
 
     private readonly int GuaranteedDamage = 10;     //絶対受ける最低ダメージ
 
-    public bool isInvincible { get; private set; } = false;
+    //清水 いつまで無敵か。短い無敵を後から重ねても、長い無敵が途中で切れないようにした
+    private float _invincibleUntil = 0f;
+    public bool isInvincible => Time.time < _invincibleUntil;
 
     private Vector3 prevSpeed = Vector3.zero;
 
@@ -55,7 +57,9 @@ public class Player : MonoBehaviour
 
     public void Execute(InputInfo inputInfo)
     {
-        if (GameManager._currentState != GameManager.GameState.Pause)
+        //清水 ボス登場の演出中（Event）も止める
+        if (GameManager._currentState != GameManager.GameState.Pause &&
+            GameManager._currentState != GameManager.GameState.Event)
         {
             if (!(StateManager.CurrentState is BoostState)) MoveController.BoostSpeedCorrection(PlayerStatus);
 
@@ -114,13 +118,7 @@ public class Player : MonoBehaviour
     //無敵状態を設定する関数
     public void SetInvincibleTime(float invincibleTime)
     {
-        isInvincible = true;
-        Invoke(nameof(ResetIsInvincible), invincibleTime);
-    }
-
-    private void ResetIsInvincible()
-    {
-        isInvincible = false;
+        _invincibleUntil = Mathf.Max(_invincibleUntil, Time.time + invincibleTime);
     }
 
     public void PausePlayer()

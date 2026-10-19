@@ -49,7 +49,7 @@ public class PlayerMagnetManager : MonoBehaviour
                 Instantiate(item.ItemEffect,player.transform);
 
                 //清水 何を取ったか分かるように文字を出して、少しだけ加速させる
-                if (item.ShowPopup) GameHUD.Get().Popup(item.GetPopupText(player.PlayerStatus), item.PopupColor);
+                GameHUD.Get().Popup(item.GetPopupText(player.PlayerStatus), item.PopupColor);
                 player.MoveController.AddSpeed(ItemSpeedKick);
 
                 if (player.tutorialManager != null)

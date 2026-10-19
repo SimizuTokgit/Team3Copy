@@ -11,7 +11,8 @@ public class BoostState : ICharacterState
         player.Physics.SetVelocity(velocty);
         player.PlayerCamera.SetTargetFov(80);
 
-        player.SetInvincibleTime(1.0f);
+        //清水 ブーストしている間はずっと無敵
+        player.SetInvincibleTime(boostTime);
         player.EffectManager.PlayBoostEffect();
     }
     public void Execute(Player player, InputInfo inputInfo)

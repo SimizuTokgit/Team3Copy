@@ -159,6 +159,14 @@ public class GameHUD : MonoBehaviour
     private void UpdateInfo()
     {
         if (!_player || !_gameManager) return;
+
+        //ボス戦中は距離を消して HP バーだけにする
+        if (_bossBattle && _bossBattle.InBattle)
+        {
+            _info.text = "";
+            return;
+        }
+
         if (_gameManager._currentState != GameManager.GameState.Playing) return;
 
         if (!_isStarted)
@@ -169,9 +177,7 @@ public class GameHUD : MonoBehaviour
 
         if (_bossBattle)
         {
-            if (_bossBattle.InBattle)
-                _info.text = $"BOSS {_bossBattle.BossNumber}/{_bossBattle.BossCount}";
-            else if (_bossBattle.BossNumber <= _bossBattle.BossCount)
+            if (_bossBattle.BossNumber <= _bossBattle.BossCount)
                 _info.text = $"NEXT BOSS  {Mathf.CeilToInt(_bossBattle.DistanceToNextBoss):N0}m\n<size=70%>BOSS {_bossBattle.BossNumber}/{_bossBattle.BossCount}</size>";
         }
         else

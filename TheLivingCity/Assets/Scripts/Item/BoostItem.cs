@@ -13,8 +13,5 @@
         return $"BOOST UP!  <size=70%>{playerStatus.BOOST_POWER}</size>";
     }
 
-    //ブーストは文字を出さない（テストで「いらない」となった）
-    public override bool ShowPopup => false;
-
     public override UnityEngine.Color PopupColor => new UnityEngine.Color(0.3f, 0.8f, 1f);
 }
