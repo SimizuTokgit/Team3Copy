@@ -233,9 +233,9 @@ public class BossBattleManager : MonoBehaviour
         if (HitSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(HitSE);
 
         GameHUD.Get().ShowBossBar(Current.DisplayName, hp, maxHp);
-        //速いほど大ダメージ。速さも見せて「もっと速く」と思わせる
+        //速いほど大ダメージ
         string title = isCritical ? "CRITICAL!!" : "HIT!";
-        GameHUD.Get().Banner($"{title}  -{damage}\n<size=55%>{Mathf.RoundToInt(speed * 3.6f)} km/h</size>", isCritical ? GameHUD.Danger : GameHUD.Gold, 1.2f);
+        GameHUD.Get().Banner($"{title}  -{damage}", isCritical ? GameHUD.Danger : GameHUD.Gold, 1.2f);
     }
 
     //カットシーンを流して、その長さ（秒）を返す

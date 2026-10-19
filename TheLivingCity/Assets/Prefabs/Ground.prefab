@@ -64,6 +64,9 @@ MonoBehaviour:
   _itemGenerate: {fileID: 7412737748937216116}
   _ground: {fileID: 0}
   PlayerStartPos: {x: 0, y: 0, z: 0}
+  RampPrefab: {fileID: 8029206362356471024, guid: d1a88fc7220c6ee46a68df2f4fe472bd, type: 3}
+  RampChance: 0.15
+  RampAngle: 12
 --- !u!114 &1469693730816571860
 MonoBehaviour:
   m_ObjectHideFlags: 0

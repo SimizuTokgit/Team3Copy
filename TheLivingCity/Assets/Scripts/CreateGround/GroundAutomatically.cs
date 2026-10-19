@@ -61,6 +61,13 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
     private ChunkLayout _layout;
 
+    //清水 たまに置くジャンプ台（Highway を傾ける）
+    [Header("ジャンプ台")]
+    [SerializeField] private GameObject RampPrefab;
+    [SerializeField, Range(0f, 1f)] private float RampChance = 0.15f;  //地面1枚あたりに置く確率
+    [SerializeField] private float RampAngle = 12f;
+    [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
+
     private void Awake()
     {
         _ground = FindAnyObjectByType<GeneretoGround>();
@@ -307,6 +314,7 @@ public class GroundAutomatically : MonoBehaviour
         _layout.Collect();
         _layout.ClearCorridor(_ground.GetCorridorStart(chunkZ, ChunkWidth * 0.5f), CorridorWidth, CorridorDrift, CorridorMargin);
         _ground.SetCorridorEnd(chunkZ, _layout.CorridorEndX);
+        TryPlaceRamp();
         _generateObstacle.ApplyOutlines();
 
         _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate);
@@ -415,6 +423,30 @@ public class GroundAutomatically : MonoBehaviour
     {
         Vector3 local = transform.InverseTransformPoint(t.position);
         t.position += transform.up * GetLocalHeight(local.x, local.z);
+    }
+
+    //清水 たまに、必ず通れる道の上にジャンプ台を置く（まわりの障害物はどける）
+    private void TryPlaceRamp()
+    {
+        if (!RampPrefab || Random.value >= RampChance) return;
+
+        const float rampWidth = 18f;
+        const float rampLength = 50f;
+        float length = rampLength * Mathf.Cos(RampAngle * Mathf.Deg2Rad);
+
+        float startZ = Random.Range(ChunkLength * 0.08f, ChunkLength - length - ChunkLength * 0.08f);
+        if (startZ < 0f) return;
+
+        //道の真ん中に合わせる（壁にはみ出さないように）
+        float half = rampWidth * 0.5f + 1f;
+        float x = Mathf.Clamp(_layout.CorridorX(startZ + length * 0.5f), half, ChunkWidth - half);
+
+        //ジャンプ台の下と、飛び出した先を少し空ける
+        _layout.ClearArea(new Rect(x - half, startZ - 2f, half * 2f, length + 20f));
+
+        Vector3 start = transform.TransformPoint(new Vector3(x, GetLocalHeight(x, startZ), startZ));
+        BossRamp ramp = BossRamp.Create(RampPrefab, start, RampAngle, null, RampOutlineColor);
+        ramp.transform.SetParent(transform, true);
     }
 
     //清水 左右の端に、地形に沿った半透明の壁を作る

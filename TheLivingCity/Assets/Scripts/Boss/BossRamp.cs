@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 
 //清水
-//ボスの手前に置くジャンプ台（Highway を傾けて坂にする）
-//坂を登りきって飛び出すと、BossRampLauncher がボスに届くように飛ばしてくれる
+//Highway を傾けて坂にしたジャンプ台
+//ボスの手前に置くときは、坂を登りきって飛び出すと BossRampLauncher がボスに届くように飛ばしてくれる
+//道の途中にたまに置くとき（target なし）は、ふつうに飛び出すだけ
 public class BossRamp : MonoBehaviour
 {
     private Transform _player;
@@ -62,15 +63,18 @@ public class BossRamp : MonoBehaviour
         floor.size = new Vector3(width, 0.5f, length);
         floor.center = new Vector3(0f, -0.15f, length * 0.5f);
 
-        //坂の先の空中に、飛び出したら飛ばす範囲を置く
+        //坂の先の空中に、飛び出したらボスへ飛ばす範囲を置く
         Vector3 farEnd = startPos + tilt * new Vector3(0f, 0f, length);
-        GameObject launch = new GameObject("RampLaunch");
-        launch.transform.SetParent(root.transform, false);
-        launch.transform.position = farEnd + new Vector3(0f, 3f, 6f);
-        BoxCollider zone = launch.AddComponent<BoxCollider>();
-        zone.isTrigger = true;
-        zone.size = new Vector3(width + 6f, 10f, 10f);
-        launch.AddComponent<BossRampLauncher>().SetTarget(target);
+        if (target)
+        {
+            GameObject launch = new GameObject("RampLaunch");
+            launch.transform.SetParent(root.transform, false);
+            launch.transform.position = farEnd + new Vector3(0f, 3f, 6f);
+            BoxCollider zone = launch.AddComponent<BoxCollider>();
+            zone.isTrigger = true;
+            zone.size = new Vector3(width + 6f, 10f, 10f);
+            launch.AddComponent<BossRampLauncher>().SetTarget(target);
+        }
 
         ramp._endZ = farEnd.z;
         return ramp;
@@ -84,6 +88,9 @@ public class BossRamp : MonoBehaviour
 
     private void Update()
     {
+        //地面の子になっているときは、地面を作り直すときに一緒に消える
+        if (transform.parent) return;
+
         //通り過ぎたら片付ける
         if (_player && _player.position.z > _endZ + 150f) Destroy(gameObject);
     }

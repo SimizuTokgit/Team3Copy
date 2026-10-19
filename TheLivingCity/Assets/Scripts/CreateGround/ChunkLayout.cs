@@ -19,6 +19,7 @@ public class ChunkLayout
 
     private readonly GroundAutomatically _chunk;
     private readonly List<Block> _blocks = new List<Block>();
+    private readonly List<Rect> _noItemAreas = new List<Rect>(); //アイテムを置かない場所（ジャンプ台の下など）
 
     public float CorridorStartX { get; private set; }
     public float CorridorEndX { get; private set; }
@@ -130,10 +131,25 @@ public class ChunkLayout
         CorridorEndX = bestEnd;
 
         //ふさいでいるまとまりを消す
+        RemoveUnits(b => Blocks(b, CorridorStartX, CorridorEndX));
+    }
+
+    /// <summary>
+    /// 清水 四角い範囲（ローカル座標）にかかる障害物をどけて、そこにはアイテムも置かない（ジャンプ台を置くときなど）
+    /// </summary>
+    public void ClearArea(Rect area)
+    {
+        RemoveUnits(b => b.Max.x > area.xMin && b.Min.x < area.xMax && b.Max.z > area.yMin && b.Min.z < area.yMax);
+        _noItemAreas.Add(area);
+    }
+
+    //条件に当てはまる当たり判定のまとまりを消す
+    private void RemoveUnits(System.Predicate<Block> match)
+    {
         HashSet<Transform> remove = new HashSet<Transform>();
         foreach (Block b in _blocks)
         {
-            if (Blocks(b, CorridorStartX, CorridorEndX)) remove.Add(b.Unit);
+            if (match(b)) remove.Add(b.Unit);
         }
 
         //消したものの上に乗っていた物も一緒に消す（宙に浮かないように）
@@ -151,7 +167,7 @@ public class ChunkLayout
             {
                 foreach (Block b in _blocks)
                 {
-                    if (b.Unit == unit && b.Collider && Blocks(b, CorridorStartX, CorridorEndX)) b.Collider.enabled = false;
+                    if (b.Unit == unit && b.Collider && match(b)) b.Collider.enabled = false;
                 }
                 continue;
             }
@@ -181,6 +197,11 @@ public class ChunkLayout
     /// </summary>
     public bool IsFree(float localX, float localZ, float radius)
     {
+        foreach (Rect area in _noItemAreas)
+        {
+            if (area.Contains(new Vector2(localX, localZ))) return false;
+        }
+
         float ground = _chunk.GetLocalHeight(localX, localZ);
         foreach (Block b in _blocks)
         {
