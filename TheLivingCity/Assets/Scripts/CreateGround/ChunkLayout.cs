@@ -220,8 +220,7 @@ public class ChunkLayout
         if (!b.Unit) return false;
 
         //地面から走る高さまでにかかっていなければ、下をくぐれる・上を飛び越えられる
-        float ground = _chunk.GetLocalHeight((b.Min.x + b.Max.x) * 0.5f, (b.Min.z + b.Max.z) * 0.5f);
-        if (b.Max.y < ground - 0.5f || b.Min.y > ground + RunHeight) return false;
+        if (!TouchesRunBand(b)) return false;
 
         //その奥行きの間で道が通るxの範囲
         float zMin = Mathf.Clamp(b.Min.z, 0f, _chunk.ChunkLength);
@@ -235,6 +234,83 @@ public class ChunkLayout
         float right = Mathf.Max(c0, c1) + half;
 
         return b.Max.x > left && b.Min.x < right;
+    }
+
+    //障害物の下の地面（四すみと真ん中）のどこかで、走る高さにかかっているか
+    private bool TouchesRunBand(Block b)
+    {
+        float cx = (b.Min.x + b.Max.x) * 0.5f;
+        float cz = (b.Min.z + b.Max.z) * 0.5f;
+        float low = float.MaxValue;
+        float high = float.MinValue;
+        foreach (Vector2 p in new[] { new Vector2(cx, cz), new Vector2(b.Min.x, b.Min.z), new Vector2(b.Max.x, b.Min.z), new Vector2(b.Min.x, b.Max.z), new Vector2(b.Max.x, b.Max.z) })
+        {
+            float g = _chunk.GetLocalHeight(p.x, p.y);
+            low = Mathf.Min(low, g);
+            high = Mathf.Max(high, g);
+        }
+        return b.Max.y >= low - 0.5f && b.Min.y <= high + RunHeight;
+    }
+
+    /// <summary>
+    /// 清水 道を奥行き step ごとに輪切りにして、地面に接した障害物で横一面ふさがっている列がないか調べる
+    /// 通れる隙間が minGap より狭い列があれば、いちばん少ない撤去で隙間が開く障害物をどける
+    /// </summary>
+    public void EnsureGaps(float minGap, float step, float margin)
+    {
+        float width = _chunk.ChunkWidth;
+        for (float z = 0f; z < _chunk.ChunkLength; z += step)
+        {
+            //この列にかかっている、地面に接した障害物
+            List<Block> row = _blocks.FindAll(b => b.Unit && b.Max.z > z && b.Min.z < z + step && TouchesRunBand(b));
+            if (row.Count == 0) continue;
+
+            HashSet<Transform> removed = new HashSet<Transform>();
+            while (WidestGap(row, removed, margin, width - margin) < minGap)
+            {
+                //どれを1つどければ隙間がいちばん広がるか
+                Transform best = null;
+                float bestGap = -1f;
+                foreach (Block b in row)
+                {
+                    if (removed.Contains(b.Unit)) continue;
+                    removed.Add(b.Unit);
+                    float gap = WidestGap(row, removed, margin, width - margin);
+                    removed.Remove(b.Unit);
+                    if (gap > bestGap)
+                    {
+                        bestGap = gap;
+                        best = b.Unit;
+                    }
+                }
+                if (!best) break;
+                removed.Add(best);
+            }
+
+            if (removed.Count > 0) RemoveUnits(b => removed.Contains(b.Unit));
+        }
+    }
+
+    //障害物のあいだの、いちばん広い隙間（x）
+    private static float WidestGap(List<Block> row, HashSet<Transform> removed, float left, float right)
+    {
+        List<Vector2> spans = new List<Vector2>();
+        foreach (Block b in row)
+        {
+            if (removed.Contains(b.Unit) || (b.Collider && !b.Collider.enabled)) continue;
+            spans.Add(new Vector2(b.Min.x, b.Max.x));
+        }
+        spans.Sort((a, c) => a.x.CompareTo(c.x));
+
+        float widest = 0f;
+        float cursor = left;
+        foreach (Vector2 s in spans)
+        {
+            widest = Mathf.Max(widest, Mathf.Min(s.x, right) - cursor);
+            cursor = Mathf.Max(cursor, s.y);
+            if (cursor >= right) break;
+        }
+        return Mathf.Max(widest, right - cursor);
     }
 
     private void RemoveStackedOn(Transform unit, HashSet<Transform> remove)

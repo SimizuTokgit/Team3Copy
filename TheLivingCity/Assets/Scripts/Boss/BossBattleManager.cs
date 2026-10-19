@@ -404,7 +404,20 @@ public class BossBattleManager : MonoBehaviour
     {
         if (ElectricBasePrefabs == null || ElectricBasePrefabs.Length == 0) return;
 
-        GameObject root = CreateHazardRoot(chunk, "ElectricTentacle", RandomPoint(chunk, 6f));
+        //必ず通れる道の上には置かない
+        Vector3 point = RandomPoint(chunk, 6f);
+        if (chunk.Layout != null)
+        {
+            float lane = chunk.Layout.CorridorX(point.z);
+            float keep = chunk.Layout.CorridorWidth * 0.5f + 4f;
+            if (Mathf.Abs(point.x - lane) < keep)
+            {
+                point.x = lane + (point.x < lane ? -keep : keep);
+                if (point.x < 6f || point.x > chunk.ChunkWidth - 6f) return; //道の外に置く場所がなければ置かない
+                point.y = chunk.GetLocalHeight(point.x, point.z);
+            }
+        }
+        GameObject root = CreateHazardRoot(chunk, "ElectricTentacle", point);
 
         GameObject basePrefab = ElectricBasePrefabs[Random.Range(0, ElectricBasePrefabs.Length)];
         Instantiate(basePrefab, root.transform).transform.localPosition = Vector3.zero;

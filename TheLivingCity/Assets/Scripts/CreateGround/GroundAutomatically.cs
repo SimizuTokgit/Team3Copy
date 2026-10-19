@@ -60,6 +60,8 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField] private float CorridorMargin = 3f;  //壁からどれだけ離すか
     [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
     [SerializeField, Range(0f, 1f)] private float ItemInAirRate = 0.2f;      //ジャンプで取る高さに置く割合
+    [SerializeField] private float MinGap = 8f;      //どの列にも必ず空ける隙間の幅
+    public ChunkLayout Layout => _layout;
     private ChunkLayout _layout;
 
     //清水 たまに置くジャンプ台（Highway を傾ける）
@@ -316,6 +318,8 @@ public class GroundAutomatically : MonoBehaviour
         _layout.Collect();
         _layout.ClearCorridor(_ground.GetCorridorStart(chunkZ, ChunkWidth * 0.5f), CorridorWidth, CorridorDrift, CorridorMargin);
         _ground.SetCorridorEnd(chunkZ, _layout.CorridorEndX);
+        //清水 道の外も含めて、横一面ふさがっている列がないようにする
+        _layout.EnsureGaps(MinGap, 2f, 1f);
         TryPlaceRamp();
         _generateObstacle.ApplyOutlines();
 
