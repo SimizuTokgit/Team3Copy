@@ -235,8 +235,10 @@ public class ChunkLayout
         {
             if (other == unit || remove.Contains(other)) continue;
 
+            //半分より上にある物だけ「上に乗っている」とみなす（高架の下の木などは残す）
             Vector3 local = _chunk.transform.InverseTransformPoint(other.position);
-            bool onTop = local.x >= min.x && local.x <= max.x && local.z >= min.z && local.z <= max.z && local.y > min.y + 1f;
+            float middle = (min.y + max.y) * 0.5f;
+            bool onTop = local.x >= min.x && local.x <= max.x && local.z >= min.z && local.z <= max.z && local.y > middle;
             if (onTop) remove.Add(other);
         }
     }

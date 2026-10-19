@@ -149,8 +149,12 @@ public class BossBattleManager : MonoBehaviour
 
         _rampForZ = bossZ;
 
-        //ボスの手前のギミックを片付ける
+        //ボスの手前のギミック・障害物・アイテムを片付ける
         BossHazard.DestroyInRange(bossZ - NoHazardBeforeBoss, bossZ + 100f);
+        foreach (GroundAutomatically chunk in _ground.groundScripts)
+        {
+            if (chunk.gameObject.activeInHierarchy && IsNearBoss(chunk)) chunk.ClearObstaclesAndItems();
+        }
 
         if (_ramp) Destroy(_ramp.gameObject);
         _ramp = BossRamp.Create(RampPrefab, hit.point, RampAngle, _currentBoss.transform, RampOutlineColor);
@@ -198,11 +202,12 @@ public class BossBattleManager : MonoBehaviour
         float introTime = PlayCutScene(boss.transform);
         yield return new WaitForSecondsRealtime(Mathf.Max(introTime, MinIntroTime));
 
-        //先の地面にギミックを置く（すぐ前は空けておく）
+        //先の地面にふつうの障害物とギミックを置く（すぐ前とボスの手前は空けておく）
         foreach (GroundAutomatically chunk in _ground.groundScripts)
         {
             if (chunk.gameObject.activeInHierarchy && chunk.transform.position.z > _player.position.z + SafeDistanceOnStart)
             {
+                if (AllowObstacles(chunk)) chunk.GenObsItem();
                 SpawnHazards(chunk);
             }
         }
@@ -222,13 +227,15 @@ public class BossBattleManager : MonoBehaviour
     /// <summary>
     /// ボスに当てた（MotherComputer から呼ばれる。倒したときは OnBossDefeated）
     /// </summary>
-    public void OnBossHit(MotherComputer boss, int hp, int maxHp)
+    public void OnBossHit(MotherComputer boss, int hp, int maxHp, int damage, float speed, bool isCritical)
     {
         SpawnEffect(HitEffect, boss.transform.position);
         if (HitSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(HitSE);
 
         GameHUD.Get().ShowBossBar(Current.DisplayName, hp, maxHp);
-        GameHUD.Get().Banner($"HIT!  {maxHp - hp}/{maxHp}", GameHUD.Gold, 1.0f);
+        //速いほど大ダメージ。速さも見せて「もっと速く」と思わせる
+        string title = isCritical ? "CRITICAL!!" : "HIT!";
+        GameHUD.Get().Banner($"{title}  -{damage}\n<size=55%>{Mathf.RoundToInt(speed * 3.6f)} km/h</size>", isCritical ? GameHUD.Danger : GameHUD.Gold, 1.2f);
     }
 
     //カットシーンを流して、その長さ（秒）を返す
@@ -318,6 +325,25 @@ public class BossBattleManager : MonoBehaviour
     }
 
     /// <summary>
+    /// ボス戦中でもふつうの障害物を置いてよいか（ボスの手前は空ける）
+    /// </summary>
+    public bool AllowObstacles(GroundAutomatically chunk)
+    {
+        return !IsNearBoss(chunk);
+    }
+
+    //この地面がボスの手前（ジャンプ台を置くあたり）にかかっているか
+    private bool IsNearBoss(GroundAutomatically chunk)
+    {
+        if (!_currentBoss) return false;
+
+        float restZ = _currentBoss.RestZ;
+        float chunkStart = chunk.chunkZ * chunk.ChunkLength;
+        float chunkEnd = chunkStart + chunk.ChunkLength;
+        return chunkEnd > restZ - NoHazardBeforeBoss && chunkStart < restZ + 100f;
+    }
+
+    /// <summary>
     /// ボス戦中に新しい地面ができたらギミックを置く（GroundAutomatically から呼ばれる）
     /// </summary>
     public void SpawnHazards(GroundAutomatically chunk)
@@ -325,13 +351,7 @@ public class BossBattleManager : MonoBehaviour
         if (!InBattle) return;
 
         //ボスの手前（ジャンプ台のあたり）は障害物を置かない
-        if (_currentBoss)
-        {
-            float restZ = _currentBoss.RestZ;
-            float chunkStart = chunk.chunkZ * chunk.ChunkLength;
-            float chunkEnd = chunkStart + chunk.ChunkLength;
-            if (chunkEnd > restZ - NoHazardBeforeBoss && chunkStart < restZ + 100f) return;
-        }
+        if (IsNearBoss(chunk)) return;
 
         for (int i = 0; i < Current.HazardsPerChunk; i++)
         {
@@ -413,7 +433,7 @@ public class BossBattleManager : MonoBehaviour
         BurnerHazard burner = root.AddComponent<BurnerHazard>();
 
         BurnerHazard.Pattern pattern = Random.value < 0.5f ? BurnerHazard.Pattern.AllAtOnce : BurnerHazard.Pattern.Alternate;
-        burner.Setup(BurnerPrefab, chunk.ChunkWidth, BurnerSpacing, pattern, Random.Range(0f, 3f));
+        burner.Setup(BurnerPrefab, chunk, BurnerSpacing, pattern, Random.Range(0f, 6f));
     }
 
     // 4 電車：横切るか正面から来る

@@ -784,7 +784,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d067092f57eb9764e95e69cc539c6828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MotherComputer
-  MAX_HP: 3
+  MAX_HP: 100
   MOVE_DISTANCE: 1000
   MOVE_DURATION: 2
   ARC_HEIGHT: 0

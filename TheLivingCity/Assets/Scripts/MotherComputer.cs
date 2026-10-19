@@ -4,6 +4,11 @@ using UnityEngine;
 public class MotherComputer : MonoBehaviour
 {
     [SerializeField] private int MAX_HP = 10;
+
+    //清水 速くぶつかるほど大ダメージ（速さ m/s × DAMAGE_PER_SPEED）
+    [SerializeField] private float DAMAGE_PER_SPEED = 0.6f;
+    [SerializeField] private int MIN_DAMAGE = 10;
+    [SerializeField] private int MAX_DAMAGE = 60;
     private GameManager GameManager;
 
     //清水 ストーリーで何体も出すときの進行役。いなければ倒した時点でクリア
@@ -109,13 +114,19 @@ public class MotherComputer : MonoBehaviour
     {
         if (_isMoving) return;
 
-        if (other.GetComponent<Player>())
+        Player player = other.GetComponent<Player>();
+        if (player)
         {
-            --_hp;
+            //清水 速さでダメージを決める
+            float speed = player.Physics.GetVelocity().magnitude;
+            int damage = Mathf.Clamp(Mathf.RoundToInt(speed * DAMAGE_PER_SPEED), MIN_DAMAGE, MAX_DAMAGE);
+            bool isCritical = damage >= MAX_DAMAGE * 0.75f;
+            _hp -= damage;
 
-            //清水 当てた手ごたえ（一瞬止める・揺らす・光らせる・ボスを点滅）
-            ScreenEffects.Get().HitStop(0.12f);
-            ScreenEffects.Get().Shake(1.2f, 0.45f);
+            //清水 当てた手ごたえ（一瞬止める・揺らす・光らせる・ボスを点滅）。大ダメージほど強く
+            float power = (float)damage / MAX_DAMAGE;
+            ScreenEffects.Get().HitStop(0.08f + 0.12f * power);
+            ScreenEffects.Get().Shake(0.8f + 1.2f * power, 0.45f);
             ScreenEffects.Get().FlashExposure(1.2f);
             GameHUD.Get().Flash(new Color(1f, 1f, 1f, 0.6f), 0.2f);
             StartCoroutine(Blink());
@@ -129,7 +140,7 @@ public class MotherComputer : MonoBehaviour
                 return;
             }
 
-            if (BattleManager) BattleManager.OnBossHit(this, _hp, MAX_HP);
+            if (BattleManager) BattleManager.OnBossHit(this, _hp, MAX_HP, damage, speed, isCritical);
 
             StartJump();
         }

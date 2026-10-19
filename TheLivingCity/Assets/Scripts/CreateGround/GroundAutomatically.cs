@@ -103,6 +103,9 @@ public class GroundAutomatically : MonoBehaviour
     {
         SmallPosY = float.PositiveInfinity;
 
+        //清水 前に置いた障害物はこの下でまとめて消すので、覚えているリストを空にする
+        if (_generateObstacle) _generateObstacle.ForgetSpawned();
+
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
             if (transform.GetChild(i).name == "LeftWall" || transform.GetChild(i).name == "RightWall")
@@ -256,7 +259,11 @@ public class GroundAutomatically : MonoBehaviour
                 GenObsItem();
             //清水 ストーリーのボス戦はボスごとのギミックを置く
             else if (_ground.BossBattle != null)
+            {
+                //清水 ボス戦でもふつうの障害物は置く（ボスの手前は空ける）
+                if (_ground.BossBattle.AllowObstacles(this)) GenObsItem();
                 _ground.BossBattle.SpawnHazards(this);
+            }
             else
                 GenTentacles();
         }
@@ -354,6 +361,18 @@ public class GroundAutomatically : MonoBehaviour
         CheckScript();
 
         _generateObstacle.ConnectStart(_ground.SameGroundCount);
+    }
+
+    /// <summary>
+    /// 清水 この地面に置いた障害物とアイテムを消す（ジャンプ台のまわりを空けるときなど）
+    /// </summary>
+    public void ClearObstaclesAndItems()
+    {
+        if (_generateObstacle) _generateObstacle.DestroySpawned();
+        foreach (Item item in GetComponentsInChildren<Item>())
+        {
+            Destroy(item.gameObject);
+        }
     }
 
     //清水 チャンクの大きさ（ローカル座標）

@@ -40,6 +40,7 @@ public class GenerateObstacle : MonoBehaviour
 
     private GroundAutomatically _groundMesh;
     private readonly List<GameObject> _placed = new List<GameObject>();
+    private readonly List<GameObject> _spawned = new List<GameObject>(); //この地面に置いた障害物（作り直すまで覚えておく）
 
     public enum Difficulty
     {
@@ -192,6 +193,27 @@ public class GenerateObstacle : MonoBehaviour
         if (_groundMesh) _groundMesh.SnapToGround(obj.transform);
 
         _placed.Add(obj);
+        _spawned.Add(obj);
+    }
+
+    /// <summary>
+    /// 清水 この地面に置いた障害物を消す
+    /// </summary>
+    public void DestroySpawned()
+    {
+        foreach (GameObject obj in _spawned)
+        {
+            if (obj) Destroy(obj);
+        }
+        _spawned.Clear();
+    }
+
+    /// <summary>
+    /// 清水 地面を作り直すとき（子はまとめて消されるので、覚えているリストだけ空にする）
+    /// </summary>
+    public void ForgetSpawned()
+    {
+        _spawned.Clear();
     }
 
     /// <summary>
