@@ -53,6 +53,14 @@ public class GroundAutomatically : MonoBehaviour
 
     private float SmallPosY;
 
+    //清水 必ず通れる道
+    [Header("必ず通れる道")]
+    [SerializeField] private float CorridorWidth = 9f;   //道の幅
+    [SerializeField] private float CorridorDrift = 16f;  //地面1枚で道が横にずれてよい量
+    [SerializeField] private float CorridorMargin = 3f;  //壁からどれだけ離すか
+    [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
+    private ChunkLayout _layout;
+
     private void Awake()
     {
         _ground = FindAnyObjectByType<GeneretoGround>();
@@ -104,6 +112,8 @@ public class GroundAutomatically : MonoBehaviour
             if (MapDecoration.IsPersistentChild(transform.GetChild(i).name))
                 continue;
 
+            //清水 Destroy はフレームの最後なので、先に非表示にして、この後の障害物チェックに数えないようにする
+            transform.GetChild(i).gameObject.SetActive(false);
             Destroy(transform.GetChild(i).gameObject);
         }
 
@@ -232,6 +242,9 @@ public class GroundAutomatically : MonoBehaviour
         //外に出ないように見えない壁を生成
         CreateSideWalls();
 
+        //清水 行けないことが分かるように、端に半透明の壁を見せる
+        BuildBoundaryWalls(vertices);
+
         //清水 道の外の街並み
         if (_ground != null && _ground.Decoration != null)
             _ground.Decoration.Decorate(this);
@@ -282,7 +295,14 @@ public class GroundAutomatically : MonoBehaviour
             _ground.ConnectEnd();
         }
 
-        _itemGenerate.ItemGen(mesh, width, length);
+        //清水 細い障害物を飾りにして、必ず通れる道を空けてから、取れる場所にアイテムを置く
+        _layout = new ChunkLayout(this);
+        _layout.Collect();
+        _layout.ClearCorridor(_ground.GetCorridorStart(chunkZ, ChunkWidth * 0.5f), CorridorWidth, CorridorDrift, CorridorMargin);
+        _ground.SetCorridorEnd(chunkZ, _layout.CorridorEndX);
+        _generateObstacle.ApplyOutlines();
+
+        _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate);
     }
 
     public void GenTentacles()
@@ -376,6 +396,21 @@ public class GroundAutomatically : MonoBehaviour
     {
         Vector3 local = transform.InverseTransformPoint(t.position);
         t.position += transform.up * GetLocalHeight(local.x, local.z);
+    }
+
+    //清水 左右の端に、地形に沿った半透明の壁を作る
+    private void BuildBoundaryWalls(Vector3[] vertices)
+    {
+        float[] left = new float[length + 1];
+        float[] right = new float[length + 1];
+        for (int z = 0; z <= length; z++)
+        {
+            left[z] = vertices[z * (width + 1)].y;
+            right[z] = vertices[width + z * (width + 1)].y;
+        }
+
+        BoundaryWallVisual.Build(transform, "Keep_WallVisualL", 0f, left, scale);
+        BoundaryWallVisual.Build(transform, "Keep_WallVisualR", width * scale, right, scale);
     }
 
     private void CheckScript()

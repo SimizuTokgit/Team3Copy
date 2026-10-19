@@ -79,6 +79,45 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
+    /// 清水 取れる場所にアイテムを置く
+    /// 今までは高さが「地面の高さ×最大ItemUpRate倍」で、山の上だと10m以上浮いて取れなかった
+    /// 障害物の中も避ける。一部は必ず通れる道の上に置く
+    /// </summary>
+    public void ItemGenReachable(GroundAutomatically chunk, ChunkLayout layout, float corridorRate)
+    {
+        const int tries = 10;          //置ける場所が見つかるまで試す回数
+        const float edgeMargin = 3f;   //壁ぎわは避ける
+        const float floatHeight = 1.2f; //地面からの高さ
+
+        for (int i = 0; i < GenerateCount; i++)
+        {
+            int itemNumber = GetWeightedRandom();
+            bool onCorridor = Random.value < corridorRate;
+
+            for (int t = 0; t < tries; t++)
+            {
+                float z = Random.Range(chunk.ChunkLength * 0.1f, chunk.ChunkLength * 0.9f);
+                float x;
+                if (onCorridor)
+                {
+                    float half = layout.CorridorWidth * 0.5f - 1f;
+                    x = layout.CorridorX(z) + Random.Range(-half, half);
+                }
+                else
+                {
+                    x = Random.Range(edgeMargin, chunk.ChunkWidth - edgeMargin);
+                }
+
+                if (!layout.IsFree(x, z, 1.5f)) continue;
+
+                GameObject item = Instantiate(items[itemNumber].prefab, transform);
+                item.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, z) + floatHeight, z);
+                break;
+            }
+        }
+    }
+
+    /// <summary>
     /// 重み付きランダム
     /// </summary>
     private int GetWeightedRandom()

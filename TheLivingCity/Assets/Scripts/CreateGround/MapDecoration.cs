@@ -15,15 +15,16 @@ public class MapDecoration : MonoBehaviour
     [SerializeField] private float MaxSink = 3f;            //地面に沈めて崩れた感じ
     [SerializeField] private float SideGroundY = -0.3f;     //外側の地面の高さ
 
-    private const string SideGroundLeft = "SideGroundL";
-    private const string SideGroundRight = "SideGroundR";
+    //"Keep_" で始まる子は GroundAutomatically が作り直さずに使い回す
+    private const string SideGroundLeft = "Keep_SideGroundL";
+    private const string SideGroundRight = "Keep_SideGroundR";
 
     /// <summary>
     /// GroundAutomatically で作り直さない子かどうか
     /// </summary>
     public static bool IsPersistentChild(string name)
     {
-        return name == SideGroundLeft || name == SideGroundRight;
+        return name.StartsWith("Keep_");
     }
 
     /// <summary>

@@ -39,6 +39,7 @@ public class GenerateObstacle : MonoBehaviour
     [SerializeField] private float ObstacleOutlineWidth = 4f;
 
     private GroundAutomatically _groundMesh;
+    private readonly List<GameObject> _placed = new List<GameObject>();
 
     public enum Difficulty
     {
@@ -164,6 +165,7 @@ public class GenerateObstacle : MonoBehaviour
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
                 Place(obj);
+                ApplyOutlines();
             }
             else
             {
@@ -171,6 +173,7 @@ public class GenerateObstacle : MonoBehaviour
 
                 obj.transform.localPosition = new Vector3(pos.x, 0, pos.z);
                 Place(obj);
+                ApplyOutlines();
 
                 if (ContinueObstacleNumber == 0)
                 {
@@ -181,14 +184,47 @@ public class GenerateObstacle : MonoBehaviour
     }
 
     /// <summary>
-    /// 清水 地面に合わせて置き直し、アウトラインを付ける
+    /// 清水 地面に合わせて置き直す。アウトラインは ApplyOutlines でまとめて付ける
     /// </summary>
     private void Place(GameObject obj)
     {
         if (!_groundMesh) _groundMesh = GetComponent<GroundAutomatically>();
         if (_groundMesh) _groundMesh.SnapToGround(obj.transform);
 
-        if (UseOutline) AddOutline(obj, ObstacleOutlineColor, ObstacleOutlineWidth);
+        _placed.Add(obj);
+    }
+
+    /// <summary>
+    /// 清水 置いた障害物のうち、当たり判定が残っている物だけにアウトラインを付ける
+    /// （細くて飾りになった物には付けない）
+    /// </summary>
+    public void ApplyOutlines()
+    {
+        foreach (GameObject obj in _placed)
+        {
+            if (!obj || !UseOutline) continue;
+
+            if (obj.transform.childCount == 0)
+            {
+                if (HasEnabledCollider(obj)) AddOutline(obj, ObstacleOutlineColor, ObstacleOutlineWidth);
+                continue;
+            }
+
+            foreach (Transform child in obj.transform)
+            {
+                if (HasEnabledCollider(child.gameObject)) AddOutline(child.gameObject, ObstacleOutlineColor, ObstacleOutlineWidth);
+            }
+        }
+        _placed.Clear();
+    }
+
+    private static bool HasEnabledCollider(GameObject obj)
+    {
+        foreach (Collider col in obj.GetComponentsInChildren<Collider>())
+        {
+            if (col.enabled) return true;
+        }
+        return false;
     }
 
     public static void AddOutline(GameObject obj, Color color, float width)

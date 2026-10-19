@@ -72,6 +72,20 @@ public class GeneretoGround : MonoBehaviour
     //清水 道の外の飾り（無くてもよい）
     public MapDecoration Decoration { get; private set; }
 
+    //清水 地面ごとの「必ず通れる道」の終わりのx。次の地面はここから道を始める
+    private readonly Dictionary<int, float> corridorEnds = new Dictionary<int, float>();
+
+    public float GetCorridorStart(int chunkZ, float defaultX)
+    {
+        return corridorEnds.TryGetValue(chunkZ - 1, out float x) ? x : defaultX;
+    }
+
+    public void SetCorridorEnd(int chunkZ, float x)
+    {
+        corridorEnds[chunkZ] = x;
+        corridorEnds.Remove(chunkZ - Maxz - 2); //古いものは捨てる
+    }
+
     void Start()
     {
         BossBattle = FindAnyObjectByType<BossBattleManager>();
