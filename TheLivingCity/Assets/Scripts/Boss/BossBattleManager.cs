@@ -26,6 +26,12 @@ public class BossBattleManager : MonoBehaviour
         public BossAttack Attack;
         public float RunDistance = 2000f;  //前のボスを倒してから（1体目はスタートから）出てくるまでの距離
         public int HazardsPerChunk = 1;    //地面1枚につき出すギミックの数
+
+        [Header("見た目の付け替え（空なら BossPrefab の見た目のまま）")]
+        public GameObject ModelOverride;   //新しいボスのモデル。当たり判定・HP・動きは BossPrefab のものを使う
+        public Vector3 ModelOffset;
+        public Vector3 ModelEuler;
+        public float ModelScale = 1f;
     }
 
     [Header("ボスの順番")]
@@ -191,6 +197,12 @@ public class BossBattleManager : MonoBehaviour
         GameObject boss = Instantiate(Current.BossPrefab, pos, Current.BossPrefab.transform.rotation);
         _currentBoss = boss.GetComponent<MotherComputer>();
         _currentBoss.SetBattleManager(this);
+
+        //清水 ボスごとに見た目だけ付け替えられる
+        if (Current.ModelOverride)
+        {
+            ModelSlot.Apply(boss, Current.ModelOverride, Current.ModelOffset, Current.ModelEuler, Current.ModelScale);
+        }
 
         //何が始まったかを見せる
         GameHUD.Get().Banner(IsLastBoss ? "FINAL BATTLE!!" : "WARNING!!\n<size=60%>BOSS APPROACHING</size>", GameHUD.Danger, 2.2f);
@@ -420,7 +432,9 @@ public class BossBattleManager : MonoBehaviour
         GameObject root = CreateHazardRoot(chunk, "ElectricTentacle", point);
 
         GameObject basePrefab = ElectricBasePrefabs[Random.Range(0, ElectricBasePrefabs.Length)];
-        Instantiate(basePrefab, root.transform).transform.localPosition = Vector3.zero;
+        GameObject baseObj = Instantiate(basePrefab, root.transform);
+        baseObj.transform.localPosition = Vector3.zero;
+        ModelSlot.EnsureCollider(baseObj, true); //新しいモデルでも当たるように
 
         if (TentaclePrefab)
         {
@@ -472,7 +486,9 @@ public class BossBattleManager : MonoBehaviour
 
         GameObject root = CreateHazardRoot(chunk, "Train", pos);
         root.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(0, TrainModelYaw, 0);
-        Instantiate(TrainPrefab, root.transform).transform.localPosition = Vector3.zero;
+        GameObject trainObj = Instantiate(TrainPrefab, root.transform);
+        trainObj.transform.localPosition = Vector3.zero;
+        ModelSlot.EnsureCollider(trainObj, true); //新しいモデルでも当たるように
         GenerateObstacle.AddOutline(root, GameHUD.Danger, 6f);
 
         TrainHazard train = root.AddComponent<TrainHazard>();

@@ -37,7 +37,8 @@ public class MotherComputer : MonoBehaviour
     private Vector3 _targetPosition;
     private float _moveTime;
 
-    private Animator _animator;
+    //清水 モデルを付け替えたとき（ModelSlot）もアニメーションが動くように、子のアニメーターもまとめて動かす
+    private Animator[] _animators;
 
     private enum State
     {
@@ -51,10 +52,26 @@ public class MotherComputer : MonoBehaviour
     {
         _hp = MAX_HP;
         GameManager = FindAnyObjectByType<GameManager>();
-        _animator = GetComponent<Animator>();
+        _animators = GetComponentsInChildren<Animator>();
 
         Player player = FindAnyObjectByType<Player>();
         if (player) PlayerTransform = player.transform;
+    }
+
+    //清水 その名前のトリガーを持っているアニメーターだけに送る（新しいモデルに無くてもエラーにしない）
+    private void SetAnimTrigger(string set, string reset)
+    {
+        if (_animators == null) return;
+        foreach (Animator animator in _animators)
+        {
+            if (!animator || !animator.runtimeAnimatorController) continue;
+            foreach (AnimatorControllerParameter p in animator.parameters)
+            {
+                if (p.type != AnimatorControllerParameterType.Trigger) continue;
+                if (p.name == reset) animator.ResetTrigger(reset);
+                if (p.name == set) animator.SetTrigger(set);
+            }
+        }
     }
 
     public void SetBattleManager(BossBattleManager battleManager)
@@ -103,8 +120,7 @@ public class MotherComputer : MonoBehaviour
             {
                 transform.position = _targetPosition;
                 _isMoving = false;
-                _animator.ResetTrigger("damage");
-                _animator.SetTrigger("attack");
+                SetAnimTrigger("attack", "damage");
                 _state = State.Attack;
             }
         }
@@ -185,8 +201,7 @@ public class MotherComputer : MonoBehaviour
 
         _moveTime = 0f;
         _isMoving = true;
-        _animator.ResetTrigger("attack");
-        _animator.SetTrigger("damage");
+        SetAnimTrigger("damage", "attack");
         _state = State.Damage;
     }
 }

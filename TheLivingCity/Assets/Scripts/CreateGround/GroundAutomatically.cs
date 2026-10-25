@@ -61,6 +61,7 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
     [SerializeField, Range(0f, 1f)] private float ItemInAirRate = 0.2f;      //ジャンプで取る高さに置く割合
     [SerializeField] private float MinGap = 8f;      //どの列にも必ず空ける隙間の幅
+    [SerializeField, Range(0f, 1f)] private float SmallDamageRate = 0.3f; //木・看板・電柱など細い物に当たったときの HP の減り（減速は同じ）
     public ChunkLayout Layout => _layout;
     private ChunkLayout _layout;
 
@@ -315,7 +316,7 @@ public class GroundAutomatically : MonoBehaviour
 
         //清水 細い障害物を飾りにして、必ず通れる道を空けてから、取れる場所にアイテムを置く
         _layout = new ChunkLayout(this);
-        _layout.Collect();
+        _layout.Collect(SmallDamageRate);
         _layout.ClearCorridor(_ground.GetCorridorStart(chunkZ, ChunkWidth * 0.5f), CorridorWidth, CorridorDrift, CorridorMargin);
         _ground.SetCorridorEnd(chunkZ, _layout.CorridorEndX);
         //清水 道の外も含めて、横一面ふさがっている列がないようにする
@@ -413,7 +414,8 @@ public class GroundAutomatically : MonoBehaviour
     /// </summary>
     public void SnapToGround(Transform obj)
     {
-        if (obj.childCount == 0)
+        //子がない物と、カタログで置いた障害物1つ（ObstacleInfo 付き）はそのまま
+        if (obj.childCount == 0 || obj.GetComponent<ObstacleInfo>())
         {
             SnapOne(obj);
             return;

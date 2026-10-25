@@ -3,7 +3,8 @@ using UnityEngine;
 
 //清水
 //地面1枚に置いた障害物を調べて、遊びやすく整える
-//・細い障害物（木・電柱・標識の柱など）は当たり判定を消して飾りにする（よけるのが難しすぎた）
+//・細い障害物（木・電柱・標識の柱など）は ObstacleInfo を付けて、ぶつかったときの HP の減りを小さくする（減速は同じ）
+//  細い物は「通れる隙間」の計算には入れない（当たっても止まらないので）
 //・前の地面から続く「必ず通れる道」を1本決めて、そこをふさぐ障害物をどける
 //・アイテムを置ける場所（障害物の中ではない場所）を教える
 public class ChunkLayout
@@ -19,13 +20,14 @@ public class ChunkLayout
 
     private readonly GroundAutomatically _chunk;
     private readonly List<Block> _blocks = new List<Block>();
+    private readonly List<Block> _smallBlocks = new List<Block>(); //細い障害物（隙間の計算には入れない）
     private readonly List<Rect> _noItemAreas = new List<Rect>(); //アイテムを置かない場所（ジャンプ台の下など）
 
     public float CorridorStartX { get; private set; }
     public float CorridorEndX { get; private set; }
     public float CorridorWidth { get; private set; }
 
-    //この太さより細い障害物は飾りにする（m）
+    //この太さより細い障害物は「細い物」として扱う（m）
     public const float SmallSize = 1.2f;
     //プレイヤーが走る高さ（地面からこの高さまでにある物がじゃまになる）
     private const float RunHeight = 3.5f;
@@ -36,11 +38,12 @@ public class ChunkLayout
     }
 
     /// <summary>
-    /// 地面の子にある障害物の当たり判定を集める。細い障害物はここで飾りにする
+    /// 地面の子にある障害物の当たり判定を集める。細い障害物は HP の減りを smallDamageRate 倍にする
     /// </summary>
-    public void Collect()
+    public void Collect(float smallDamageRate)
     {
         _blocks.Clear();
+        _smallBlocks.Clear();
 
         int obstacleLayer = LayerMask.NameToLayer("Obstacle");
         int deadLayer = LayerMask.NameToLayer("Dead");
@@ -79,13 +82,16 @@ public class ChunkLayout
                 max = Vector3.Max(max, b.Max);
             }
 
-            //細い物は当たり判定を消して飾りにする
-            if (max.x - min.x < SmallSize && max.z - min.z < SmallSize)
+            //細い物は当たっても HP があまり減らないようにして、隙間の計算からは外す
+            bool isSmall = max.x - min.x < SmallSize && max.z - min.z < SmallSize;
+            if (isSmall && !IsMapRoot(pair.Key))
             {
-                foreach (Collider col in pair.Key.GetComponentsInChildren<Collider>())
-                {
-                    col.enabled = false;
-                }
+                ObstacleInfo info = pair.Key.GetComponent<ObstacleInfo>();
+                if (!info) info = pair.Key.gameObject.AddComponent<ObstacleInfo>();
+                info.IsSmall = true;
+                if (info.DamageRate < 0f) info.DamageRate = smallDamageRate;
+
+                _smallBlocks.AddRange(pair.Value);
                 continue;
             }
 
@@ -130,8 +136,24 @@ public class ChunkLayout
         }
         CorridorEndX = bestEnd;
 
-        //ふさいでいるまとまりを消す
+        //ふさいでいるまとまりを消す（必ず通れる道は細い物も置かない）
         RemoveUnits(b => Blocks(b, CorridorStartX, CorridorEndX));
+        RemoveSmall(b => Blocks(b, CorridorStartX, CorridorEndX));
+    }
+
+    //細い物のうち条件に当てはまるものを消す
+    private void RemoveSmall(System.Predicate<Block> match)
+    {
+        HashSet<Transform> remove = new HashSet<Transform>();
+        foreach (Block b in _smallBlocks)
+        {
+            if (b.Unit && match(b)) remove.Add(b.Unit);
+        }
+        foreach (Transform unit in remove)
+        {
+            Object.Destroy(unit.gameObject);
+        }
+        _smallBlocks.RemoveAll(b => remove.Contains(b.Unit));
     }
 
     /// <summary>
@@ -140,6 +162,7 @@ public class ChunkLayout
     public void ClearArea(Rect area)
     {
         RemoveUnits(b => b.Max.x > area.xMin && b.Min.x < area.xMax && b.Max.z > area.yMin && b.Min.z < area.yMax);
+        RemoveSmall(b => b.Max.x > area.xMin && b.Min.x < area.xMax && b.Max.z > area.yMin && b.Min.z < area.yMax);
         _noItemAreas.Add(area);
     }
 
@@ -180,7 +203,8 @@ public class ChunkLayout
 
     private bool IsMapRoot(Transform unit)
     {
-        return unit.parent == _chunk.transform && unit.childCount > 0;
+        //カタログで置いた障害物（ObstacleInfo 付き）はマップではなく障害物1つ
+        return unit.parent == _chunk.transform && unit.childCount > 0 && !unit.GetComponent<ObstacleInfo>();
     }
 
     /// <summary>
@@ -203,7 +227,7 @@ public class ChunkLayout
         }
 
         float ground = _chunk.GetLocalHeight(localX, localZ);
-        foreach (Block b in _blocks)
+        foreach (Block b in AllBlocks())
         {
             if (!b.Unit) continue;
             if (localX + radius < b.Min.x || localX - radius > b.Max.x) continue;
@@ -212,6 +236,12 @@ public class ChunkLayout
             return false;
         }
         return true;
+    }
+
+    private IEnumerable<Block> AllBlocks()
+    {
+        foreach (Block b in _blocks) yield return b;
+        foreach (Block b in _smallBlocks) yield return b;
     }
 
     //この当たり判定が道をふさいでいるか
@@ -352,6 +382,12 @@ public class ChunkLayout
 
         //壁はさわらない
         if (top.name == "LeftWall" || top.name == "RightWall") return null;
+
+        //ObstacleInfo が付いていれば、それが障害物1つ（カタログで置いた物、細い物）
+        for (Transform p = t; p != chunk; p = p.parent)
+        {
+            if (p.GetComponent<ObstacleInfo>()) return p;
+        }
 
         //マップ（子が並んでいる）なら、その子が障害物1つ
         if (t == top || top.childCount == 0) return top;

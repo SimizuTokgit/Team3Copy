@@ -51,6 +51,7 @@ public class BurnerHazard : MonoBehaviour
             float x = step * (i + 0.5f);
             GameObject obj = Instantiate(burnerPrefab, transform);
             obj.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, localZ) - transform.localPosition.y, 0f);
+            ModelSlot.EnsureCollider(obj, true); //新しいモデルでも当たるように
 
             BossHazard.MakeDeadly(obj);
 

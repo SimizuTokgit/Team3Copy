@@ -19,7 +19,10 @@ public class PlayerCollider : MonoBehaviour
             if (!_player.isInvincible)  //無敵かどうか
             {
                 _damageScreen.Damage();
-                _player.Damage();
+
+                //清水 障害物ごとの HP の減り（木・看板など細い物は小さい）
+                ObstacleInfo info = other.GetComponentInParent<ObstacleInfo>();
+                _player.Damage(info ? info.GetDamageRate() : 1f);
 
                 if (_player.tutorialManager != null)
                 {

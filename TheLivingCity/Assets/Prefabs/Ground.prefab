@@ -102,6 +102,8 @@ MonoBehaviour:
   Connect: 0
   ContinueObstacleNumber: 0
   difficulty: 0
+  Catalog: {fileID: 11400000, guid: 2e8c4a6b0d1f4a3b9c7e5d3b1a2f4c95, type: 2}
+  CatalogRate: 0.7
 --- !u!114 &7412737748937216116
 MonoBehaviour:
   m_ObjectHideFlags: 0

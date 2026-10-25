@@ -73,13 +73,14 @@ public class Player : MonoBehaviour
         StateManager.Transition(this, fromState, nextState);
     }
 
-    public void Damage()
+    //清水 damageRate：HP の減りの倍率（木・看板など細い物は小さい）。減速はいつも同じ
+    public void Damage(float damageRate = 1f)
     {
         SetInvincibleTime(2.0f);
 
         Physics.SetVelocity(MoveController.Deceleration(Physics.GetVelocity(),PlayerStatus));
 
-        CalculationHP();
+        CalculationHP(damageRate);
 
         if (StateManager.CurrentState is GroundMoveState||
             StateManager.CurrentState is LandingState||
@@ -89,11 +90,11 @@ public class Player : MonoBehaviour
             StateManager.CurrentState is AirDiveState) Transition(StateManager.CurrentState, new AirDamageState());
     }
 
-    private void CalculationHP()
+    private void CalculationHP(float damageRate)
     {
         int decreaseHp = (int)Physics.GetVelocity().magnitude - PlayerStatus.PERSEVERANCE_POWER;
 
-        hp -= GuaranteedDamage + decreaseHp;
+        hp -= Mathf.Max(1, Mathf.RoundToInt((GuaranteedDamage + decreaseHp) * damageRate));
 
         PlayerUIManager.Damage(hp);
 
