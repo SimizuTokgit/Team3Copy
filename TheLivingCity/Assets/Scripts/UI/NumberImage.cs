@@ -20,9 +20,66 @@ public class NumberImage : MonoBehaviour
     private readonly List<Image> digitImages = new List<Image>();
     private string text = null;
     private bool isWarning = false;
+    private Color baseColor = Color.white; // 清水 ふだんの色（フェードや色付けに使う）
 
     // 今表示している文字列。NumberReveal が完成形を読むのに使う
     public string CurrentText => text;
+
+    // 清水 今の文字列を並べたときの横幅（NumberRow で文字と並べるのに使う）
+    public float Width
+    {
+        get
+        {
+            if (text == null) return 0f;
+            float width = 0f;
+            for (int i = 0; i < text.Length; i++) width += GetSpace(text[i]);
+            return width;
+        }
+    }
+
+    /// <summary>
+    /// 清水 数字の画像セットと高さを、実行中に決める（スクリプトから作るとき用）
+    /// 幅は画像の縦横比から決める
+    /// </summary>
+    public void Configure(NumberFont font, float height)
+    {
+        if (!font) return;
+
+        numberSprites = font.Digits;
+        periodSprite = font.Period;
+
+        Sprite sample = null;
+        foreach (Sprite s in font.Digits)
+        {
+            if (s) { sample = s; break; }
+        }
+        float aspect = (sample && sample.rect.height > 0) ? sample.rect.width / sample.rect.height : 0.5f;
+
+        digitSize = new Vector2(height * aspect, height);
+        digitSpace = digitSize.x * font.Spacing;
+        periodSpace = digitSpace * 0.45f;
+
+        // 作り直す
+        if (text != null)
+        {
+            string current = text;
+            text = null;
+            SetText(current);
+        }
+    }
+
+    /// <summary>
+    /// 清水 色を変える（透明度も効く）
+    /// </summary>
+    public void SetColor(Color color)
+    {
+        baseColor = color;
+        if (isWarning) return;
+        foreach (Image image in digitImages)
+        {
+            if (image) image.color = color;
+        }
+    }
 
     public void SetNumber(int value)
     {
@@ -81,7 +138,7 @@ public class NumberImage : MonoBehaviour
         // 注意表示用の画像が10個そろっていればそれを使う。無ければ色だけ変える
         bool useWarningSprites = isWarning && warningSprites.Length >= 10;
         Sprite[] sprites = useWarningSprites ? warningSprites : numberSprites;
-        Color color = (isWarning && !useWarningSprites) ? warningColor : Color.white;
+        Color color = (isWarning && !useWarningSprites) ? warningColor : baseColor;
 
         // 足りない桁の画像を作る
         while (digitImages.Count < text.Length)

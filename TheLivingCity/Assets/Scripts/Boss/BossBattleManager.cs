@@ -227,7 +227,7 @@ public class BossBattleManager : MonoBehaviour
         //3,2,1,GO で再開
         for (int i = 3; i >= 1; i--)
         {
-            GameHUD.Get().Banner(i.ToString(), Color.white, 0.5f);
+            GameHUD.Get().Banner("", Color.white, 0.5f, i);
             yield return new WaitForSecondsRealtime(0.6f);
         }
         GameHUD.Get().Banner("GO!!", GameHUD.Gold, 0.8f);
@@ -247,7 +247,7 @@ public class BossBattleManager : MonoBehaviour
         GameHUD.Get().ShowBossBar(Current.DisplayName, hp, maxHp);
         //速いほど大ダメージ
         string title = isCritical ? "CRITICAL!!" : "HIT!";
-        GameHUD.Get().Banner($"{title}  -{damage}", isCritical ? GameHUD.Danger : GameHUD.Gold, 1.2f);
+        GameHUD.Get().Banner(title, isCritical ? GameHUD.Danger : GameHUD.Gold, 1.2f, "-", damage);
     }
 
     //カットシーンを流して、その長さ（秒）を返す
@@ -303,7 +303,8 @@ public class BossBattleManager : MonoBehaviour
         }
 
         bool useTime = _timeManager && _timeManager.UseTimeLimit;
-        GameHUD.Get().Banner(useTime ? $"BOSS DEFEATED!\n<size=55%>TIME +{TimeBonusOnDefeat:0}</size>" : "BOSS DEFEATED!", GameHUD.Gold, 2.0f);
+        if (useTime) GameHUD.Get().Banner("BOSS DEFEATED!", GameHUD.Gold, 2.0f, "TIME +", Mathf.RoundToInt(TimeBonusOnDefeat));
+        else GameHUD.Get().Banner("BOSS DEFEATED!", GameHUD.Gold, 2.0f);
         GameHUD.Get().HideBossBar();
 
         //爆発が見えるように少しだけ残してから消す

@@ -9,9 +9,11 @@ public class AcceleratorItem : Item
         Destroy(gameObject);
     }
 
-    public override string GetPopupText(PlayerStatus playerStatus)
+    public override string PopupLabel => "ACCEL UP!";
+
+    public override int GetPopupValue(PlayerStatus playerStatus)
     {
-        return $"ACCEL UP!  <size=70%>{playerStatus.ACCELERATOR_POWER}</size>";
+        return playerStatus.ACCELERATOR_POWER;
     }
 
     public override UnityEngine.Color PopupColor => new UnityEngine.Color(1f, 0.6f, 0.2f);

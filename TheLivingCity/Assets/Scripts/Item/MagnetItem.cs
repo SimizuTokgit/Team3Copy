@@ -7,9 +7,11 @@
         Destroy(gameObject);
     }
 
-    public override string GetPopupText(PlayerStatus playerStatus)
+    public override string PopupLabel => "MAGNET UP!";
+
+    public override int GetPopupValue(PlayerStatus playerStatus)
     {
-        return $"MAGNET UP!  <size=70%>{playerStatus.MAGNET_POWER}</size>";
+        return playerStatus.MAGNET_POWER;
     }
 
     public override UnityEngine.Color PopupColor => new UnityEngine.Color(0.9f, 0.4f, 1f);

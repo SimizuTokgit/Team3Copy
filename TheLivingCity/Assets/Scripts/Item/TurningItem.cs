@@ -7,9 +7,11 @@
         Destroy(gameObject);
     }
 
-    public override string GetPopupText(PlayerStatus playerStatus)
+    public override string PopupLabel => "HANDLING UP!";
+
+    public override int GetPopupValue(PlayerStatus playerStatus)
     {
-        return $"HANDLING UP!  <size=70%>{playerStatus.TURNING_POWER}</size>";
+        return playerStatus.TURNING_POWER;
     }
 
     public override UnityEngine.Color PopupColor => new UnityEngine.Color(1f, 1f, 0.4f);

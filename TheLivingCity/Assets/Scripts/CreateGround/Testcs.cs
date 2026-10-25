@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 public class Testcs : MonoBehaviour
 {
     //何番目のチェックポイントを通ったか
@@ -33,21 +34,24 @@ public class Testcs : MonoBehaviour
     //清水 チェックポイント通過のごほうびと表示
     private void PassCheckPoint()
     {
-        string message = "CHECKPOINT!";
+        //回復した量は見出しの下に数字画像で出す
+        List<object> numbers = new List<object>();
 
         if (timeManager && timeManager.RecoveryTime > 0f)
         {
             timeManager.RecoverTime();
-            message += $"\n<size=55%>TIME +{timeManager.RecoveryTime:0}";
+            numbers.Add("TIME +");
+            numbers.Add(Mathf.RoundToInt(timeManager.RecoveryTime));
         }
 
         int healed = player ? player.Heal(HealAmount) : 0;
         if (healed > 0)
         {
-            message += message.Contains("<size") ? $"   HP +{healed}" : $"\n<size=55%>HP +{healed}";
+            numbers.Add(numbers.Count > 0 ? "    HP +" : "HP +");
+            numbers.Add(healed);
         }
 
-        GameHUD.Get().Banner(message, GameHUD.Good, 1.8f);
+        GameHUD.Get().Banner("CHECKPOINT!", GameHUD.Good, 1.8f, numbers.ToArray());
         GameHUD.Get().Flash(new Color(0.4f, 1f, 0.5f, 0.25f), 0.4f);
     }
 

@@ -8,9 +8,11 @@
 
     }
 
-    public override string GetPopupText(PlayerStatus playerStatus)
+    public override string PopupLabel => "BOOST UP!";
+
+    public override int GetPopupValue(PlayerStatus playerStatus)
     {
-        return $"BOOST UP!  <size=70%>{playerStatus.BOOST_POWER}</size>";
+        return playerStatus.BOOST_POWER;
     }
 
     public override UnityEngine.Color PopupColor => new UnityEngine.Color(0.3f, 0.8f, 1f);

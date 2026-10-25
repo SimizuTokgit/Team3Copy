@@ -10,7 +10,8 @@ public abstract class Item : MonoBehaviour
 
     public abstract void UpGrade(PlayerStatus playerStatus);
 
-    //清水 取ったときに画面に出す文字と色（取った後のステータスを渡す）
-    public abstract string GetPopupText(PlayerStatus playerStatus);
+    //清水 取ったときに画面に出す文字と数字（取った後のステータスの値。数字は画像で出る）と色
+    public abstract string PopupLabel { get; }
+    public abstract int GetPopupValue(PlayerStatus playerStatus);
     public virtual Color PopupColor => GameHUD.Gold;
 }

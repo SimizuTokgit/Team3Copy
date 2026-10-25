@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,7 @@ using UnityEngine.UI;
 //・画面フラッシュ
 //シーンに置かなくても GameHUD.Get() で勝手にできる
 //日本語フォントが TMP に無いので表示は英語
+//数字は NumberImage の画像で出す（画像セットは Resources/HUDNumberFont。無ければ文字で出す）
 public class GameHUD : MonoBehaviour
 {
     public static GameHUD Instance { get; private set; }
@@ -29,8 +31,12 @@ public class GameHUD : MonoBehaviour
     public static readonly Color Gold = new Color(1f, 0.85f, 0.3f);
 
     private RectTransform _root;
+    private NumberFont _font;
     private TextMeshProUGUI _banner;
-    private TextMeshProUGUI _info;
+    private NumberRow _bannerRow;    //バナーの下の数字（TIME +15 など）
+    private NumberRow _infoDistance; //エンドレスの走行距離
+    private NumberRow _infoBest;     //エンドレスのベスト
+    private NumberRow _bossRow;      //「NEXT BOSS ◯m」
     private TextMeshProUGUI _warnLeft;
     private TextMeshProUGUI _warnRight;
     private Image _flash;
@@ -92,6 +98,7 @@ public class GameHUD : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         _root = (RectTransform)transform;
+        _font = Resources.Load<NumberFont>("HUDNumberFont");
 
         //フラッシュ（いちばん後ろ）
         _flash = CreateImage("Flash", _root, new Color(1, 1, 1, 0));
@@ -101,11 +108,16 @@ public class GameHUD : MonoBehaviour
         //中央バナー
         _banner = CreateText("Banner", _root, 110, TextAlignmentOptions.Center);
         SetRect(_banner.rectTransform, new Vector2(0.5f, 0.62f), new Vector2(1600, 300));
+        _bannerRow = CreateRow("BannerNumbers", _banner.rectTransform, 96f, 64f, 0.5f);
         _banner.gameObject.SetActive(false);
 
-        //右上の情報
-        _info = CreateText("Info", _root, 40, TextAlignmentOptions.TopRight);
-        SetRect(_info.rectTransform, new Vector2(1f, 1f), new Vector2(700, 200), new Vector2(1f, 1f), new Vector2(-40, -150));
+        //右上の情報（エンドレス）
+        _infoDistance = CreateRow("InfoDistance", _root, 72f, 48f, 1f);
+        SetRect((RectTransform)_infoDistance.transform, new Vector2(1f, 1f), Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(-40, -180));
+        _infoBest = CreateRow("InfoBest", _root, 44f, 32f, 1f);
+        SetRect((RectTransform)_infoBest.transform, new Vector2(1f, 1f), Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(-40, -240));
+        _infoDistance.gameObject.SetActive(false);
+        _infoBest.gameObject.SetActive(false);
 
         //電車の警告
         _warnLeft = CreateText("WarnLeft", _root, 70, TextAlignmentOptions.Left);
@@ -128,6 +140,10 @@ public class GameHUD : MonoBehaviour
 
         _bossName = CreateText("BossName", barRect, 38, TextAlignmentOptions.Bottom);
         SetRect(_bossName.rectTransform, new Vector2(0.5f, 1f), new Vector2(900, 50), new Vector2(0.5f, 1f), Vector2.zero);
+
+        _bossRow = CreateRow("NextBoss", barRect, 46f, 34f, 0.5f);
+        SetRect((RectTransform)_bossRow.transform, new Vector2(0.5f, 1f), Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(0, -24));
+        _bossRow.gameObject.SetActive(false);
 
         Image back = CreateImage("Back", barRect, new Color(0, 0, 0, 0.6f));
         SetRect(back.rectTransform, new Vector2(0.5f, 0f), new Vector2(900, 30), new Vector2(0.5f, 0f), Vector2.zero);
@@ -167,7 +183,6 @@ public class GameHUD : MonoBehaviour
         //ストーリーは右上を使わず、上のバーで「次のボスまで」と「ボスのHP」を切り替える
         if (_bossBattle)
         {
-            _info.text = "";
             if (_bossBattle.InBattle) return;
         }
 
@@ -188,7 +203,10 @@ public class GameHUD : MonoBehaviour
         {
             float distance = Mathf.Max(0f, _player.position.z - _startZ);
             float best = PlayerPrefs.GetFloat(PlayModeInfo.HighScoreKey, 0f);
-            _info.text = $"{Mathf.FloorToInt(distance):N0}m\n<size=70%>BEST {Mathf.FloorToInt(best):N0}</size>";
+            _infoDistance.gameObject.SetActive(true);
+            _infoBest.gameObject.SetActive(true);
+            _infoDistance.Set(Mathf.FloorToInt(distance), "m");
+            _infoBest.Set("BEST ", Mathf.FloorToInt(best));
         }
     }
 
@@ -211,18 +229,30 @@ public class GameHUD : MonoBehaviour
 
     /// <summary>
     /// 画面中央に大きく出す
+    /// numbers に文字（string）と数字（int）を並べると、見出しの下に数字画像で出す
+    ///   例）Banner("CHECKPOINT!", GameHUD.Good, 1.8f, "TIME +", 15, "  HP +", 30)
+    /// 見出しを空にすると数字だけを真ん中に出す（カウントダウンなど）
     /// </summary>
-    public void Banner(string message, Color color, float duration = 1.6f)
+    public void Banner(string message, Color color, float duration = 1.6f, params object[] numbers)
     {
         if (_bannerCoroutine != null) StopCoroutine(_bannerCoroutine);
-        _bannerCoroutine = StartCoroutine(BannerRoutine(message, color, duration));
+        _bannerCoroutine = StartCoroutine(BannerRoutine(message, color, duration, numbers));
     }
 
-    private IEnumerator BannerRoutine(string message, Color color, float duration)
+    private IEnumerator BannerRoutine(string message, Color color, float duration, object[] numbers)
     {
         _banner.gameObject.SetActive(true);
         _banner.text = message;
         _banner.color = color;
+
+        bool hasNumbers = numbers != null && numbers.Length > 0;
+        _bannerRow.gameObject.SetActive(hasNumbers);
+        if (hasNumbers)
+        {
+            ((RectTransform)_bannerRow.transform).anchoredPosition = new Vector2(0f, string.IsNullOrEmpty(message) ? 0f : -110f);
+            _bannerRow.SetColor(color);
+            _bannerRow.Set(numbers);
+        }
 
         float t = 0f;
         while (t < duration)
@@ -232,7 +262,9 @@ public class GameHUD : MonoBehaviour
             //最初にドンと大きく出て、最後にふっと消える
             float pop = Mathf.Clamp01(t / 0.15f);
             _banner.transform.localScale = Vector3.one * Mathf.Lerp(1.6f, 1f, EaseOut(pop));
-            _banner.alpha = Mathf.Clamp01((duration - t) / 0.3f);
+            float alpha = Mathf.Clamp01((duration - t) / 0.3f);
+            _banner.alpha = alpha;
+            if (hasNumbers) _bannerRow.SetColor(new Color(color.r, color.g, color.b, alpha));
             yield return null;
         }
 
@@ -242,32 +274,42 @@ public class GameHUD : MonoBehaviour
 
     /// <summary>
     /// 少し小さめの文字を下から浮かせて出す（アイテム取得など）
+    /// numbers に数字（int）を入れると、文字の後ろに数字画像で並べる
+    ///   例）Popup("MAX SPEED UP!", color, 45)
     /// </summary>
-    public void Popup(string message, Color color)
+    public void Popup(string message, Color color, params object[] numbers)
     {
-        StartCoroutine(PopupRoutine(message, color, _popupCount++ % 3));
+        StartCoroutine(PopupRoutine(message, color, numbers, _popupCount++ % 3));
     }
 
-    private IEnumerator PopupRoutine(string message, Color color, int slot)
+    private IEnumerator PopupRoutine(string message, Color color, object[] numbers, int slot)
     {
-        TextMeshProUGUI text = CreateText("Popup", _root, 56, TextAlignmentOptions.Center);
+        NumberRow row = CreateRow("Popup", _root, 60f, 56f, 0.5f);
+        RectTransform rect = (RectTransform)row.transform;
         Vector2 basePos = new Vector2(0, -60 - slot * 70);
-        SetRect(text.rectTransform, new Vector2(0.5f, 0.45f), new Vector2(1200, 80), new Vector2(0.5f, 0.5f), basePos);
-        text.text = message;
-        text.color = color;
+        SetRect(rect, new Vector2(0.5f, 0.45f), Vector2.zero, new Vector2(0.5f, 0.5f), basePos);
+
+        List<object> parts = new List<object> { message };
+        if (numbers != null && numbers.Length > 0)
+        {
+            parts.Add(" ");
+            parts.AddRange(numbers);
+        }
+        row.SetColor(color);
+        row.Set(parts.ToArray());
 
         const float duration = 1.2f;
         float t = 0f;
         while (t < duration)
         {
             t += Time.unscaledDeltaTime;
-            text.rectTransform.anchoredPosition = basePos + Vector2.up * (EaseOut(Mathf.Clamp01(t / duration)) * 80f);
-            text.transform.localScale = Vector3.one * Mathf.Lerp(1.4f, 1f, EaseOut(Mathf.Clamp01(t / 0.12f)));
-            text.alpha = Mathf.Clamp01((duration - t) / 0.35f);
+            rect.anchoredPosition = basePos + Vector2.up * (EaseOut(Mathf.Clamp01(t / duration)) * 80f);
+            rect.localScale = Vector3.one * Mathf.Lerp(1.4f, 1f, EaseOut(Mathf.Clamp01(t / 0.12f)));
+            row.SetColor(new Color(color.r, color.g, color.b, Mathf.Clamp01((duration - t) / 0.35f)));
             yield return null;
         }
 
-        Destroy(text.gameObject);
+        Destroy(row.gameObject);
     }
 
     /// <summary>
@@ -301,6 +343,7 @@ public class GameHUD : MonoBehaviour
     {
         _bossBar.SetActive(true);
         _bossName.text = bossName;
+        _bossRow.gameObject.SetActive(false);
         _bossFillImage.color = Danger;
 
         //「次のボスまで」から切り替わったときも満タンから
@@ -338,7 +381,9 @@ public class GameHUD : MonoBehaviour
 
         _bossBar.SetActive(true);
         _bossFillImage.color = ApproachColor;
-        _bossName.text = $"NEXT BOSS  {Mathf.CeilToInt(distance):N0}m   <size=70%>{bossNumber}/{bossCount}</size>";
+        _bossName.text = "";
+        _bossRow.gameObject.SetActive(true);
+        _bossRow.Set("NEXT BOSS  ", Mathf.CeilToInt(distance), "m     BOSS ", bossNumber, " / ", bossCount);
         _bossFillTarget = totalDistance > 0f ? 1f - Mathf.Clamp01(distance / totalDistance) : 1f;
     }
 
@@ -374,6 +419,21 @@ public class GameHUD : MonoBehaviour
         text.outlineWidth = 0.25f;
         text.outlineColor = new Color32(0, 0, 0, 255);
         return text;
+    }
+
+    //文字と数字画像を並べる行を作る
+    private NumberRow CreateRow(string name, RectTransform parent, float numberHeight, float fontSize, float align)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        ((RectTransform)go.transform).sizeDelta = Vector2.zero;
+
+        NumberRow row = go.AddComponent<NumberRow>();
+        row.Font = _font;
+        row.NumberHeight = numberHeight;
+        row.FontSize = fontSize;
+        row.Align = align;
+        return row;
     }
 
     private static Image CreateImage(string name, RectTransform parent, Color color)
