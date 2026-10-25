@@ -38,15 +38,11 @@ public class PlayerStatus
         TURNING_POWER = 10;
     }
 
+    //清水 最高速度は上限なしで上がり続ける。走っているときの速さ（ここまで加速する）と、ブースト後に戻る速さを決める
+    //MAX_SPEED_LIMIT はスピードメーターの目盛り（1周分）として使う
     public void MaxSpeedUpGrade(int speed)
     {
-        if (MAX_SPEED >= MAX_SPEED_LIMIT)
-        {
-            Debug.Log("最高速度はこれ以上上がらない");
-            MAX_SPEED = MAX_SPEED_LIMIT;
-            return;
-        }
-        MAX_SPEED = Mathf.Min(MAX_SPEED + speed, MAX_SPEED_LIMIT); //清水 上がり幅を大きくしたので上限で止める
+        MAX_SPEED += speed;
 
         GetMaxSpeedItem?.Invoke();   // ← 変化を通知
     }

@@ -8,6 +8,12 @@ public class PlayerMoveController
     private readonly int NiceBoost = 5;         //Nice時のブースト定数
     private readonly int PerfectBoost = 10;
 
+    //清水 ブースト時の速さの倍率（今の速さ × 倍率）。ブースト力（BOOST_POWER 1〜10）1 につき少しずつ上がる
+    private readonly float NiceBoostRate = 1.05f;
+    private readonly float PerfectBoostRate = 1.15f;
+    private readonly float BoostRatePerPower = 0.035f;   //ブースト力1あたりの倍率の上乗せ（10で +0.35）
+    private readonly float BoostDecayRate = 0.25f;       //ブーストで超えた分が1秒で戻る割合
+
     private readonly float AngleLimit = 85.0f;
 
     private readonly float NormalGravity = -12f;
@@ -44,13 +50,18 @@ public class PlayerMoveController
     }
 
     //ブーストやバグの速度修正処理
+    //清水 速いほど早く戻る（最低でも毎秒10）。速さに上限が無くなったので、超えた量に比例させた
     public void BoostSpeedCorrection(PlayerStatus status)
     {
         if (nowSpeed > status.MAX_SPEED)
         {
-            nowSpeed = Mathf.MoveTowards(nowSpeed, status.MAX_SPEED, 10 * Time.deltaTime);
+            float over = nowSpeed - status.MAX_SPEED;
+            nowSpeed = Mathf.MoveTowards(nowSpeed, status.MAX_SPEED, Mathf.Max(10f, over * BoostDecayRate) * Time.deltaTime);
         }
     }
+
+    //清水 いまの走る速さ（m/s）
+    public float NowSpeed => nowSpeed;
 
     //地上の前進関数
     public Vector3 GroundMoveForward(Vector3 forward)
@@ -148,11 +159,12 @@ public class PlayerMoveController
         }
         else if (rank == PlayerGroundChecker.LandingRank.Nice)
         {
-            nowSpeed += status.BOOST_POWER + NiceBoost ;
+            nowSpeed = nowSpeed * (NiceBoostRate + status.BOOST_POWER * BoostRatePerPower * 0.5f) + NiceBoost;
         }
         else if (rank == PlayerGroundChecker.LandingRank.Perfect)
         {
-            nowSpeed += status.BOOST_POWER + PerfectBoost;
+            //清水 今の速さに倍率をかける。速いほどブーストも大きい
+            nowSpeed = nowSpeed * (PerfectBoostRate + status.BOOST_POWER * BoostRatePerPower) + PerfectBoost;
 
             if (manager != null)
             {

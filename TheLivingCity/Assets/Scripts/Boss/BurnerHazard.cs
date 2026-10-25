@@ -11,13 +11,17 @@ public class BurnerHazard : MonoBehaviour
     public enum Pattern
     {
         AllAtOnce, //全部いっしょに噴く。タイミングだけで抜ける
-        Alternate  //左右半分ずつずらして噴く。左右とタイミングを読む
+        Alternate, //左右半分ずつずらして噴く。左右とタイミングを読む
+        Random     //1本ずつばらばらのタイミングで噴く（休みの長さも毎回変わる）
     }
 
     private const string FireEffectName = "Burner_Fire"; //炎のパーティクルの名前
     private const float DefaultFireStart = 2.1f;         //見つからなかったときの炎の開始（秒）
     private const float DefaultFireLength = 2.1f;
-    private const float OffTime = 1.4f;                  //炎が消えてから次の予兆までの休み
+    private const float OffTime = 1.4f;                  //炎が消えてから次の予兆までの休み（AllAtOnce / Alternate）
+    private const float RandomOffMin = 0.6f;             //Random のときの休みの長さ（最小〜最大）
+    private const float RandomOffMax = 3.0f;
+    private const float VisualScale = 1.8f;              //炎の見た目の大きさ（当たり判定の大きさは変えない）
     private const float HitMargin = 0.1f;                //炎の出始めと終わりは少しだけ当たらない
 
     private class Burner
@@ -26,7 +30,11 @@ public class BurnerHazard : MonoBehaviour
         public Collider[] Colliders;
         public float Offset;
         public float PrevTime = -1f;
+        public float Cycle;        //この本の1周の長さ（Random のときは毎回変わる）
+        public float CycleStart;   //この周が始まった時間
     }
+
+    private Pattern _pattern;
 
     private readonly List<Burner> _burners = new List<Burner>();
     private float _fireStart = DefaultFireStart;
@@ -40,6 +48,7 @@ public class BurnerHazard : MonoBehaviour
     public void Setup(GameObject burnerPrefab, GroundAutomatically chunk, float spacing, Pattern pattern, float startOffset)
     {
         _time = startOffset;
+        _pattern = pattern;
 
         float roadWidth = chunk.ChunkWidth;
         float localZ = transform.localPosition.z;
@@ -52,6 +61,7 @@ public class BurnerHazard : MonoBehaviour
             GameObject obj = Instantiate(burnerPrefab, transform);
             obj.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, localZ) - transform.localPosition.y, 0f);
             ModelSlot.EnsureCollider(obj, true); //新しいモデルでも当たるように
+            EnlargeVisual(obj, VisualScale);
 
             BossHazard.MakeDeadly(obj);
 
@@ -72,11 +82,25 @@ public class BurnerHazard : MonoBehaviour
 
         foreach (Burner b in _burners)
         {
-            b.Offset *= _cycle; //半周ずらす
             SetHit(b, false);
 
+            float t;
+            if (_pattern == Pattern.Random)
+            {
+                //1本ずつ周の長さと始まりをばらばらにする
+                b.Cycle = NextRandomCycle();
+                t = UnityEngine.Random.Range(0f, b.Cycle);
+                b.CycleStart = _time - t;
+            }
+            else
+            {
+                b.Offset *= _cycle; //半周ずらす
+                b.Cycle = _cycle;
+                t = Mathf.Repeat(_time - b.Offset, _cycle);
+                b.CycleStart = _time - t;
+            }
+
             //途中から始まるときは、エフェクトもその時間まで進めておく
-            float t = Mathf.Repeat(_time - b.Offset, _cycle);
             foreach (ParticleSystem ps in b.Effects)
             {
                 ps.Simulate(t, true, true);
@@ -92,11 +116,15 @@ public class BurnerHazard : MonoBehaviour
 
         foreach (Burner b in _burners)
         {
-            float t = Mathf.Repeat(_time - b.Offset, _cycle);
+            float t = _time - b.CycleStart;
 
-            //1周したらエフェクトを最初から流し直す
-            if (t < b.PrevTime)
+            //1周したらエフェクトを最初から流し直す（Random は次の周の長さを決め直す）
+            if (t >= b.Cycle)
             {
+                b.CycleStart += b.Cycle;
+                if (_pattern == Pattern.Random) b.Cycle = NextRandomCycle();
+                t = _time - b.CycleStart;
+
                 foreach (ParticleSystem ps in b.Effects)
                 {
                     ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -106,6 +134,45 @@ public class BurnerHazard : MonoBehaviour
             b.PrevTime = t;
 
             SetHit(b, t >= _fireStart + HitMargin && t < _fireStart + _fireLength - HitMargin);
+        }
+    }
+
+    private float NextRandomCycle()
+    {
+        return _fireStart + _fireLength + UnityEngine.Random.Range(RandomOffMin, RandomOffMax);
+    }
+
+    //炎の見た目だけ大きくする。当たり判定は元の大きさのまま
+    private static void EnlargeVisual(GameObject obj, float scale)
+    {
+        obj.transform.localScale *= scale;
+
+        //パーティクルが親の大きさに合わせて大きくなるようにする
+        foreach (ParticleSystem ps in obj.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ParticleSystem.MainModule main = ps.main;
+            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+        }
+
+        //当たり判定は大きくした分だけ小さくして、元の大きさに戻す
+        foreach (Collider col in obj.GetComponentsInChildren<Collider>(true))
+        {
+            if (col is BoxCollider box)
+            {
+                box.size /= scale;
+                box.center /= scale;
+            }
+            else if (col is CapsuleCollider capsule)
+            {
+                capsule.radius /= scale;
+                capsule.height /= scale;
+                capsule.center /= scale;
+            }
+            else if (col is SphereCollider sphere)
+            {
+                sphere.radius /= scale;
+                sphere.center /= scale;
+            }
         }
     }
 

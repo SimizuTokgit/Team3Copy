@@ -31,12 +31,19 @@ public class MaterImageManager : MonoBehaviour
         {
             materTextManager.TextUpdate((int)playerSpeed, OneMaterMaxSpeed);
 
+            //清水 メーターの目盛りを超えたら全部満タン（今までは80以上で配列の外を読んでエラーになっていた）
+            int index = (int)playerSpeed / OneMaterMaxSpeed;
+            if (index >= materMasks.Count)
+            {
+                foreach (MaterMask mask in materMasks) mask.IsOver();
+                return;
+            }
+
             float normalized = Mathf.InverseLerp(0, OneMaterMaxSpeed, playerSpeed % OneMaterMaxSpeed);
 
+            materMasks[index].SetFillAmount(normalized);
 
-            materMasks[(int)playerSpeed / OneMaterMaxSpeed].SetFillAmount(normalized);
-
-            if ((int)playerSpeed / OneMaterMaxSpeed >= 1) materMasks[(int)playerSpeed / OneMaterMaxSpeed - 1].IsOver();
+            if (index >= 1) materMasks[index - 1].IsOver();
         }
         
     }

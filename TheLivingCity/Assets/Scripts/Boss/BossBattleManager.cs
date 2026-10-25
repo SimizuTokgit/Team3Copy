@@ -468,7 +468,9 @@ public class BossBattleManager : MonoBehaviour
         GameObject root = CreateHazardRoot(chunk, "BurnerRow", pos);
         BurnerHazard burner = root.AddComponent<BurnerHazard>();
 
-        BurnerHazard.Pattern pattern = Random.value < 0.5f ? BurnerHazard.Pattern.AllAtOnce : BurnerHazard.Pattern.Alternate;
+        //清水 たいていは1本ずつばらばらに噴く。たまに全部いっしょ・左右交互
+        float roll = Random.value;
+        BurnerHazard.Pattern pattern = roll < 0.6f ? BurnerHazard.Pattern.Random : (roll < 0.8f ? BurnerHazard.Pattern.AllAtOnce : BurnerHazard.Pattern.Alternate);
         burner.Setup(BurnerPrefab, chunk, BurnerSpacing, pattern, Random.Range(0f, 6f));
     }
 

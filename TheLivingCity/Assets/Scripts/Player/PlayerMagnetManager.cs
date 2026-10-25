@@ -2,7 +2,10 @@
 
 public class PlayerMagnetManager : MonoBehaviour
 {
-    private readonly float collectDistance = 2f;
+    private readonly float collectDistance = 3f;
+
+    //清水 アイテムが寄ってくる速さ = プレイヤーの速さ × ChaseRate + マグネット力
+    [SerializeField] private float ChaseRate = 1.5f;
 
     private Player player;
 
@@ -35,11 +38,14 @@ public class PlayerMagnetManager : MonoBehaviour
              */
             float speedMultiplier = Mathf.Lerp(2f, 0.3f, distance / GetComponent<SphereCollider>().radius);
 
+            //清水 プレイヤーの速さより速く寄ってこないと追いつけない（今まではマグネット力だけで秒速10〜30mだった）
+            float chaseSpeed = player.Physics.GetVelocity().magnitude * ChaseRate + player.PlayerStatus.MAGNET_POWER * speedMultiplier;
+
             // 移動
             item.transform.position = Vector3.MoveTowards(
                 item.transform.position,
                 targetPos,
-                player.PlayerStatus.MAGNET_POWER * speedMultiplier * Time.deltaTime
+                chaseSpeed * Time.deltaTime
             );
 
             // 十分近づいたら取得
