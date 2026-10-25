@@ -37,7 +37,13 @@ public class NumberRow : MonoBehaviour
             {
                 NumberImage number = GetNumber(numberIndex++);
                 if (part is int intValue) number.SetNumber(intValue);
-                else number.SetNumber((float)part);
+                else
+                {
+                    //清水 小数があるときだけ小数第1位まで出す（10.5 など）
+                    float f = (float)part;
+                    number.SetDecimals(Mathf.Approximately(f, Mathf.Round(f)) ? 0 : 1);
+                    number.SetNumber(f);
+                }
                 number.SetColor(_color);
                 items.Add((RectTransform)number.transform);
                 widths.Add(number.Width);
@@ -45,7 +51,7 @@ public class NumberRow : MonoBehaviour
             else
             {
                 TextMeshProUGUI text = GetText(textIndex++);
-                text.text = isNumber ? (part is int textValue ? textValue.ToString() : Mathf.FloorToInt((float)part).ToString()) : part.ToString();
+                text.text = isNumber ? (part is int textValue ? textValue.ToString() : ((float)part).ToString("0.#")) : part.ToString();
                 text.color = _color;
                 text.ForceMeshUpdate();
                 float w = text.preferredWidth;

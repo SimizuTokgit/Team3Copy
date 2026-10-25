@@ -11,7 +11,7 @@ public class AcceleratorItem : Item
 
     public override string PopupLabel => "ACCEL UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.ACCELERATOR_POWER;
     }

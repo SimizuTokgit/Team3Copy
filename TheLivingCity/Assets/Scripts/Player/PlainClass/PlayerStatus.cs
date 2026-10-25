@@ -11,21 +11,23 @@ public class PlayerStatus
     public event Action GetMagnetPowerItem;
     public event Action GetTurningPowerItem;
 
-    public int MAX_SPEED { get; private set; }              //最高速度
-    public int ACCELERATOR_POWER { get; private set; }      //加速力
-    public int PERSEVERANCE_POWER { get; private set; }     //忍耐力
-    public int BOOST_POWER { get; private set; }            //ブースト力
-    public int MAGNET_POWER { get; private set; }           //アイテム回収力
-    public int TURNING_POWER { get; private set; }          //小回り力
+    public float MAX_SPEED { get; private set; }              //最高速度
+    public float ACCELERATOR_POWER { get; private set; }      //加速力
+    public float PERSEVERANCE_POWER { get; private set; }     //忍耐力
+    public float BOOST_POWER { get; private set; }            //ブースト力
+    public float MAGNET_POWER { get; private set; }           //アイテム回収力
+    public float TURNING_POWER { get; private set; }          //小回り力
 
 
     public int MAX_SPEED_LIMIT { get; private set; } = 80;
-    private readonly int ACCELERATOR_POWER_LIMIT = 20;
-    private readonly int PERSEVERANCE_POWER_LIMIT = 30;
-    private readonly int BOOST_POWER_LIMIT = 10;
-    private readonly int MAGNET_POWER_LIMIT = 30;
-    private readonly int TURNING_POWER_LIMIT = 15;
+    private readonly float ACCELERATOR_POWER_LIMIT = 20f;
+    private readonly float PERSEVERANCE_POWER_LIMIT = 30f;
+    private readonly float BOOST_POWER_LIMIT = 10f;
+    private readonly float MAGNET_POWER_LIMIT = 30f;
+    private readonly float TURNING_POWER_LIMIT = 15f;
 
+
+    //清水 ステータスは float なので、アイテムで 0.5 ずつのように細かく上げられる
 
     //コンストラクタ(初期化関数)
     public PlayerStatus()
@@ -40,14 +42,14 @@ public class PlayerStatus
 
     //清水 最高速度は上限なしで上がり続ける。走っているときの速さ（ここまで加速する）と、ブースト後に戻る速さを決める
     //MAX_SPEED_LIMIT はスピードメーターの目盛り（1周分）として使う
-    public void MaxSpeedUpGrade(int speed)
+    public void MaxSpeedUpGrade(float speed)
     {
         MAX_SPEED += speed;
 
         GetMaxSpeedItem?.Invoke();   // ← 変化を通知
     }
 
-    public void AcceleratorUpGrade(int accel)
+    public void AcceleratorUpGrade(float accel)
     {
         if (ACCELERATOR_POWER >= ACCELERATOR_POWER_LIMIT)
         {
@@ -60,7 +62,7 @@ public class PlayerStatus
         GetAcceleratorPowerItem?.Invoke();
     }
 
-    public void PerseveranceUpGrade(int perseverance)
+    public void PerseveranceUpGrade(float perseverance)
     {
         if (PERSEVERANCE_POWER >= PERSEVERANCE_POWER_LIMIT)
         {
@@ -73,7 +75,7 @@ public class PlayerStatus
         GetPerseverancePowerItem?.Invoke();
     }
 
-    public void BoostUpGrade(int boost)
+    public void BoostUpGrade(float boost)
     {
         if (BOOST_POWER >= BOOST_POWER_LIMIT)
         {
@@ -86,7 +88,7 @@ public class PlayerStatus
         GetBoostPowerItem?.Invoke();
     }
 
-    public void MagnetUpGrade(int magnet)
+    public void MagnetUpGrade(float magnet)
     {
         if (MAGNET_POWER >= MAGNET_POWER_LIMIT)
         {
@@ -99,7 +101,7 @@ public class PlayerStatus
         GetMagnetPowerItem?.Invoke();
     }
 
-    public void TurningUpGrade(int turning)
+    public void TurningUpGrade(float turning)
     {
         if (TURNING_POWER >= TURNING_POWER_LIMIT)
         {

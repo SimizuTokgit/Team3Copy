@@ -9,7 +9,7 @@
 
     public override string PopupLabel => "DEFENSE UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.PERSEVERANCE_POWER;
     }

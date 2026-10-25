@@ -92,7 +92,7 @@ public class Player : MonoBehaviour
 
     private void CalculationHP(float damageRate)
     {
-        int decreaseHp = (int)Physics.GetVelocity().magnitude - PlayerStatus.PERSEVERANCE_POWER;
+        int decreaseHp = (int)Physics.GetVelocity().magnitude - Mathf.FloorToInt(PlayerStatus.PERSEVERANCE_POWER);
 
         hp -= Mathf.Max(1, Mathf.RoundToInt((GuaranteedDamage + decreaseHp) * damageRate));
 

@@ -9,7 +9,7 @@
 
     public override string PopupLabel => "HANDLING UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.TURNING_POWER;
     }

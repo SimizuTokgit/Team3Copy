@@ -10,7 +10,7 @@
 
     public override string PopupLabel => "MAX SPEED UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.MAX_SPEED;
     }

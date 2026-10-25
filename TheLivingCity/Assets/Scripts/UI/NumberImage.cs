@@ -86,6 +86,12 @@ public class NumberImage : MonoBehaviour
         SetText(Mathf.Max(value, 0).ToString());
     }
 
+    // 小数第何位まで出すかをあとから変える（0なら整数表示）
+    public void SetDecimals(int value)
+    {
+        decimals = Mathf.Clamp(value, 0, 3);
+    }
+
     // 残り時間のように小数を持つ値はこちら。decimalsが0なら整数表示になる
     public void SetNumber(float value)
     {

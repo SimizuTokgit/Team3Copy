@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b979d1b315924d74891f764ae070f76f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoostItem
-  UP_NUMBER: 1
+  UP_NUMBER: 0.5
   ItemEffect: {fileID: 3638767404758105562, guid: 2a6f2095d1578c4439e246fe6f2b588f, type: 3}
   ItemSE: {fileID: 8300000, guid: 572b99f71e0a25e4c810ff604b857cea, type: 3}
 --- !u!54 &4190853871758922874

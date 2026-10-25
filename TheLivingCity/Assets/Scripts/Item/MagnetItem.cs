@@ -9,7 +9,7 @@
 
     public override string PopupLabel => "MAGNET UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.MAGNET_POWER;
     }

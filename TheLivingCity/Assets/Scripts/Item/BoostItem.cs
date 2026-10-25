@@ -10,7 +10,7 @@
 
     public override string PopupLabel => "BOOST UP!";
 
-    public override int GetPopupValue(PlayerStatus playerStatus)
+    public override float GetPopupValue(PlayerStatus playerStatus)
     {
         return playerStatus.BOOST_POWER;
     }
