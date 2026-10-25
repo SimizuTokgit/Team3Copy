@@ -11,7 +11,7 @@ public class PlayerMoveController
     //清水 ブースト時の速さの倍率（今の速さ × 倍率）。ブースト力（BOOST_POWER 1〜10）1 につき少しずつ上がる
     private readonly float NiceBoostRate = 1.05f;
     private readonly float PerfectBoostRate = 1.15f;
-    private readonly float BoostRatePerPower = 0.035f;   //ブースト力1あたりの倍率の上乗せ（10で +0.35）
+    private readonly float BoostRatePerPower = 0.015f;   //ブースト力1あたりの倍率の上乗せ（10で +0.15）
     private readonly float BoostDecayRate = 0.25f;       //ブーストで超えた分が1秒で戻る割合
 
     private readonly float AngleLimit = 85.0f;

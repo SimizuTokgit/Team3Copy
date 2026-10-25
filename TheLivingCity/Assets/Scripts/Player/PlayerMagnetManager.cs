@@ -15,7 +15,7 @@ public class PlayerMagnetManager : MonoBehaviour
     private int GetItemCount = 0;
 
     //清水 アイテムを取った瞬間に上乗せする速さ（少しずつ元に戻る）
-    [SerializeField] private float ItemSpeedKick = 8f;
+    [SerializeField] private float ItemSpeedKick = 3f;
 
 
     private void Start()

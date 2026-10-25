@@ -21,7 +21,8 @@ public class BurnerHazard : MonoBehaviour
     private const float OffTime = 1.4f;                  //炎が消えてから次の予兆までの休み（AllAtOnce / Alternate）
     private const float RandomOffMin = 0.6f;             //Random のときの休みの長さ（最小〜最大）
     private const float RandomOffMax = 3.0f;
-    private const float VisualScale = 1.8f;              //炎の見た目の大きさ（当たり判定の大きさは変えない）
+    private const float VisualScale = 1.5f;              //炎の太さ（当たり判定の横幅は元のまま）
+    private const float HeightScale = 2.4f;              //さらに縦にのばす倍率。当たり判定も一緒にのびて、飛んでいても当たる
     private const float HitMargin = 0.1f;                //炎の出始めと終わりは少しだけ当たらない
 
     private class Burner
@@ -61,7 +62,7 @@ public class BurnerHazard : MonoBehaviour
             GameObject obj = Instantiate(burnerPrefab, transform);
             obj.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, localZ) - transform.localPosition.y, 0f);
             ModelSlot.EnsureCollider(obj, true); //新しいモデルでも当たるように
-            EnlargeVisual(obj, VisualScale);
+            EnlargeVisual(obj, VisualScale, HeightScale);
 
             BossHazard.MakeDeadly(obj);
 
@@ -142,10 +143,12 @@ public class BurnerHazard : MonoBehaviour
         return _fireStart + _fireLength + UnityEngine.Random.Range(RandomOffMin, RandomOffMax);
     }
 
-    //炎の見た目だけ大きくする。当たり判定は元の大きさのまま
-    private static void EnlargeVisual(GameObject obj, float scale)
+    //炎を太く・縦に高くする。当たり判定は横幅を元のままにして、高さだけ炎と一緒にのばす
+    private static void EnlargeVisual(GameObject obj, float scale, float heightScale)
     {
-        obj.transform.localScale *= scale;
+        Vector3 s = obj.transform.localScale * scale;
+        s.y *= heightScale;
+        obj.transform.localScale = s;
 
         //パーティクルが親の大きさに合わせて大きくなるようにする
         foreach (ParticleSystem ps in obj.GetComponentsInChildren<ParticleSystem>(true))
@@ -154,24 +157,22 @@ public class BurnerHazard : MonoBehaviour
             main.scalingMode = ParticleSystemScalingMode.Hierarchy;
         }
 
-        //当たり判定は大きくした分だけ小さくして、元の大きさに戻す
+        //当たり判定は横幅だけ元に戻す（高さは炎と一緒にのびたまま）
         foreach (Collider col in obj.GetComponentsInChildren<Collider>(true))
         {
             if (col is BoxCollider box)
             {
-                box.size /= scale;
-                box.center /= scale;
+                box.size = new Vector3(box.size.x / scale, box.size.y, box.size.z / scale);
+                box.center = new Vector3(box.center.x / scale, box.center.y, box.center.z / scale);
             }
             else if (col is CapsuleCollider capsule)
             {
                 capsule.radius /= scale;
-                capsule.height /= scale;
-                capsule.center /= scale;
+                capsule.center = new Vector3(capsule.center.x / scale, capsule.center.y, capsule.center.z / scale);
             }
             else if (col is SphereCollider sphere)
             {
                 sphere.radius /= scale;
-                sphere.center /= scale;
             }
         }
     }
