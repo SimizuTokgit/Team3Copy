@@ -61,6 +61,11 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float ItemOnCorridorRate = 0.6f; //アイテムを道の上に置く割合
     [SerializeField, Range(0f, 1f)] private float ItemInAirRate = 0.2f;      //ジャンプで取る高さに置く割合
     [SerializeField] private float MinGap = 8f;      //どの列にも必ず空ける隙間の幅
+    [Header("分岐で選んだ難易度の差")]
+    [SerializeField] private float EasyGapRate = 1.3f;   //やさしい道の隙間の広さ（MinGap に掛ける）
+    [SerializeField] private float HardGapRate = 0.9f;   //難しい道の隙間の広さ
+    [SerializeField] private float HardItemRate = 1.7f;  //難しい道のアイテムの数（倍）
+    [SerializeField] private float BossGapRate = 1.5f;   //ボス戦中の隙間の広さ
     [SerializeField, Range(0f, 1f)] private float SmallDamageRate = 0.3f; //木・看板・電柱など細い物に当たったときの HP の減り（減速は同じ）
     public ChunkLayout Layout => _layout;
     private ChunkLayout _layout;
@@ -296,7 +301,10 @@ public class GroundAutomatically : MonoBehaviour
     /// </summary>
     public void GenObsItem()
     {
-        _generateObstacle.Generate(mesh, width, length, currentDifficulty, SmallPosY);
+        //清水 ボス戦中はギミックがあるので、障害物はやさしめ（少なめ）にする
+        bool inBoss = _ground != null && _ground._isBoss;
+        GenerateObstacle.Difficulty difficulty = inBoss ? GenerateObstacle.Difficulty.Easy : currentDifficulty;
+        _generateObstacle.Generate(mesh, width, length, difficulty, SmallPosY, inBoss);
 
         CheckScript();
 
@@ -319,12 +327,18 @@ public class GroundAutomatically : MonoBehaviour
         _layout.Collect(SmallDamageRate);
         _layout.ClearCorridor(_ground.GetCorridorStart(chunkZ, ChunkWidth * 0.5f), CorridorWidth, CorridorDrift, CorridorMargin);
         _ground.SetCorridorEnd(chunkZ, _layout.CorridorEndX);
-        //清水 道の外も含めて、横一面ふさがっている列がないようにする
-        _layout.EnsureGaps(MinGap, 2f, 1f);
+        //清水 道の外も含めて、横一面ふさがっている列がないようにする（やさしい道・ボス戦は広め、難しい道は少し狭め）
+        float gap = MinGap;
+        if (inBoss) gap *= BossGapRate;
+        else if (difficulty == GenerateObstacle.Difficulty.Easy) gap *= EasyGapRate;
+        else if (difficulty == GenerateObstacle.Difficulty.Hard) gap *= HardGapRate;
+        _layout.EnsureGaps(gap, 2f, 1f);
         TryPlaceRamp();
         _generateObstacle.ApplyOutlines();
 
-        _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate, ItemInAirRate);
+        //難しい道はアイテムが多い（ごほうび）
+        float itemRate = difficulty == GenerateObstacle.Difficulty.Hard ? HardItemRate : 1f;
+        _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate, ItemInAirRate, itemRate);
     }
 
     public void GenTentacles()
@@ -387,6 +401,11 @@ public class GroundAutomatically : MonoBehaviour
         foreach (Item item in GetComponentsInChildren<Item>())
         {
             Destroy(item.gameObject);
+        }
+        //たまに置くジャンプ台も（作り直したときに2つにならないように）
+        foreach (BossRamp ramp in GetComponentsInChildren<BossRamp>())
+        {
+            Destroy(ramp.gameObject);
         }
     }
 

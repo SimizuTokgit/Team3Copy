@@ -278,6 +278,9 @@ public class GeneretoGround : MonoBehaviour
                 //難易度変更
                 ChangeDifficult();
 
+                //清水 もうできている先の地面にもすぐ反映する（今までは768m先からしか変わらなかった）
+                RegenerateAhead();
+
                 //新しくチェックポイントを作る
                 checkPointInstance.InstanceCheckPoints(player.transform.position.z - brancheStartPos);
 
@@ -285,6 +288,32 @@ public class GeneretoGround : MonoBehaviour
 
                 _branchesTime = BranchesTime;
             }
+        }
+    }
+
+    //清水 分岐で選んだ難易度とアイテムで、プレイヤーの少し先から地面の中身を作り直す
+    [SerializeField] private float RegenerateSafeDistance = 120f; //すぐ目の前は作り直さない
+
+    private void RegenerateAhead()
+    {
+        bool hard = player.transform.position.x <= BrancheCangeX;
+        GameHUD.Get().Banner(hard ? "HARD ROUTE" : "EASY ROUTE", hard ? GameHUD.Danger : GameHUD.Good, 1.4f);
+
+        //ボス戦中はギミックと混ざるので作り直さない
+        if (_isBoss) return;
+
+        //必ず通れる道が前の地面からつながるように、手前から順に作り直す
+        List<GroundAutomatically> ordered = new List<GroundAutomatically>(groundScripts);
+        ordered.Sort((a, b) => a.chunkZ.CompareTo(b.chunkZ));
+
+        foreach (GroundAutomatically chunk in ordered)
+        {
+            if (!chunk.gameObject.activeInHierarchy) continue;
+            if (chunk.chunkZ <= 1) continue; //スタート地点
+            if (chunk.transform.position.z < player.position.z + RegenerateSafeDistance) continue;
+
+            chunk.ClearObstaclesAndItems();
+            chunk.GenObsItem();
         }
     }
 

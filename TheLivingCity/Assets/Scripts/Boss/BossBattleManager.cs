@@ -60,6 +60,10 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private float RampGap = 110f;               //坂の上の端からボスまでの距離
     [SerializeField] private float RampSpawnDistance = 600f;     //ボスがこの距離まで近づいたら置く
     [SerializeField] private float NoHazardBeforeBoss = 350f;    //ボスの手前この距離はギミックを置かない
+
+    [Header("ボス戦の難しさ")]
+    [SerializeField, Range(0f, 1f)] private float HazardChunkChance = 0.6f;     //地面1枚にギミックを置く確率
+    [SerializeField, Range(0f, 1f)] private float ObstacleChanceInBattle = 0.5f; //地面1枚にふつうの障害物を置く確率
     [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
 
     [Header("2 感電触手")]
@@ -342,7 +346,8 @@ public class BossBattleManager : MonoBehaviour
     /// </summary>
     public bool AllowObstacles(GroundAutomatically chunk)
     {
-        return !IsNearBoss(chunk);
+        //清水 ボス戦中は地面の一部にだけ障害物を置く（ギミックと重なって難しすぎたので）
+        return !IsNearBoss(chunk) && Random.value < ObstacleChanceInBattle;
     }
 
     //この地面がボスの手前（ジャンプ台を置くあたり）にかかっているか
@@ -365,6 +370,9 @@ public class BossBattleManager : MonoBehaviour
 
         //ボスの手前（ジャンプ台のあたり）は障害物を置かない
         if (IsNearBoss(chunk)) return;
+
+        //清水 ギミックを置かない地面もはさんで、息をつけるようにする
+        if (Random.value >= HazardChunkChance) return;
 
         for (int i = 0; i < Current.HazardsPerChunk; i++)
         {

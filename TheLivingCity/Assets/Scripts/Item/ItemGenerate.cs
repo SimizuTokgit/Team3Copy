@@ -83,7 +83,7 @@ public class ItemGenerate : MonoBehaviour
     /// 今までは高さが「地面の高さ×最大ItemUpRate倍」で、山の上だと10m以上浮いて取れなかった
     /// 障害物の中も避ける。一部は必ず通れる道の上に置く
     /// </summary>
-    public void ItemGenReachable(GroundAutomatically chunk, ChunkLayout layout, float corridorRate, float airRate)
+    public void ItemGenReachable(GroundAutomatically chunk, ChunkLayout layout, float corridorRate, float airRate, float countRate = 1f)
     {
         const int tries = 10;          //置ける場所が見つかるまで試す回数
         const float edgeMargin = 3f;   //壁ぎわは避ける
@@ -91,7 +91,8 @@ public class ItemGenerate : MonoBehaviour
         const float airMin = 4f;       //空中に置くときの高さ（ジャンプで届く）
         const float airMax = 8f;
 
-        for (int i = 0; i < GenerateCount; i++)
+        int count = Mathf.RoundToInt(GenerateCount * countRate);
+        for (int i = 0; i < count; i++)
         {
             int itemNumber = GetWeightedRandom();
             bool onCorridor = Random.value < corridorRate;

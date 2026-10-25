@@ -6844,13 +6844,13 @@ MonoBehaviour:
     BossPrefab: {fileID: 8862430266276665174, guid: b2d099d9b2724e34faf1d28b8d6b39f9, type: 3}
     Attack: 3
     RunDistance: 2000
-    HazardsPerChunk: 2
+    HazardsPerChunk: 1
   - BossName: "\u30DE\u30B6\u30FC\u30B3\u30F3\u30D4\u30E5\u30FC\u30BF\u30FC"
     DisplayName: MOTHER COMPUTER
     BossPrefab: {fileID: 8775288618822789962, guid: 21ebeff9676f5a34d9b8233c89c682f7, type: 3}
     Attack: 4
     RunDistance: 2500
-    HazardsPerChunk: 2
+    HazardsPerChunk: 1
   BossSpawnAhead: 1000
   BossSpawnX: 24
   BossSpawnY: 20

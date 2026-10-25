@@ -88,7 +88,8 @@ public class GenerateObstacle : MonoBehaviour
         }
     }
 
-    public void Generate(Mesh mesh, int width, int length, Difficulty difficulty, float posY)
+    //清水 forceCatalog：ボス戦中など、数を確実に調整したいときはマッププレハブを使わずカタログで並べる
+    public void Generate(Mesh mesh, int width, int length, Difficulty difficulty, float posY, bool forceCatalog = false)
     {
         if (obstacles == null || obstacles.Length == 0) return;
 
@@ -123,7 +124,9 @@ public class GenerateObstacle : MonoBehaviour
             if (!Connect)
             {
                 //清水 カタログがあれば、たいていはそこから1つずつ並べる
-                if (Catalog && Random.value < CatalogRate)
+                //難しい道はマッププレハブ（数が固定）ではなく、数を増やせるカタログで並べる
+                bool useCatalog = forceCatalog || difficulty == Difficulty.Hard || Random.value < CatalogRate;
+                if (Catalog && useCatalog)
                 {
                     GenerateFromCatalog(mesh, difficulty);
                     continue;
