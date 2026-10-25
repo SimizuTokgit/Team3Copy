@@ -151,6 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18e96beb618c0274684b9e362e779f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurningItem
-  UP_NUMBER: 1
+  UP_NUMBER: 0.1
   ItemEffect: {fileID: 3638767404758105562, guid: 8bcdc987fbd29744eaa8aa14be7afe14, type: 3}
   ItemSE: {fileID: 8300000, guid: 0359cf9ce95f85645b16a3b62effdbd1, type: 3}

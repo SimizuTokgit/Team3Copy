@@ -151,6 +151,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972ab85176fc6d944ab4d91510e696ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MagnetItem
-  UP_NUMBER: 4
+  UP_NUMBER: 0.5
   ItemEffect: {fileID: 3638767404758105562, guid: 064820c7de5c99549bcdb10bfbe7de2d, type: 3}
   ItemSE: {fileID: 8300000, guid: d446cf23e3a32a648824dd99b1078769, type: 3}
