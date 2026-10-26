@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.ShaderGraph.Internal;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class MaterMask : MonoBehaviour
@@ -20,4 +21,18 @@ public class MaterMask : MonoBehaviour
     { 
         image.fillAmount = 1;
     }
+
+    private float itemMaskAmount = 0;
+    public bool GetItem(float addAmount)
+    {
+        if (itemMaskAmount >= 1) return true;
+
+        itemMaskAmount += addAmount;
+        image.fillAmount = Mathf.MoveTowards(image.fillAmount, itemMaskAmount, Time.deltaTime * 20);
+
+        return false;
+
+        
+    }
+
 }

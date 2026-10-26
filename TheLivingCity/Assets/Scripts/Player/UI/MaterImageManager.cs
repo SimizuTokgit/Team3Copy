@@ -19,7 +19,7 @@ public class MaterImageManager : MonoBehaviour
         materTextManager = GetComponentInChildren<MaterTextManager>();
         player = FindFirstObjectByType<Player>();
 
-        MAX_SPEED_LIMIT = player.PlayerStatus.GetMaxSpeedLimit();
+        MAX_SPEED_LIMIT = player.PlayerStatus.MAX_SPEED_LIMIT;
         OneMaterMaxSpeed = MAX_SPEED_LIMIT / 4;
     }
 

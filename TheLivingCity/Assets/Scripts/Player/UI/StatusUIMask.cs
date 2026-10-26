@@ -3,17 +3,19 @@ using UnityEngine.UI;
 
 public class StatusUIMask : MonoBehaviour
 {
-    private Image maskImage;
+    [SerializeField] MaterMask[] Masks = new MaterMask[4];
 
-    public void Init(int maxValue)
-    {
-        maskImage = GetComponent<Image>();
-        maskImage.fillAmount = 0;
-    }
+    //private bool[] isMaterLimit = new bool[4];
 
-    public void GetItem()
+    public void GetItem(float addValue)
     {
-        maskImage.fillAmount += 0.05f;
+        for (int i = 0; i < 4; i++)
+        {
+            if (!Masks[i].GetItem(addValue))
+            {
+                return;
+            }
+        }
     }
 
 }

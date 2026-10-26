@@ -12,6 +12,8 @@ public class PlayerStatusUI : MonoBehaviour
 
     private PlayerStatus playerStatus;
 
+    [SerializeField] float AddAmountValue;
+
     void Start()
     {
         playerStatus = FindFirstObjectByType<Player>().PlayerStatus;
@@ -23,7 +25,12 @@ public class PlayerStatusUI : MonoBehaviour
         playerStatus.GetMagnetPowerItem += MagnetUp;
         playerStatus.GetTurningPowerItem += TurnUp;
 
-        MaxSpeedMask.Init(playerStatus.MAX_SPEED_LIMIT);
+        //MaxSpeedMask.Init(playerStatus.MAX_SPEED_LIMIT);
+        //AcceleratorMask.Init(playerStatus.ACCELERATOR_POWER_LIMIT);
+        //PerseveranceMask.Init(playerStatus.PERSEVERANCE_POWER_LIMIT);
+        //BoostMask.Init(playerStatus.BOOST_POWER_LIMIT);
+        //MagnetMask.Init(playerStatus.MAGNET_POWER_LIMIT);
+        //TurningMask.Init(playerStatus.TURNING_POWER_LIMIT);
 
     }
     void OnDestroy()
@@ -41,31 +48,31 @@ public class PlayerStatusUI : MonoBehaviour
 
     private void MaxSpeedUp()
     {
-        MaxSpeedMask.GetItem();
+        MaxSpeedMask.GetItem(AddAmountValue);
     }
 
     private void AcceleratorUp()
     {
-        AcceleratorMask.GetItem();
+        AcceleratorMask.GetItem(AddAmountValue);
     }
 
     private void PerseveranceUp()
     {
-        PerseveranceMask.GetItem();
+        PerseveranceMask.GetItem(AddAmountValue);
     }
 
     private void BoostUp()
     {
-        BoostMask.GetItem();
+        BoostMask.GetItem(AddAmountValue);
     }
 
     private void MagnetUp()
     {
-        MagnetMask.GetItem();
+        MagnetMask.GetItem(AddAmountValue);
     }
 
     private void TurnUp()
     {
-        TurningMask.GetItem();
+        TurningMask.GetItem(AddAmountValue);
     }
 }

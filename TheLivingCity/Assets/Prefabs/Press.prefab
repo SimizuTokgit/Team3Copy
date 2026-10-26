@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5162720433420040663}
   - component: {fileID: 5301399679180271173}
+  - component: {fileID: 154631772937433143}
   m_Layer: 6
   m_Name: Press
   m_TagString: Untagged
@@ -46,6 +47,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PressHazard
   ContainerMaterial: {fileID: 2100000, guid: 9f6a753d07488974db35c1c588a23220, type: 2}
+  ContainerHeight: 4.7
+  _crush: {fileID: 154631772937433143}
+  UpTime: 1.2
+  WarnTime: 0.6
+  SlamTime: 0.2
+  DownTime: 1
+  RiseTime: 1
+  WarnShake: 0.25
+  ShakeDistance: 45
+--- !u!65 &154631772937433143
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619177239890749399}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 9, y: 0.03, z: 1.8}
+  m_Center: {x: 0, y: 7.85, z: 0}
 --- !u!1001 &2165353793680915175
 PrefabInstance:
   m_ObjectHideFlags: 0
