@@ -18,7 +18,7 @@ public class PressHazard : MonoBehaviour
     [SerializeField] private float RiseTime = 1.0f;   //上がる
 
     [SerializeField] private float DeadlyHeight = 3.5f;  //コンテナの底がこれより低いと一撃死（プレス機の大きさに合わせてのびる）
-    [SerializeField] private float CrushPadding = -0.7f; //当たり判定の下の面の広さ。＋でコンテナより広く、－で狭く（前後左右、m）
+    [SerializeField] private float CrushPadding = -1f; //当たり判定の下の面の広さ。＋でコンテナより広く、－で狭く（前後左右、m）
     [SerializeField] private float WarnShake = 0.25f;    //予告で震える大きさ（m）
     [SerializeField] private float ShakeDistance = 45f;  //プレイヤーがこれより近いと、振り下ろしたときに画面がゆれる
 
