@@ -78,14 +78,8 @@ public class GroundAutomatically : MonoBehaviour
     [SerializeField] private int RampArcItems = 4;   //飛び出した先に並べるアイテムの数
     [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
 
-    [Header("清水 プレス機（ふつうの道にもときどき出す）")]
-    [SerializeField] private GameObject PressPrefab;
-    [SerializeField, Range(0f, 1f)] private float PressChance = 0.25f; //地面1枚あたりに置く確率（難しい道は 1.5 倍）
-    [SerializeField] private int PressCount = 3;                       //横に並べる数（道幅いっぱいに並ぶ大きさになる）
-
     [Header("清水 アイテム")]
     [SerializeField] private float BaseItemRate = 0.6f; //ふつうに散らばるアイテムの数（倍）。一撃死のギミックの近くに集めるので少なめ
-    private readonly System.Collections.Generic.List<GameObject> _presses = new System.Collections.Generic.List<GameObject>();
 
     private void Awake()
     {
@@ -347,9 +341,7 @@ public class GroundAutomatically : MonoBehaviour
         else if (difficulty == GenerateObstacle.Difficulty.Easy) gap *= EasyGapRate;
         else if (difficulty == GenerateObstacle.Difficulty.Hard) gap *= HardGapRate;
         _layout.EnsureGaps(gap, 2f, 1f);
-        //プレス機を置いた地面にはジャンプ台を置かない（飛んだ先がプレス機にならないように）
-        if (!TryPlacePress(difficulty == GenerateObstacle.Difficulty.Hard ? PressChance * 1.5f : PressChance))
-            TryPlaceRamp();
+        TryPlaceRamp();
         _generateObstacle.ApplyOutlines();
 
         //難しい道はアイテムが多い（ごほうび）
@@ -423,12 +415,6 @@ public class GroundAutomatically : MonoBehaviour
         {
             Destroy(ramp.gameObject);
         }
-        //プレス機も
-        foreach (GameObject press in _presses)
-        {
-            if (press) Destroy(press);
-        }
-        _presses.Clear();
     }
 
     //清水 チャンクの大きさ（ローカル座標）
@@ -475,17 +461,6 @@ public class GroundAutomatically : MonoBehaviour
     }
 
     //清水 たまに、必ず通れる道の上にジャンプ台を置く（まわりの障害物はどける）
-    //清水 プレス機を1台置く。下にある障害物はどける（タイミングを見て下をくぐれば通れる）
-    private bool TryPlacePress(float chance)
-    {
-        if (!PressPrefab || Random.value >= chance) return false;
-
-        //道幅いっぱいに並べて、となり同士を交互に振り下ろす
-        float z = Random.Range(ChunkLength * 0.25f, ChunkLength * 0.75f);
-        _presses.AddRange(PressHazard.SpawnRow(PressPrefab, this, z, PressCount, Random.value, 2));
-        return true;
-    }
-
     private void TryPlaceRamp()
     {
         if (!RampPrefab || Random.value >= RampChance) return;
