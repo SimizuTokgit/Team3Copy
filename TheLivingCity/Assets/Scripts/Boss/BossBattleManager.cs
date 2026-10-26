@@ -76,7 +76,8 @@ public class BossBattleManager : MonoBehaviour
 
     [Header("2 感電触手（道の障害物が感電版に変わる）")]
     [SerializeField] private ElectricVariantTable ElectricVariants;          //元の障害物 → 触手が巻き付いた版
-    [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.5f;   //中ボス2で、障害物1つが感電版に変わる確率
+    [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.2f;   //中ボス2で、障害物1つが感電版に変わる確率（専用モデルがある物だけ）
+    [SerializeField] private int ElectricItems = 2;                            //感電した物1つのまわりに置くアイテムの数
     [SerializeField, Range(0f, 1f)] private float ElectricSwapChanceAll = 0f;    //ラスボス（攻撃全部）のとき（清水 中ボス2だけにしたので 0）
 
     [Header("3 ガスバーナー")]
@@ -408,6 +409,7 @@ public class BossBattleManager : MonoBehaviour
         if (IsNearBoss(chunk)) return false;
 
         //清水 感電触手のボス戦では、ふつうの障害物も触手が巻き付いた版に入れ替わる
+        //清水 触手が巻き付いた物は、カタログでふつうの障害物に少し混ぜて置いている（中ボス2のときだけ）
         if (Current.Attack == BossAttack.ElectricTentacle) SwapElectric(chunk, ElectricSwapChance);
         else if (Current.Attack == BossAttack.All) SwapElectric(chunk, ElectricSwapChanceAll);
 
@@ -496,21 +498,22 @@ public class BossBattleManager : MonoBehaviour
     // 2 感電触手：この地面のふつうの障害物を、触手が巻き付いた版（一撃死）に入れ替える
     private void SwapElectric(GroundAutomatically chunk, float chance)
     {
-        if (!ElectricVariants || chance <= 0f) return;
-
-        List<GameObject> swapped = ElectricVariants.SwapIn(chunk.transform, chance, t =>
+        if (ElectricVariants && chance > 0f)
         {
-            //細くて飾りにした物（当たり判定が切ってある物）と、必ず通れる道にかかる物は入れ替えない
-            if (!HasEnabledCollider(t.gameObject)) return false;
-            if (chunk.Layout == null) return true;
-            Vector3 local = chunk.transform.InverseTransformPoint(t.position);
-            float keep = chunk.Layout.CorridorWidth * 0.5f + HalfWidthX(t.gameObject) + 1f;
-            return Mathf.Abs(local.x - chunk.Layout.CorridorX(local.z)) >= keep;
-        });
+            List<GameObject> swapped = ElectricVariants.SwapIn(chunk.transform, chance, t =>
+            {
+                //細くて飾りにした物（当たり判定が切ってある物）と、必ず通れる道にかかる物は入れ替えない
+                if (!HasEnabledCollider(t.gameObject)) return false;
+                if (chunk.Layout == null) return true;
+                Vector3 local = chunk.transform.InverseTransformPoint(t.position);
+                float keep = chunk.Layout.CorridorWidth * 0.5f + HalfWidthX(t.gameObject) + 1f;
+                return Mathf.Abs(local.x - chunk.Layout.CorridorX(local.z)) >= keep;
+            });
 
-        foreach (GameObject obj in swapped)
-        {
-            GenerateObstacle.AddOutline(obj, ElectricOutline, 6f);
+            foreach (GameObject obj in swapped)
+            {
+                GenerateObstacle.AddOutline(obj, ElectricOutline, 6f);
+            }
         }
 
         //感電した物（カタログで置いた触手付きの物も）はボスを倒したら消す。まわりにアイテムを置く
@@ -521,7 +524,7 @@ public class BossBattleManager : MonoBehaviour
             obj.AddComponent<BossHazard>();
 
             Vector3 local = chunk.transform.InverseTransformPoint(obj.transform.position);
-            chunk._itemGenerate.SpawnRing(chunk, local, HalfWidthX(obj) + 2.5f, Mathf.Max(1, HazardItems - 1));
+            if (ElectricItems > 0) chunk._itemGenerate.SpawnRing(chunk, local, HalfWidthX(obj) + 2.5f, ElectricItems);
         }
     }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 //清水
 //元の障害物と「電撃の触手が巻き付いた版」の対応表
 //CGさんから新しいモデルが届いたら、ここに1行足すだけで感電触手のボス戦で入れ替わる
-//表に無い障害物は、FallbackTentacle（ふつうの触手）を巻き付けて感電させる
+//表に無い障害物は、FallbackTentacle を入れたときだけ触手を巻き付けて感電させる（今は空：専用モデルだけ使う）
 [CreateAssetMenu(fileName = "ElectricVariantTable", menuName = "TheLivingCity/Electric Variant Table")]
 public class ElectricVariantTable : ScriptableObject
 {
@@ -19,7 +19,7 @@ public class ElectricVariantTable : ScriptableObject
     public List<Entry> Entries = new List<Entry>();
 
     [Header("専用のモデルが無い障害物")]
-    public GameObject FallbackTentacle;          //専用モデルが無い物は、この触手を巻き付けて感電させる（空なら入れ替えない）
+    public GameObject FallbackTentacle;          //専用モデルが無い物は、この触手を巻き付けて感電させる（空なら専用モデルがある物だけ入れ替える）
     public int FallbackTentacleCount = 2;        //1つの障害物に巻き付ける本数
     public float FallbackTentacleHeight = 1.15f; //障害物の高さの何倍の長さにするか
 
