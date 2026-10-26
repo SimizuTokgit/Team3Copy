@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f24a998bdcaeb6449a27f3dddb624470, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AcceleratorItem
-  UP_NUMBER: 0.5
+  UP_NUMBER: 1
   ItemEffect: {fileID: 3638767404758105562, guid: 0480ae093c4f479418e7d49c2f6e41b8, type: 3}
   ItemSE: {fileID: 8300000, guid: 4f28b625f82bb6c498d0f79614c99342, type: 3}
 --- !u!54 &-6201164749318660470
@@ -135,7 +135,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7405678864539802532}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 3
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
