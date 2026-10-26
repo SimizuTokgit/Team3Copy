@@ -10,13 +10,14 @@ public class PressHazard : MonoBehaviour
     [SerializeField] private float ContainerHeight = 4.7f;   //モデルのいちばん上からコンテナの底までの高さ（モデルの大きさのままのm）
 
     [Header("動き（秒）")]
-    [SerializeField] private float UpTime = 1.4f;     //上で止まっている
+    [SerializeField] private float UpTime = 1.2f;     //上で止まっている
     [SerializeField] private float WarnTime = 0.6f;   //振り下ろす前に震える
     [SerializeField] private float SlamTime = 0.2f;   //振り下ろす
-    [SerializeField] private float DownTime = 0.7f;   //下りたまま
+    [SerializeField] private float DownTime = 1.0f;   //下りたまま
     [SerializeField] private float RiseTime = 1.0f;   //上がる
 
-    [SerializeField] private float DeadlyHeight = 3.5f;  //コンテナの底がこれより低いと一撃死
+    [SerializeField] private float DeadlyHeight = 4.5f;  //コンテナの底がこれより低いと一撃死（プレス機の大きさに合わせてのびる）
+    [SerializeField] private float CrushPadding = 0.8f;  //当たり判定をコンテナより少し広げる（前後左右、m）
     [SerializeField] private float WarnShake = 0.25f;    //予告で震える大きさ（m）
     [SerializeField] private float ShakeDistance = 45f;  //プレイヤーがこれより近いと、振り下ろしたときに画面がゆれる
 
@@ -82,7 +83,7 @@ public class PressHazard : MonoBehaviour
         crushObj.transform.SetParent(_model, false);
         _crush = crushObj.AddComponent<BoxCollider>();
         _crush.center = (min + max) * 0.5f;
-        _crush.size = max - min;
+        _crush.size = max - min + new Vector3(CrushPadding * 2f, 0f, CrushPadding * 2f);
 
         BossHazard.MakeDeadly(gameObject);
         _crush.enabled = false;

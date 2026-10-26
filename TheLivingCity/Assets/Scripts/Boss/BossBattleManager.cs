@@ -11,7 +11,7 @@ public class BossBattleManager : MonoBehaviour
     public enum BossAttack
     {
         TentacleSwing,    //1 触手を振って攻撃（触手がコンテナを振り下ろすプレス機も出る）
-        ElectricTentacle, //2 感電する触手が巻き付いたオブジェクト（一撃死）
+        ElectricTentacle, //2 道の障害物が、感電する触手が巻き付いた物に変わる（一撃死）
         GasBurner,        //3 ガスバーナー（一撃死）
         Train,            //4 走ってくる電車・空から飛んでくる大きい電車（一撃死）
         All               //5 今までの攻撃全部
@@ -59,24 +59,23 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private float RampAngle = 15f;              //坂の角度
     [SerializeField] private float RampGap = 110f;               //坂の上の端からボスまでの距離
     [SerializeField] private float RampSpawnDistance = 600f;     //ボスがこの距離まで近づいたら置く
-    [SerializeField] private float NoHazardBeforeBoss = 350f;    //ボスの手前この距離はギミックを置かない
+    [SerializeField] private float NoHazardBeforeBoss = 250f;    //ボスの手前この距離はギミックを置かない（清水 350→250 空きすぎていたので）
 
     [Header("ボス戦の難しさ")]
     [SerializeField, Range(0f, 1f)] private float HazardChunkChance = 0.6f;     //地面1枚にギミックを置く確率
-    [SerializeField, Range(0f, 1f)] private float ObstacleChanceInBattle = 0.5f; //地面1枚にふつうの障害物を置く確率
+    [SerializeField, Range(0f, 1f)] private float ObstacleChanceInBattle = 0.75f; //地面1枚にふつうの障害物を置く確率（清水 0.5→0.75）
     [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
 
     [Header("1 触手 プレス機")]
     [SerializeField] private GameObject PressPrefab;                      //触手がコンテナを持っているモデル（PressHazard 付き）
     [SerializeField, Range(0f, 1f)] private float PressChance = 0.5f;     //触手マップの代わりにプレス機を置く確率
     [SerializeField] private int PressCount = 2;                          //横に並べる数
+    [SerializeField] private float PressScale = 1.6f;                     //大きさ（モデルの何倍か）
 
-    [Header("2 感電触手")]
-    [SerializeField] private GameObject[] ElectricBasePrefabs; //触手が巻き付いた物（Thunder_～）。空なら ElectricVariants から選ぶ
-    [SerializeField] private ElectricVariantTable ElectricVariants;       //元の障害物 → 触手が巻き付いた版
-    [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.5f; //ふつうの障害物を触手が巻き付いた版に入れ替える確率
-    [SerializeField] private GameObject TentaclePrefab;        //土台に ElectricHazard が付いていないときだけ、上に触手を足す
-    [SerializeField] private float TentacleScale = 0.5f;
+    [Header("2 感電触手（道の障害物が感電版に変わる）")]
+    [SerializeField] private ElectricVariantTable ElectricVariants;          //元の障害物 → 触手が巻き付いた版
+    [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.5f;   //中ボス2で、障害物1つが感電版に変わる確率
+    [SerializeField, Range(0f, 1f)] private float ElectricSwapChanceAll = 0.25f; //ラスボス（攻撃全部）のとき
 
     [Header("3 ガスバーナー")]
     [SerializeField] private GameObject BurnerPrefab;
@@ -360,11 +359,14 @@ public class BossBattleManager : MonoBehaviour
     public bool AllowObstacles(GroundAutomatically chunk)
     {
         //清水 ボス戦中は地面の一部にだけ障害物を置く（ギミックと重なって難しすぎたので）
-        return !IsNearBoss(chunk) && Random.value < ObstacleChanceInBattle;
+        if (IsNearBoss(chunk)) return false;
+        //感電触手のボス戦は、道の障害物が感電版に変わるのがギミックなので、いつも置く
+        if (InBattle && Current.Attack == BossAttack.ElectricTentacle) return true;
+        return Random.value < ObstacleChanceInBattle;
     }
 
     //この地面がボスの手前（ジャンプ台を置くあたり）にかかっているか
-    private bool IsNearBoss(GroundAutomatically chunk)
+    public bool IsNearBoss(GroundAutomatically chunk)
     {
         if (!_currentBoss) return false;
 
@@ -376,19 +378,21 @@ public class BossBattleManager : MonoBehaviour
 
     /// <summary>
     /// ボス戦中に新しい地面ができたらギミックを置く（GroundAutomatically から呼ばれる）
+    /// 置いたら true（障害物もギミックも無い地面ができないように、GroundAutomatically が見る）
     /// </summary>
-    public void SpawnHazards(GroundAutomatically chunk)
+    public bool SpawnHazards(GroundAutomatically chunk)
     {
-        if (!InBattle) return;
+        if (!InBattle) return false;
 
         //ボスの手前（ジャンプ台のあたり）は障害物を置かない
-        if (IsNearBoss(chunk)) return;
+        if (IsNearBoss(chunk)) return false;
 
         //清水 感電触手のボス戦では、ふつうの障害物も触手が巻き付いた版に入れ替わる
-        if (Current.Attack == BossAttack.ElectricTentacle || Current.Attack == BossAttack.All) SwapElectric(chunk);
+        if (Current.Attack == BossAttack.ElectricTentacle) SwapElectric(chunk, ElectricSwapChance);
+        else if (Current.Attack == BossAttack.All) SwapElectric(chunk, ElectricSwapChanceAll);
 
         //清水 ギミックを置かない地面もはさんで、息をつけるようにする
-        if (Random.value >= HazardChunkChance) return;
+        if (Random.value >= HazardChunkChance) return false;
 
         for (int i = 0; i < Current.HazardsPerChunk; i++)
         {
@@ -398,11 +402,12 @@ public class BossBattleManager : MonoBehaviour
             switch (attack)
             {
                 case BossAttack.TentacleSwing: SpawnTentacleSwing(chunk); break;
-                case BossAttack.ElectricTentacle: SpawnElectricTentacle(chunk); break;
+                case BossAttack.ElectricTentacle: break; //上で障害物を入れ替えている
                 case BossAttack.GasBurner: SpawnBurner(chunk); break;
                 case BossAttack.Train: SpawnTrain(chunk); break;
             }
         }
+        return true;
     }
 
     //チャンク内のランダムな位置（ローカル座標、高さは地面に合わせる）
@@ -451,10 +456,11 @@ public class BossBattleManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            float x = section * (i + 0.5f) + Random.Range(-0.2f, 0.2f) * section;
+            float x = section * (i + 0.5f) + Random.Range(-0.1f, 0.1f) * section; //大きいので重ならないように少しだけずらす
             GameObject root = CreateHazardRoot(chunk, "Press", new Vector3(x, chunk.GetLocalHeight(x, z), z));
             GameObject press = Instantiate(PressPrefab, root.transform);
             press.transform.localPosition = Vector3.zero;
+            press.transform.localScale *= PressScale;
 
             //ばらばらのタイミングで振り下ろす
             PressHazard hazard = press.GetComponentInChildren<PressHazard>();
@@ -462,65 +468,14 @@ public class BossBattleManager : MonoBehaviour
         }
     }
 
-    // 2 感電触手：触手が巻き付いた物（Thunder_～）を置く。必ず通れる道の上には置かない
-    private void SpawnElectricTentacle(GroundAutomatically chunk)
-    {
-        List<GameObject> pool = new List<GameObject>();
-        if (ElectricBasePrefabs != null) foreach (GameObject p in ElectricBasePrefabs) if (p) pool.Add(p);
-        if (pool.Count == 0 && ElectricVariants) pool = ElectricVariants.GetElectricPrefabs();
-        if (pool.Count == 0) return;
-
-        Vector3 point = RandomPoint(chunk, 6f);
-        GameObject root = CreateHazardRoot(chunk, "ElectricTentacle", point);
-
-        GameObject basePrefab = pool[Random.Range(0, pool.Count)];
-        GameObject baseObj = Instantiate(basePrefab, root.transform);
-        baseObj.transform.localPosition = Vector3.zero;
-        ModelSlot.EnsureCollider(baseObj, true); //新しいモデルでも当たるように
-
-        //大きい物もあるので、横幅を測ってから道にかからない場所へずらす
-        if (chunk.Layout != null)
-        {
-            float half = HalfWidthX(baseObj);
-            float lane = chunk.Layout.CorridorX(point.z);
-            float keep = chunk.Layout.CorridorWidth * 0.5f + half + 1f;
-            if (Mathf.Abs(point.x - lane) < keep)
-            {
-                point.x = lane + (point.x < lane ? -keep : keep);
-                if (point.x < 0f || point.x > chunk.ChunkWidth) //道の外にしか置けなければ置かない
-                {
-                    Destroy(root);
-                    return;
-                }
-                point.y = chunk.GetLocalHeight(point.x, point.z);
-                root.transform.localPosition = point;
-            }
-        }
-
-        //触手が巻き付いていない土台（昔の電柱など）なら、上に触手を足して電気を流す
-        if (!baseObj.GetComponentInChildren<ElectricHazard>())
-        {
-            if (TentaclePrefab)
-            {
-                GameObject tentacle = Instantiate(TentaclePrefab, root.transform);
-                tentacle.transform.localPosition = Vector3.zero;
-                tentacle.transform.localRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-                tentacle.transform.localScale *= TentacleScale;
-            }
-            root.AddComponent<ElectricHazard>();
-        }
-
-        GenerateObstacle.AddOutline(root, ElectricOutline, 6f); //一撃死は太く目立たせる
-    }
-
     private static readonly Color ElectricOutline = new Color(0.3f, 0.9f, 1f);
 
     // 2 感電触手：この地面のふつうの障害物を、触手が巻き付いた版（一撃死）に入れ替える
-    private void SwapElectric(GroundAutomatically chunk)
+    private void SwapElectric(GroundAutomatically chunk, float chance)
     {
-        if (!ElectricVariants || ElectricSwapChance <= 0f) return;
+        if (!ElectricVariants || chance <= 0f) return;
 
-        List<GameObject> swapped = ElectricVariants.SwapIn(chunk.transform, ElectricSwapChance, t =>
+        List<GameObject> swapped = ElectricVariants.SwapIn(chunk.transform, chance, t =>
         {
             //細くて飾りにした物（当たり判定が切ってある物）と、必ず通れる道にかかる物は入れ替えない
             if (!HasEnabledCollider(t.gameObject)) return false;

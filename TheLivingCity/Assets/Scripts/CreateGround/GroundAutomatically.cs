@@ -278,8 +278,11 @@ public class GroundAutomatically : MonoBehaviour
             else if (_ground.BossBattle != null)
             {
                 //清水 ボス戦でもふつうの障害物は置く（ボスの手前は空ける）
-                if (_ground.BossBattle.AllowObstacles(this)) GenObsItem();
-                _ground.BossBattle.SpawnHazards(this);
+                bool obstacles = _ground.BossBattle.AllowObstacles(this);
+                if (obstacles) GenObsItem();
+                bool hazards = _ground.BossBattle.SpawnHazards(this);
+                //障害物もギミックも無い地面が続くとさみしいので、そのときは障害物を置く
+                if (!obstacles && !hazards && !_ground.BossBattle.IsNearBoss(this)) GenObsItem();
             }
             else
                 GenTentacles();
