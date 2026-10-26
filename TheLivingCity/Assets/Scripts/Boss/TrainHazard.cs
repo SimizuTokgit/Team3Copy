@@ -34,7 +34,12 @@ public class TrainHazard : MonoBehaviour
     private bool _landed;
     private Quaternion _modelRotation = Quaternion.identity; //向きに対するモデルのずれ
     private Renderer[] _renderers;
-    private DangerMarker _laneMarker;
+
+    //清水 攻撃範囲（電車が通る帯）
+    private DangerLane _lane;
+    private float _halfLength;                  //進む向きの長さの半分
+    private const float LaneMargin = 0.6f;      //帯は電車の幅より少しだけ広く
+    private const float CrossingPreview = 1.8f; //横切る電車は、走り出す距離のこの倍から帯をうすく出しておく
 
     /// <summary>
     /// 電車の動きを設定する（BossBattleManager から呼ぶ）
@@ -80,19 +85,39 @@ public class TrainHazard : MonoBehaviour
         _warningLight.range = 40f;
         _warningLight.intensity = 0f;
 
+        _renderers = GetComponentsInChildren<Renderer>();
+        _halfLength = Extent(_moveDir);
+
         //清水 飛んでくる電車は、飛び出すまで見えないようにしておく
         if (_route == Route.Flying)
         {
             _modelRotation = Quaternion.Inverse(Quaternion.LookRotation(_moveDir)) * transform.rotation;
-            _renderers = GetComponentsInChildren<Renderer>();
             SetVisible(false);
         }
     }
 
-    private void OnDestroy()
+    //消えたときと、地面ごとしまわれたとき（地面の使い回し）に帯も消す
+    private void OnDisable()
     {
-        if (_laneMarker) Destroy(_laneMarker.gameObject);
+        if (_lane) Destroy(_lane.gameObject);
+        _lane = null;
     }
+
+    //清水 電車の通り道を地面に出す（幅は電車の幅、高さは電車の半分くらいまで壁を立てる）
+    private void ShowLane(Vector3 from, Vector3 to, bool alert)
+    {
+        if (!_lane)
+        {
+            Vector3 side = Vector3.Cross(Vector3.up, _moveDir).normalized;
+            float width = Extent(side) * 2f + LaneMargin;
+            float wall = Mathf.Clamp(Extent(Vector3.up) * 0.6f, 2.5f, 8f);
+            _lane = DangerLane.Create(from, to, width, GameHUD.Danger, wall);
+        }
+        _lane.SetAlert(alert);
+    }
+
+    //電車の先頭（ここより後ろの帯は消す）
+    private Vector3 FrontPoint => transform.position + _moveDir * _halfLength;
 
     private void Update()
     {
@@ -102,6 +127,12 @@ public class TrainHazard : MonoBehaviour
 
         if (!_isRunning)
         {
+            //清水 横切る電車は、近づいたら通り道をうすく出しておく
+            if (_route == Route.Crossing && !_lane && transform.position.z - playerPos.z <= _triggerDistance * CrossingPreview)
+            {
+                ShowLane(transform.position, transform.position + _moveDir * _travelDistance, false);
+            }
+
             if (ShouldStart(playerPos))
             {
                 _isRunning = true;
@@ -118,11 +149,13 @@ public class TrainHazard : MonoBehaviour
                 {
                     transform.position = new Vector3(playerPos.x, transform.position.y, transform.position.z);
                     GameHUD.Get().Popup("TRAIN AHEAD!", GameHUD.Danger);
+                    ShowLane(FrontPoint, new Vector3(playerPos.x, playerPos.y, playerPos.z - 20f), true);
                 }
                 else
                 {
                     //どっちから来るかを画面の端に出す
                     GameHUD.Get().WarnTrain(_moveDir.x > 0f);
+                    ShowLane(transform.position, transform.position + _moveDir * _travelDistance, true);
                 }
             }
             return;
@@ -140,6 +173,7 @@ public class TrainHazard : MonoBehaviour
         float step = _speed * Time.deltaTime;
         transform.position += _moveDir * step;
         _moved += step;
+        if (_lane) _lane.SetStartPoint(FrontPoint);
 
         //走りきったら消す。正面から来る電車はプレイヤーの後ろに抜けたら消す
         if (_moved >= _travelDistance ||
@@ -187,12 +221,9 @@ public class TrainHazard : MonoBehaviour
         pos.y = GroundHeight(x, pos.z, playerPos.y) + _flyHeight;
         transform.position = pos;
 
-        //電車が通る列を地面に赤く出す（プレイヤーの少し前から、落ちてくるところまで）
-        float startZ = playerPos.z + 5f;
-        float length = Mathf.Max(10f, pos.z - startZ);
-        float midZ = startZ + length * 0.5f;
-        _laneMarker = DangerMarker.Create(null, new Vector3(x, GroundHeight(x, midZ, playerPos.y) + 0.3f, midZ), new Vector2(half * 2f, length), GameHUD.Danger);
-        _laneMarker.SetAlert(true);
+        //電車が通る列を地面に赤く出す（落ちてくるところから、プレイヤーの後ろまで）
+        _halfLength = Extent(_moveDir);
+        ShowLane(new Vector3(x, playerPos.y, pos.z), new Vector3(x, playerPos.y, playerPos.z - 20f), true);
 
         GameHUD.Get().Popup("BIG TRAIN!! DODGE!", GameHUD.Danger);
     }
@@ -224,6 +255,7 @@ public class TrainHazard : MonoBehaviour
             }
         }
         transform.position = pos;
+        if (_lane) _lane.SetStartPoint(FrontPoint);
 
         //プレイヤーの後ろに抜けたら消す
         if (pos.z < playerPos.z - 60f) Destroy(gameObject);
@@ -259,5 +291,25 @@ public class TrainHazard : MonoBehaviour
         {
             c.enabled = visible;
         }
+    }
+
+    //見た目の大きさ：位置から axis の向きにどこまで出ているか
+    private float Extent(Vector3 axis)
+    {
+        float best = 0f;
+        Vector3 c = transform.position;
+        if (_renderers == null) return 1f;
+        foreach (Renderer r in _renderers)
+        {
+            if (!r || r is ParticleSystemRenderer) continue;
+            Bounds b = r.bounds;
+            if (b.size == Vector3.zero) continue;
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 p = new Vector3((i & 1) == 0 ? b.min.x : b.max.x, (i & 2) == 0 ? b.min.y : b.max.y, (i & 4) == 0 ? b.min.z : b.max.z);
+                best = Mathf.Max(best, Vector3.Dot(p - c, axis));
+            }
+        }
+        return best > 0f ? best : 1f;
     }
 }
