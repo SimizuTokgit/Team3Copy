@@ -69,7 +69,7 @@ public class CountDownPop : MonoBehaviour
     {
         if (playing)
         {
-            time += Time.deltaTime;
+            time += Time.unscaledDeltaTime; //清水 時間が止まっているとき（ボス登場）も動くように
             float t = (duration > 0f) ? Mathf.Clamp01(time / duration) : 1f;
             Apply(t);
 
@@ -77,7 +77,7 @@ public class CountDownPop : MonoBehaviour
             return;
         }
 
-        if (pulse) rect.localScale = Vector3.one * (endScale + Mathf.Sin(Time.time * pulseSpeed) * pulseScale);
+        if (pulse) rect.localScale = Vector3.one * (endScale + Mathf.Sin(Time.unscaledTime * pulseSpeed) * pulseScale);
     }
 
     private void Apply(float t)

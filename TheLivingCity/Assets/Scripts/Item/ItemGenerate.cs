@@ -145,6 +145,42 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
+    /// 清水 from から to（ローカル座標、高さは地面に合わせる）までまっすぐ count 個並べる
+    /// プレス機の下や電車の通り道など、一撃死のギミックの近くに置く
+    /// </summary>
+    public void SpawnLine(GroundAutomatically chunk, Vector3 from, Vector3 to, int count, float height = 1.2f)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 p = Vector3.Lerp(from, to, count == 1 ? 0.5f : (float)i / (count - 1));
+            p.x = Mathf.Clamp(p.x, 2f, chunk.ChunkWidth - 2f);
+            Spawn(chunk, p.x, p.z, height);
+        }
+    }
+
+    /// <summary>
+    /// 清水 center（ローカル座標）のまわりに半径 radius で count 個並べる（感電した物のまわりなど）
+    /// </summary>
+    public void SpawnRing(GroundAutomatically chunk, Vector3 center, float radius, int count, float height = 1.2f)
+    {
+        float start = Random.Range(0f, 360f);
+        for (int i = 0; i < count; i++)
+        {
+            float a = (start + 360f * i / count) * Mathf.Deg2Rad;
+            float x = Mathf.Clamp(center.x + Mathf.Sin(a) * radius, 2f, chunk.ChunkWidth - 2f);
+            float z = Mathf.Clamp(center.z + Mathf.Cos(a) * radius, 1f, chunk.ChunkLength - 1f);
+            Spawn(chunk, x, z, height);
+        }
+    }
+
+    private void Spawn(GroundAutomatically chunk, float x, float z, float height)
+    {
+        if (items == null || items.Length == 0) return;
+        GameObject item = Instantiate(items[GetWeightedRandom()].prefab, transform);
+        item.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, z) + height, z);
+    }
+
+    /// <summary>
     /// 重み付きランダム
     /// </summary>
     private int GetWeightedRandom()

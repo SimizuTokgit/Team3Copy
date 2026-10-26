@@ -52,7 +52,9 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private AudioClip HitSE;
     [SerializeField] private AudioClip WarningSE;             //ボス出現の警告音
     [SerializeField] private float ClearDelay = 2.0f;         //ラスボスを倒してからクリア画面に行くまで（実時間）
-    [SerializeField] private float MinIntroTime = 2.5f;       //ボス登場で止めておく最短の秒数（カットシーンが無いとき用）
+    [SerializeField] private float IntroTotalTime = 6f;       //清水 ボス登場で止めておく秒数
+    [SerializeField] private float CountdownLeadTime = 4f;    //残りこの秒数になったら、スタートと同じ 3,2,1,GO を始める
+    [SerializeField] private int HazardItems = 5;             //一撃死のギミックの近くに置くアイテムの数（ほかの場所は少なめ）
 
     [Header("ボスの手前のジャンプ台")]
     [SerializeField] private GameObject RampPrefab;              //Highway を傾けて坂にする
@@ -69,14 +71,13 @@ public class BossBattleManager : MonoBehaviour
     [Header("1 触手 プレス機")]
     [SerializeField] private GameObject PressPrefab;                      //触手がコンテナを持っているモデル（PressHazard 付き）
     [SerializeField, Range(0f, 1f)] private float PressChance = 0.75f;    //触手マップの代わりにプレス機を置く確率
-    [SerializeField] private int PressCount = 2;                          //横に並べる数
-    [SerializeField] private float PressScale = 1.6f;                     //大きさ（モデルの何倍か）
+    [SerializeField] private int PressCount = 3;                          //横に並べる数（道幅いっぱいに並ぶ大きさになる）
     [SerializeField, Range(0f, 1f)] private float PressSecondRowChance = 0.5f; //もう1列（奥に）並べる確率
 
     [Header("2 感電触手（道の障害物が感電版に変わる）")]
     [SerializeField] private ElectricVariantTable ElectricVariants;          //元の障害物 → 触手が巻き付いた版
     [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.5f;   //中ボス2で、障害物1つが感電版に変わる確率
-    [SerializeField, Range(0f, 1f)] private float ElectricSwapChanceAll = 0.25f; //ラスボス（攻撃全部）のとき
+    [SerializeField, Range(0f, 1f)] private float ElectricSwapChanceAll = 0f;    //ラスボス（攻撃全部）のとき（清水 中ボス2だけにしたので 0）
 
     [Header("3 ガスバーナー")]
     [SerializeField] private GameObject BurnerPrefab;
@@ -110,6 +111,9 @@ public class BossBattleManager : MonoBehaviour
     private float _rampForZ = float.NaN;
 
     public bool InBattle { get; private set; } = false;
+
+    //清水 感電触手のボス戦中か（触手が巻き付いた物はこのときだけ出す）
+    public bool ElectricActive => InBattle && _index < Encounters.Count && Current.Attack == BossAttack.ElectricTentacle;
 
     private BossEncounter Current => Encounters[_index];
     private bool IsLastBoss => _index >= Encounters.Count - 1;
@@ -227,9 +231,8 @@ public class BossBattleManager : MonoBehaviour
         ScreenEffects.Get().Shake(0.5f, 0.8f);
         if (WarningSE && SoundManager.Instance) SoundManager.Instance.PlayAudioClip(WarningSE);
 
-        //ボス登場のカットシーン。終わるまで待つ
-        float introTime = PlayCutScene(boss.transform);
-        yield return new WaitForSecondsRealtime(Mathf.Max(introTime, MinIntroTime));
+        //ボス登場のカットシーン
+        PlayCutScene(boss.transform);
 
         //先の地面にふつうの障害物とギミックを置く（すぐ前とボスの手前は空けておく）
         foreach (GroundAutomatically chunk in _ground.groundScripts)
@@ -241,13 +244,29 @@ public class BossBattleManager : MonoBehaviour
             }
         }
 
-        //3,2,1,GO で再開
-        for (int i = 3; i >= 1; i--)
+        //清水 IntroTotalTime 秒止めて、残り CountdownLeadTime 秒になったらスタートと同じ 3,2,1,GO
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, IntroTotalTime - CountdownLeadTime));
+
+        CountDownManager countDown = _gameManager.GetComponentInChildren<CountDownManager>(true);
+        if (countDown)
         {
-            GameHUD.Get().Banner("", Color.white, 0.5f, i);
-            yield return new WaitForSecondsRealtime(0.6f);
+            countDown.Restart();
+            while (!countDown.CountFinishJudge())
+            {
+                countDown.CountDown();
+                yield return null;
+            }
         }
-        GameHUD.Get().Banner("GO!!", GameHUD.Gold, 0.8f);
+        else
+        {
+            for (int i = 3; i >= 1; i--)
+            {
+                GameHUD.Get().Banner("", Color.white, 0.5f, i);
+                yield return new WaitForSecondsRealtime(CountdownLeadTime / 4f);
+            }
+            GameHUD.Get().Banner("GO!!", GameHUD.Gold, 0.8f);
+            yield return new WaitForSecondsRealtime(CountdownLeadTime / 4f);
+        }
 
         if (player) player.ReStartPlayer();
         _gameManager.SetState(GameManager.GameState.Playing);
@@ -463,22 +482,12 @@ public class BossBattleManager : MonoBehaviour
         }
     }
 
+    //道幅いっぱいに並べて、となり同士を交互に振り下ろす（タイミングを見て上がっている方をくぐる）
     private void SpawnPressRow(GroundAutomatically chunk, float z)
     {
-        int count = Mathf.Max(1, PressCount);
-        float section = chunk.ChunkWidth / count;
-
-        for (int i = 0; i < count; i++)
+        foreach (GameObject press in PressHazard.SpawnRow(PressPrefab, chunk, z, PressCount, Random.value, 2))
         {
-            float x = section * (i + 0.5f) + Random.Range(-0.1f, 0.1f) * section; //大きいので重ならないように少しだけずらす
-            GameObject root = CreateHazardRoot(chunk, "Press", new Vector3(x, chunk.GetLocalHeight(x, z), z));
-            GameObject press = Instantiate(PressPrefab, root.transform);
-            press.transform.localPosition = Vector3.zero;
-            press.transform.localScale *= PressScale;
-
-            //ばらばらのタイミングで振り下ろす
-            PressHazard hazard = press.GetComponentInChildren<PressHazard>();
-            if (hazard) hazard.SetPhase(Random.value);
+            press.AddComponent<BossHazard>();
         }
     }
 
@@ -501,8 +510,18 @@ public class BossBattleManager : MonoBehaviour
 
         foreach (GameObject obj in swapped)
         {
-            obj.AddComponent<BossHazard>(); //ボスを倒したら消える
             GenerateObstacle.AddOutline(obj, ElectricOutline, 6f);
+        }
+
+        //感電した物（カタログで置いた触手付きの物も）はボスを倒したら消す。まわりにアイテムを置く
+        foreach (ElectricHazard electric in chunk.GetComponentsInChildren<ElectricHazard>())
+        {
+            GameObject obj = electric.gameObject;
+            if (obj.GetComponent<BossHazard>()) continue;
+            obj.AddComponent<BossHazard>();
+
+            Vector3 local = chunk.transform.InverseTransformPoint(obj.transform.position);
+            chunk._itemGenerate.SpawnRing(chunk, local, HalfWidthX(obj) + 2.5f, Mathf.Max(1, HazardItems - 1));
         }
     }
 
@@ -543,6 +562,9 @@ public class BossBattleManager : MonoBehaviour
         float roll = Random.value;
         BurnerHazard.Pattern pattern = roll < 0.6f ? BurnerHazard.Pattern.Random : (roll < 0.8f ? BurnerHazard.Pattern.AllAtOnce : BurnerHazard.Pattern.Alternate);
         burner.Setup(BurnerPrefab, chunk, BurnerSpacing, pattern, Random.Range(0f, 6f));
+
+        //清水 炎の列の上にアイテム（炎が止まったすきに取る）
+        chunk._itemGenerate.SpawnLine(chunk, new Vector3(4f, 0f, pos.z), new Vector3(chunk.ChunkWidth - 4f, 0f, pos.z), HazardItems + 2);
     }
 
     // 4 電車：横切るか正面から来る
@@ -585,6 +607,12 @@ public class BossBattleManager : MonoBehaviour
             train.Setup(TrainHazard.Route.Crossing, dir, CrossingTrainSpeed, CrossingTriggerDistance, chunk.ChunkWidth + 60f, TrainWarningSE);
         else
             train.Setup(TrainHazard.Route.Oncoming, dir, OncomingTrainSpeed, OncomingTriggerDistance, 2000f, TrainWarningSE);
+
+        //清水 電車の通り道にアイテム（横切る電車は線路の上、正面から来る電車は手前の列）
+        if (crossing)
+            chunk._itemGenerate.SpawnLine(chunk, new Vector3(4f, 0f, pos.z), new Vector3(chunk.ChunkWidth - 4f, 0f, pos.z), HazardItems);
+        else
+            chunk._itemGenerate.SpawnLine(chunk, new Vector3(pos.x, 0f, Mathf.Max(2f, pos.z - 40f)), new Vector3(pos.x, 0f, pos.z - 5f), HazardItems);
     }
 
     // 4 大きい電車：プレイヤーの列めがけて空から飛んでくる。左右どちらかによける
@@ -603,6 +631,9 @@ public class BossBattleManager : MonoBehaviour
 
         float minX = chunk.transform.TransformPoint(Vector3.zero).x;
         float maxX = chunk.transform.TransformPoint(new Vector3(chunk.ChunkWidth, 0f, 0f)).x;
+        //清水 落ちてくるあたりの道の真ん中にアイテム
+        chunk._itemGenerate.SpawnLine(chunk, new Vector3(pos.x, 0f, Mathf.Max(2f, pos.z - 50f)), new Vector3(pos.x, 0f, pos.z - 10f), HazardItems);
+
         TrainHazard train = root.AddComponent<TrainHazard>();
         train.SetupFlying(BigTrainSpeed, BigTrainWarningTime, BigTrainFlyHeight, BigTrainFlyTime, minX, maxX, TrainWarningSE);
     }

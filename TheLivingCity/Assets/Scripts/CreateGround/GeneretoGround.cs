@@ -275,11 +275,15 @@ public class GeneretoGround : MonoBehaviour
             {
                 BranchesUI.SetActive(false);
 
-                //難易度変更
-                ChangeDifficult();
+                //清水 ボス戦中は道を選ばない（いつも普通の難しさ）。選ぶのはふつうの道だけ
+                if (!_isBoss)
+                {
+                    //難易度変更
+                    ChangeDifficult();
 
-                //清水 もうできている先の地面にもすぐ反映する（今までは768m先からしか変わらなかった）
-                RegenerateAhead();
+                    //清水 もうできている先の地面にもすぐ反映する（今までは768m先からしか変わらなかった）
+                    RegenerateAhead();
+                }
 
                 //新しくチェックポイントを作る
                 checkPointInstance.InstanceCheckPoints(player.transform.position.z - brancheStartPos);
@@ -319,7 +323,8 @@ public class GeneretoGround : MonoBehaviour
 
     public void BranchStartSet()
     {
-        BranchesUI.SetActive(true);
+        //清水 ボス戦中は道を選ばないので、分かれ道の案内も出さない
+        BranchesUI.SetActive(!_isBoss);
         GroundNumberReset();
 
         //for (int i = 0; i < ground.Count; i++)

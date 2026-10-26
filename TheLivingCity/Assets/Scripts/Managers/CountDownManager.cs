@@ -54,15 +54,15 @@ public class CountDownManager : MonoBehaviour
     /// </summary>
     public void CountDown()
     {
-        //清水 フェードインが明けるまで待つ
+        //清水 フェードインが明けるまで待つ（ボス登場のときは時間が止まっているので、止まらない時計で数える）
         if (!_isStarted)
         {
-            _waitTime += Time.deltaTime;
+            _waitTime += Time.unscaledDeltaTime;
             if (_waitTime < startDelay) return;
             StartCount();
         }
 
-        if (!_useAudioClock) _elapsedNoAudio += Time.deltaTime;
+        if (!_useAudioClock) _elapsedNoAudio += Time.unscaledDeltaTime;
 
         int next = CountAt(GetElapsed() - cueOffset);
         if (next != _count) ChangeCount(next);
@@ -135,6 +135,20 @@ public class CountDownManager : MonoBehaviour
     private void PlayPop()
     {
         if (numberPop) numberPop.Play();
+    }
+
+    /// <summary>
+    /// 清水 もう一度 3,2,1,GO をする（ボス登場のあとなど）。待ち時間なしですぐ始める
+    /// このあと終わるまで毎フレーム CountDown() を呼ぶ
+    /// </summary>
+    public void Restart()
+    {
+        _count = 4;
+        _waitTime = startDelay;
+        _isStarted = false;
+        _elapsedNoAudio = 0f;
+        countdownNumber.gameObject.SetActive(false);
+        goImage.SetActive(false);
     }
 
     /// <summary>

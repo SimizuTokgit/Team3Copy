@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 //清水
 //プレス機（触手がコンテナを持って、振り下ろし続ける）
@@ -32,6 +33,49 @@ public class PressHazard : MonoBehaviour
     private bool _slammed;
 
     private float Cycle => UpTime + WarnTime + SlamTime + DownTime + RiseTime;
+
+    public const float ModelWidth = 10.9f; //コンテナの横幅（モデルの大きさのまま、m）
+    public const float ModelDepth = 4.6f;  //コンテナの奥行き
+
+    /// <summary>
+    /// 清水 道幅いっぱいにプレス機を count 台並べる（地面の子にする）。となり同士は交互に振り下ろすので、
+    /// 上がっている方の下をタイミングよくくぐる。下を通る列にアイテムも並べる
+    /// </summary>
+    public static List<GameObject> SpawnRow(GameObject prefab, GroundAutomatically chunk, float localZ, int count, float phase, int itemsPerPress)
+    {
+        List<GameObject> list = new List<GameObject>();
+        if (!prefab) return list;
+
+        count = Mathf.Max(1, count);
+        float section = chunk.ChunkWidth / count;
+        float scale = section / ModelWidth; //すき間なく並ぶ大きさ
+
+        //下にある障害物はどける
+        if (chunk.Layout != null)
+            chunk.Layout.ClearArea(new Rect(0f, localZ - ModelDepth * scale, chunk.ChunkWidth, ModelDepth * scale * 2f));
+
+        for (int i = 0; i < count; i++)
+        {
+            float x = section * (i + 0.5f);
+            GameObject press = Instantiate(prefab, chunk.transform);
+            press.transform.localPosition = new Vector3(x, chunk.GetLocalHeight(x, localZ), localZ);
+            press.transform.localScale *= scale;
+
+            //となりと半周ずらす（交互に下りる）
+            PressHazard hazard = press.GetComponentInChildren<PressHazard>();
+            if (hazard) hazard.SetPhase(Mathf.Repeat(phase + (i % 2) * 0.5f, 1f));
+
+            //プレス機の下を通る列にアイテム（タイミングを読んだごほうび）
+            ItemGenerate items = chunk._itemGenerate;
+            if (items && itemsPerPress > 0)
+            {
+                float d = ModelDepth * scale;
+                items.SpawnLine(chunk, new Vector3(x, 0f, localZ - d), new Vector3(x, 0f, localZ + d), itemsPerPress);
+            }
+            list.Add(press);
+        }
+        return list;
+    }
 
     /// <summary>
     /// 動きのどこから始めるか（0〜1）。並べたときにばらばらに動くように

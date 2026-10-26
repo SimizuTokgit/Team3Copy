@@ -80,8 +80,11 @@ public class GroundAutomatically : MonoBehaviour
 
     [Header("清水 プレス機（ふつうの道にもときどき出す）")]
     [SerializeField] private GameObject PressPrefab;
-    [SerializeField, Range(0f, 1f)] private float PressChance = 0.3f; //地面1枚あたりに置く確率（難しい道は 1.5 倍）
-    [SerializeField] private float PressScale = 1.6f;
+    [SerializeField, Range(0f, 1f)] private float PressChance = 0.25f; //地面1枚あたりに置く確率（難しい道は 1.5 倍）
+    [SerializeField] private int PressCount = 3;                       //横に並べる数（道幅いっぱいに並ぶ大きさになる）
+
+    [Header("清水 アイテム")]
+    [SerializeField] private float BaseItemRate = 0.6f; //ふつうに散らばるアイテムの数（倍）。一撃死のギミックの近くに集めるので少なめ
     private readonly System.Collections.Generic.List<GameObject> _presses = new System.Collections.Generic.List<GameObject>();
 
     private void Awake()
@@ -310,10 +313,12 @@ public class GroundAutomatically : MonoBehaviour
     /// </summary>
     public void GenObsItem()
     {
-        //清水 ボス戦中はギミックがあるので、障害物はやさしめ（少なめ）にする
+        //清水 ボス戦中はやさしい道・難しい道を選ばず、いつも普通にする（選ぶのはふつうの道だけ）
         bool inBoss = _ground != null && _ground._isBoss;
-        GenerateObstacle.Difficulty difficulty = inBoss ? GenerateObstacle.Difficulty.Easy : currentDifficulty;
-        _generateObstacle.Generate(mesh, width, length, difficulty, SmallPosY, inBoss);
+        GenerateObstacle.Difficulty difficulty = inBoss ? GenerateObstacle.Difficulty.Normal : currentDifficulty;
+        //触手が巻き付いた物は、感電触手のボス戦（中ボス2）のときだけ出す
+        bool electric = inBoss && _ground.BossBattle != null && _ground.BossBattle.ElectricActive;
+        _generateObstacle.Generate(mesh, width, length, difficulty, SmallPosY, inBoss, electric);
 
         CheckScript();
 
@@ -348,7 +353,7 @@ public class GroundAutomatically : MonoBehaviour
         _generateObstacle.ApplyOutlines();
 
         //難しい道はアイテムが多い（ごほうび）
-        float itemRate = difficulty == GenerateObstacle.Difficulty.Hard ? HardItemRate : 1f;
+        float itemRate = (difficulty == GenerateObstacle.Difficulty.Hard ? HardItemRate : 1f) * BaseItemRate;
         _itemGenerate.ItemGenReachable(this, _layout, ItemOnCorridorRate, ItemInAirRate, itemRate);
     }
 
@@ -475,18 +480,9 @@ public class GroundAutomatically : MonoBehaviour
     {
         if (!PressPrefab || Random.value >= chance) return false;
 
-        const float halfWidth = 10f; //1.6倍で横幅 約18m、奥行き 約7m
-        const float halfDepth = 5f;
-        float x = Random.Range(halfWidth, ChunkWidth - halfWidth);
-        float z = Random.Range(ChunkLength * 0.2f, ChunkLength * 0.8f);
-        _layout.ClearArea(new Rect(x - halfWidth, z - halfDepth, halfWidth * 2f, halfDepth * 2f));
-
-        GameObject press = Instantiate(PressPrefab, transform);
-        press.transform.localPosition = new Vector3(x, GetLocalHeight(x, z), z);
-        press.transform.localScale *= PressScale;
-        PressHazard hazard = press.GetComponentInChildren<PressHazard>();
-        if (hazard) hazard.SetPhase(Random.value);
-        _presses.Add(press);
+        //道幅いっぱいに並べて、となり同士を交互に振り下ろす
+        float z = Random.Range(ChunkLength * 0.25f, ChunkLength * 0.75f);
+        _presses.AddRange(PressHazard.SpawnRow(PressPrefab, this, z, PressCount, Random.value, 2));
         return true;
     }
 

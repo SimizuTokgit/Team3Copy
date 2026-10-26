@@ -23,6 +23,8 @@ public class ObstacleCatalog : ScriptableObject
         [Tooltip("向きを何度ずつ回すか。0 なら回さない、360 なら完全にランダム")]
         public float YawStep = 90f;
         public float HeightOffset = 0f;                     //地面からの高さのずれ（埋めたいときはマイナス）
+        [Tooltip("感電触手のボス戦（中ボス2）のときだけ出す（触手が巻き付いた物など）")]
+        public bool ElectricBattleOnly = false;
     }
 
     public List<Entry> Entries = new List<Entry>();
@@ -49,22 +51,28 @@ public class ObstacleCatalog : ScriptableObject
     /// <summary>
     /// 出やすさに合わせて1つ選ぶ
     /// </summary>
-    public Entry Pick()
+    public Entry Pick(bool electricBattle = false)
     {
         int total = 0;
         foreach (Entry e in Entries)
         {
-            if (e.Prefab) total += e.Weight;
+            if (CanUse(e, electricBattle)) total += e.Weight;
         }
         if (total <= 0) return null;
 
         int r = Random.Range(0, total);
         foreach (Entry e in Entries)
         {
-            if (!e.Prefab) continue;
+            if (!CanUse(e, electricBattle)) continue;
             if (r < e.Weight) return e;
             r -= e.Weight;
         }
         return null;
+    }
+
+    //清水 感電触手のボス戦でだけ出す物は、それ以外では選ばない
+    private static bool CanUse(Entry e, bool electricBattle)
+    {
+        return e != null && e.Prefab && (electricBattle || !e.ElectricBattleOnly);
     }
 }

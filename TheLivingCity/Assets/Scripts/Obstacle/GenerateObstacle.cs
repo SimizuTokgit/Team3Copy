@@ -90,7 +90,8 @@ public class GenerateObstacle : MonoBehaviour
     }
 
     //清水 forceCatalog：ボス戦中など、数を確実に調整したいときはマッププレハブを使わずカタログで並べる
-    public void Generate(Mesh mesh, int width, int length, Difficulty difficulty, float posY, bool forceCatalog = false)
+    //清水 electricBattle：感電触手のボス戦のときだけ、触手が巻き付いた物もカタログから選ぶ
+    public void Generate(Mesh mesh, int width, int length, Difficulty difficulty, float posY, bool forceCatalog = false, bool electricBattle = false)
     {
         if (obstacles == null || obstacles.Length == 0) return;
 
@@ -129,7 +130,7 @@ public class GenerateObstacle : MonoBehaviour
                 bool useCatalog = forceCatalog || difficulty == Difficulty.Hard || Random.value < CatalogRate;
                 if (Catalog && useCatalog)
                 {
-                    GenerateFromCatalog(mesh, difficulty);
+                    GenerateFromCatalog(mesh, difficulty, electricBattle);
                     continue;
                 }
 
@@ -206,7 +207,7 @@ public class GenerateObstacle : MonoBehaviour
     /// 清水 カタログの障害物を、間隔をあけてランダムに並べる
     /// 当たり判定が無いモデルには自動で付け、障害物レイヤーにする
     /// </summary>
-    private void GenerateFromCatalog(Mesh mesh, Difficulty difficulty)
+    private void GenerateFromCatalog(Mesh mesh, Difficulty difficulty, bool electricBattle)
     {
         Bounds area = mesh.bounds;
         float minX = area.min.x + Catalog.EdgeMargin;
@@ -218,7 +219,7 @@ public class GenerateObstacle : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            ObstacleCatalog.Entry entry = Catalog.Pick();
+            ObstacleCatalog.Entry entry = Catalog.Pick(electricBattle);
             if (entry == null) return;
 
             //ほかの障害物と近すぎない場所を探す

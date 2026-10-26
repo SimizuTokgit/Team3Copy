@@ -20,6 +20,7 @@ MonoBehaviour:
     ScaleRange: {x: 0.9, y: 1.1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: VerticalSign
     Prefab: {fileID: 5232132230735783200, guid: 045647cef2f3fca4aa5a08bf14921fcb, type: 3}
     Weight: 8
@@ -27,6 +28,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: PoleSign
     Prefab: {fileID: 11224431479098188, guid: e4860768532ed934495168f3445394bc, type: 3}
     Weight: 8
@@ -34,6 +36,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Parabolicantenna
     Prefab: {fileID: 4511490384920867975, guid: fe2ca6a9d5c1f8e4ca4705ca3998ccf3, type: 3}
     Weight: 5
@@ -41,6 +44,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 45
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: ParkedTrain
     Prefab: {fileID: 4063595758742268178, guid: 910008dd0adf84d4ea631b5d769a760d, type: 3}
     Weight: 3
@@ -48,6 +52,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 180
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Tree3m
     Prefab: {fileID: 8892343456633581616, guid: 805dc2663c20f734e93e8c8086000316, type: 3}
     Weight: 12
@@ -55,6 +60,7 @@ MonoBehaviour:
     ScaleRange: {x: 0.9, y: 1.3}
     YawStep: 360
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Telephonepole
     Prefab: {fileID: 8750926727478872677, guid: fd46e7064a5aa114e8573ce289dd607e, type: 3}
     Weight: 8
@@ -62,6 +68,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Roadsign
     Prefab: {fileID: 7229113114681394518, guid: 5a3de22dc5b4b274280cd3b81d36fc76, type: 3}
     Weight: 6
@@ -69,6 +76,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Singon
     Prefab: {fileID: 8704232302061981018, guid: 5fba0fee66bdaf14c9c811f33bf74f3a, type: 3}
     Weight: 5
@@ -76,6 +84,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 0
   - Name: Thunder_Highway
     Prefab: {fileID: 7682828082362047979, guid: 3132db5b5770da53548c0b9e5acb6473, type: 3}
     Weight: 2
@@ -83,6 +92,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 180
     HeightOffset: 0
+    ElectricBattleOnly: 1
   - Name: Thunder_Train
     Prefab: {fileID: 5716781507468053607, guid: fbeb637e7f101c705f99f0dd37ff0cf3, type: 3}
     Weight: 2
@@ -90,6 +100,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 180
     HeightOffset: 0
+    ElectricBattleOnly: 1
   - Name: Thunder_TransmissiontowerArch
     Prefab: {fileID: 2007946044593001316, guid: 8657a2e2c133dbed37bb83834ed28747, type: 3}
     Weight: 2
@@ -97,6 +108,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 1
   - Name: Thunder_Bigsignboard
     Prefab: {fileID: 4083696341838707610, guid: 4ea0c373524319646c4210bd25f9136a, type: 3}
     Weight: 2
@@ -104,6 +116,7 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
+    ElectricBattleOnly: 1
   CountEasy: 8
   CountNormal: 12
   CountHard: 15
