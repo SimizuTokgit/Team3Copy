@@ -10,10 +10,10 @@ public class BossBattleManager : MonoBehaviour
 {
     public enum BossAttack
     {
-        TentacleSwing,    //1 触手を振って攻撃
+        TentacleSwing,    //1 触手を振って攻撃（触手がコンテナを振り下ろすプレス機も出る）
         ElectricTentacle, //2 感電する触手が巻き付いたオブジェクト（一撃死）
         GasBurner,        //3 ガスバーナー（一撃死）
-        Train,            //4 走ってくる電車（一撃死）
+        Train,            //4 走ってくる電車・空から飛んでくる大きい電車（一撃死）
         All               //5 今までの攻撃全部
     }
 
@@ -66,9 +66,16 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float ObstacleChanceInBattle = 0.5f; //地面1枚にふつうの障害物を置く確率
     [SerializeField] private Color RampOutlineColor = new Color(1f, 0.85f, 0.2f);
 
+    [Header("1 触手 プレス機")]
+    [SerializeField] private GameObject PressPrefab;                      //触手がコンテナを持っているモデル（PressHazard 付き）
+    [SerializeField, Range(0f, 1f)] private float PressChance = 0.5f;     //触手マップの代わりにプレス機を置く確率
+    [SerializeField] private int PressCount = 2;                          //横に並べる数
+
     [Header("2 感電触手")]
-    [SerializeField] private GameObject[] ElectricBasePrefabs; //触手が巻き付く土台（電柱など）
-    [SerializeField] private GameObject TentaclePrefab;
+    [SerializeField] private GameObject[] ElectricBasePrefabs; //触手が巻き付いた物（Thunder_～）。空なら ElectricVariants から選ぶ
+    [SerializeField] private ElectricVariantTable ElectricVariants;       //元の障害物 → 触手が巻き付いた版
+    [SerializeField, Range(0f, 1f)] private float ElectricSwapChance = 0.5f; //ふつうの障害物を触手が巻き付いた版に入れ替える確率
+    [SerializeField] private GameObject TentaclePrefab;        //土台に ElectricHazard が付いていないときだけ、上に触手を足す
     [SerializeField] private float TentacleScale = 0.5f;
 
     [Header("3 ガスバーナー")]
@@ -83,6 +90,12 @@ public class BossBattleManager : MonoBehaviour
     [SerializeField] private float OncomingTrainSpeed = 35f;
     [SerializeField] private float OncomingTriggerDistance = 260f;
     [SerializeField] private AudioClip TrainWarningSE;
+    [SerializeField, Range(0f, 1f)] private float BigTrainChance = 0.35f; //空から飛んでくる大きい電車にする確率
+    [SerializeField] private float BigTrainScale = 5f;                    //大きさ（元の電車の何倍か）
+    [SerializeField] private float BigTrainSpeed = 40f;
+    [SerializeField] private float BigTrainWarningTime = 3f;              //ぶつかる何秒前に飛び出すか（よける時間）
+    [SerializeField] private float BigTrainFlyHeight = 35f;
+    [SerializeField] private float BigTrainFlyTime = 1.4f;                //飛び出してから道に落ちるまで
 
     private GameManager _gameManager;
     private GeneretoGround _ground;
@@ -371,6 +384,9 @@ public class BossBattleManager : MonoBehaviour
         //ボスの手前（ジャンプ台のあたり）は障害物を置かない
         if (IsNearBoss(chunk)) return;
 
+        //清水 感電触手のボス戦では、ふつうの障害物も触手が巻き付いた版に入れ替わる
+        if (Current.Attack == BossAttack.ElectricTentacle || Current.Attack == BossAttack.All) SwapElectric(chunk);
+
         //清水 ギミックを置かない地面もはさんで、息をつけるようにする
         if (Random.value >= HazardChunkChance) return;
 
@@ -406,9 +422,15 @@ public class BossBattleManager : MonoBehaviour
         return root;
     }
 
-    // 1 触手振り：今までのボス戦と同じ触手マップを置く
+    // 1 触手振り：今までのボス戦と同じ触手マップを置く（たまにプレス機）
     private void SpawnTentacleSwing(GroundAutomatically chunk)
     {
+        if (PressPrefab && Random.value < PressChance)
+        {
+            SpawnPress(chunk);
+            return;
+        }
+
         HashSet<Transform> before = new HashSet<Transform>();
         foreach (Transform child in chunk.transform) before.Add(child);
 
@@ -420,41 +442,121 @@ public class BossBattleManager : MonoBehaviour
         }
     }
 
-    // 2 感電触手：電柱などに触手を巻き付けて電気を流す
+    // 1 プレス機：触手がコンテナを振り下ろす。道を区切って、それぞれに1台ずつ置く
+    private void SpawnPress(GroundAutomatically chunk)
+    {
+        int count = Mathf.Max(1, PressCount);
+        float z = Random.Range(chunk.ChunkLength * 0.25f, chunk.ChunkLength * 0.75f);
+        float section = chunk.ChunkWidth / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float x = section * (i + 0.5f) + Random.Range(-0.2f, 0.2f) * section;
+            GameObject root = CreateHazardRoot(chunk, "Press", new Vector3(x, chunk.GetLocalHeight(x, z), z));
+            GameObject press = Instantiate(PressPrefab, root.transform);
+            press.transform.localPosition = Vector3.zero;
+
+            //ばらばらのタイミングで振り下ろす
+            PressHazard hazard = press.GetComponentInChildren<PressHazard>();
+            if (hazard) hazard.SetPhase(Random.value);
+        }
+    }
+
+    // 2 感電触手：触手が巻き付いた物（Thunder_～）を置く。必ず通れる道の上には置かない
     private void SpawnElectricTentacle(GroundAutomatically chunk)
     {
-        if (ElectricBasePrefabs == null || ElectricBasePrefabs.Length == 0) return;
+        List<GameObject> pool = new List<GameObject>();
+        if (ElectricBasePrefabs != null) foreach (GameObject p in ElectricBasePrefabs) if (p) pool.Add(p);
+        if (pool.Count == 0 && ElectricVariants) pool = ElectricVariants.GetElectricPrefabs();
+        if (pool.Count == 0) return;
 
-        //必ず通れる道の上には置かない
         Vector3 point = RandomPoint(chunk, 6f);
-        if (chunk.Layout != null)
-        {
-            float lane = chunk.Layout.CorridorX(point.z);
-            float keep = chunk.Layout.CorridorWidth * 0.5f + 4f;
-            if (Mathf.Abs(point.x - lane) < keep)
-            {
-                point.x = lane + (point.x < lane ? -keep : keep);
-                if (point.x < 6f || point.x > chunk.ChunkWidth - 6f) return; //道の外に置く場所がなければ置かない
-                point.y = chunk.GetLocalHeight(point.x, point.z);
-            }
-        }
         GameObject root = CreateHazardRoot(chunk, "ElectricTentacle", point);
 
-        GameObject basePrefab = ElectricBasePrefabs[Random.Range(0, ElectricBasePrefabs.Length)];
+        GameObject basePrefab = pool[Random.Range(0, pool.Count)];
         GameObject baseObj = Instantiate(basePrefab, root.transform);
         baseObj.transform.localPosition = Vector3.zero;
         ModelSlot.EnsureCollider(baseObj, true); //新しいモデルでも当たるように
 
-        if (TentaclePrefab)
+        //大きい物もあるので、横幅を測ってから道にかからない場所へずらす
+        if (chunk.Layout != null)
         {
-            GameObject tentacle = Instantiate(TentaclePrefab, root.transform);
-            tentacle.transform.localPosition = Vector3.zero;
-            tentacle.transform.localRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
-            tentacle.transform.localScale *= TentacleScale;
+            float half = HalfWidthX(baseObj);
+            float lane = chunk.Layout.CorridorX(point.z);
+            float keep = chunk.Layout.CorridorWidth * 0.5f + half + 1f;
+            if (Mathf.Abs(point.x - lane) < keep)
+            {
+                point.x = lane + (point.x < lane ? -keep : keep);
+                if (point.x < 0f || point.x > chunk.ChunkWidth) //道の外にしか置けなければ置かない
+                {
+                    Destroy(root);
+                    return;
+                }
+                point.y = chunk.GetLocalHeight(point.x, point.z);
+                root.transform.localPosition = point;
+            }
         }
 
-        root.AddComponent<ElectricHazard>();
-        GenerateObstacle.AddOutline(root, new Color(0.3f, 0.9f, 1f), 6f); //一撃死は太く目立たせる
+        //触手が巻き付いていない土台（昔の電柱など）なら、上に触手を足して電気を流す
+        if (!baseObj.GetComponentInChildren<ElectricHazard>())
+        {
+            if (TentaclePrefab)
+            {
+                GameObject tentacle = Instantiate(TentaclePrefab, root.transform);
+                tentacle.transform.localPosition = Vector3.zero;
+                tentacle.transform.localRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+                tentacle.transform.localScale *= TentacleScale;
+            }
+            root.AddComponent<ElectricHazard>();
+        }
+
+        GenerateObstacle.AddOutline(root, ElectricOutline, 6f); //一撃死は太く目立たせる
+    }
+
+    private static readonly Color ElectricOutline = new Color(0.3f, 0.9f, 1f);
+
+    // 2 感電触手：この地面のふつうの障害物を、触手が巻き付いた版（一撃死）に入れ替える
+    private void SwapElectric(GroundAutomatically chunk)
+    {
+        if (!ElectricVariants || ElectricSwapChance <= 0f) return;
+
+        List<GameObject> swapped = ElectricVariants.SwapIn(chunk.transform, ElectricSwapChance, t =>
+        {
+            //細くて飾りにした物（当たり判定が切ってある物）と、必ず通れる道にかかる物は入れ替えない
+            if (!HasEnabledCollider(t.gameObject)) return false;
+            if (chunk.Layout == null) return true;
+            Vector3 local = chunk.transform.InverseTransformPoint(t.position);
+            float keep = chunk.Layout.CorridorWidth * 0.5f + HalfWidthX(t.gameObject) + 1f;
+            return Mathf.Abs(local.x - chunk.Layout.CorridorX(local.z)) >= keep;
+        });
+
+        foreach (GameObject obj in swapped)
+        {
+            obj.AddComponent<BossHazard>(); //ボスを倒したら消える
+            GenerateObstacle.AddOutline(obj, ElectricOutline, 6f);
+        }
+    }
+
+    private static bool HasEnabledCollider(GameObject obj)
+    {
+        foreach (Collider col in obj.GetComponentsInChildren<Collider>())
+        {
+            if (col.enabled) return true;
+        }
+        return false;
+    }
+
+    //見た目の横幅の半分（ワールド座標の x 方向）
+    private static float HalfWidthX(GameObject obj)
+    {
+        float half = 0f;
+        float x = obj.transform.position.x;
+        foreach (Renderer r in obj.GetComponentsInChildren<Renderer>())
+        {
+            if (r is ParticleSystemRenderer) continue;
+            half = Mathf.Max(half, Mathf.Max(r.bounds.max.x - x, x - r.bounds.min.x));
+        }
+        return half;
     }
 
     // 3 ガスバーナー：道幅いっぱいに並べる
@@ -478,6 +580,13 @@ public class BossBattleManager : MonoBehaviour
     private void SpawnTrain(GroundAutomatically chunk)
     {
         if (!TrainPrefab) return;
+
+        //清水 たまに空から大きい電車が飛んでくる
+        if (Random.value < BigTrainChance)
+        {
+            SpawnBigTrain(chunk);
+            return;
+        }
 
         bool crossing = Random.value < 0.5f;
         Vector3 pos = RandomPoint(chunk, 8f);
@@ -507,5 +616,25 @@ public class BossBattleManager : MonoBehaviour
             train.Setup(TrainHazard.Route.Crossing, dir, CrossingTrainSpeed, CrossingTriggerDistance, chunk.ChunkWidth + 60f, TrainWarningSE);
         else
             train.Setup(TrainHazard.Route.Oncoming, dir, OncomingTrainSpeed, OncomingTriggerDistance, 2000f, TrainWarningSE);
+    }
+
+    // 4 大きい電車：プレイヤーの列めがけて空から飛んでくる。左右どちらかによける
+    private void SpawnBigTrain(GroundAutomatically chunk)
+    {
+        Vector3 pos = RandomPoint(chunk, 0f);
+        pos.x = chunk.ChunkWidth * 0.5f;
+
+        GameObject root = CreateHazardRoot(chunk, "BigTrain", pos);
+        root.transform.rotation = Quaternion.LookRotation(Vector3.back) * Quaternion.Euler(0, TrainModelYaw, 0);
+        root.transform.localScale = Vector3.one * BigTrainScale;
+        GameObject trainObj = Instantiate(TrainPrefab, root.transform);
+        trainObj.transform.localPosition = Vector3.zero;
+        ModelSlot.EnsureCollider(trainObj, true);
+        GenerateObstacle.AddOutline(root, GameHUD.Danger, 6f);
+
+        float minX = chunk.transform.TransformPoint(Vector3.zero).x;
+        float maxX = chunk.transform.TransformPoint(new Vector3(chunk.ChunkWidth, 0f, 0f)).x;
+        TrainHazard train = root.AddComponent<TrainHazard>();
+        train.SetupFlying(BigTrainSpeed, BigTrainWarningTime, BigTrainFlyHeight, BigTrainFlyTime, minX, maxX, TrainWarningSE);
     }
 }

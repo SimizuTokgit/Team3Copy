@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53570f74acc644d9bca4730e106c4ecd, type: 3}
+  m_Name: ElectricVariantTable
+  m_EditorClassIdentifier: Assembly-CSharp::ElectricVariantTable
+  Entries:
+  - Name: "Highway"
+    Original: {fileID: 8029206362356471024, guid: d1a88fc7220c6ee46a68df2f4fe472bd, type: 3}
+    Electric: {fileID: 7682828082362047979, guid: 3132db5b5770da53548c0b9e5acb6473, type: 3}
+  - Name: "Train"
+    Original: {fileID: 4063595758742268178, guid: 910008dd0adf84d4ea631b5d769a760d, type: 3}
+    Electric: {fileID: 5716781507468053607, guid: fbeb637e7f101c705f99f0dd37ff0cf3, type: 3}
+  - Name: "TransmissiontowrArch"
+    Original: {fileID: 7573049654680135634, guid: 75d137392b57c9b41b6c988cc41a5106, type: 3}
+    Electric: {fileID: 2007946044593001316, guid: 8657a2e2c133dbed37bb83834ed28747, type: 3}
+  - Name: "Bigsignboard (\u5143\u306e\u30d7\u30ec\u30cf\u30d6\u306a\u3057)"
+    Original: {fileID: 0}
+    Electric: {fileID: 4083696341838707610, guid: 4ea0c373524319646c4210bd25f9136a, type: 3}
+  - Name: "HighBuilding (\u5143\u306e\u30d7\u30ec\u30cf\u30d6\u306a\u3057)"
+    Original: {fileID: 0}
+    Electric: {fileID: 7960274897083757523, guid: 32b3c111568a71a777b19a5e5e56b83c, type: 3}

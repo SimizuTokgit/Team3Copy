@@ -17,6 +17,8 @@ public class ElectricHazard : MonoBehaviour
 
     private void Start()
     {
+        //清水 当たり判定が無いモデル（触手だけのモデルなど）でも当たるようにしてから一撃死にする
+        ModelSlot.EnsureCollider(gameObject, true);
         BossHazard.MakeDeadly(gameObject);
 
         GameObject lightObj = new GameObject("ElectricLight");

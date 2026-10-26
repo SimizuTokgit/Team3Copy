@@ -6864,9 +6864,14 @@ MonoBehaviour:
   WarningSE: {fileID: 8300000, guid: dde2555025c8b6b4a85f0e53f8959915, type: 3}
   ClearDelay: 2
   RampPrefab: {fileID: 8029206362356471024, guid: d1a88fc7220c6ee46a68df2f4fe472bd, type: 3}
+  PressPrefab: {fileID: 619177239890749399, guid: c134fa403d607b9bb0b552df79dd9fbb, type: 3}
   ElectricBasePrefabs:
-  - {fileID: 8750926727478872677, guid: fd46e7064a5aa114e8573ce289dd607e, type: 3}
-  - {fileID: 11224431479098188, guid: e4860768532ed934495168f3445394bc, type: 3}
+  - {fileID: 7682828082362047979, guid: 3132db5b5770da53548c0b9e5acb6473, type: 3}
+  - {fileID: 5716781507468053607, guid: fbeb637e7f101c705f99f0dd37ff0cf3, type: 3}
+  - {fileID: 2007946044593001316, guid: 8657a2e2c133dbed37bb83834ed28747, type: 3}
+  - {fileID: 4083696341838707610, guid: 4ea0c373524319646c4210bd25f9136a, type: 3}
+  - {fileID: 7960274897083757523, guid: 32b3c111568a71a777b19a5e5e56b83c, type: 3}
+  ElectricVariants: {fileID: 11400000, guid: b04482f16cd68f8cd81f2e560f8e5484, type: 2}
   TentaclePrefab: {fileID: 8425902883667229875, guid: 3ca2873843d4cb74fb9bd48d58c6655a, type: 3}
   TentacleScale: 0.5
   BurnerPrefab: {fileID: 4949453384338027331, guid: d67e01a57c490d04fa898cd0629b32a3, type: 3}
