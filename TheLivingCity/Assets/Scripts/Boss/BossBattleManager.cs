@@ -68,9 +68,10 @@ public class BossBattleManager : MonoBehaviour
 
     [Header("1 触手 プレス機")]
     [SerializeField] private GameObject PressPrefab;                      //触手がコンテナを持っているモデル（PressHazard 付き）
-    [SerializeField, Range(0f, 1f)] private float PressChance = 0.5f;     //触手マップの代わりにプレス機を置く確率
+    [SerializeField, Range(0f, 1f)] private float PressChance = 0.75f;    //触手マップの代わりにプレス機を置く確率
     [SerializeField] private int PressCount = 2;                          //横に並べる数
     [SerializeField] private float PressScale = 1.6f;                     //大きさ（モデルの何倍か）
+    [SerializeField, Range(0f, 1f)] private float PressSecondRowChance = 0.5f; //もう1列（奥に）並べる確率
 
     [Header("2 感電触手（道の障害物が感電版に変わる）")]
     [SerializeField] private ElectricVariantTable ElectricVariants;          //元の障害物 → 触手が巻き付いた版
@@ -450,8 +451,21 @@ public class BossBattleManager : MonoBehaviour
     // 1 プレス機：触手がコンテナを振り下ろす。道を区切って、それぞれに1台ずつ置く
     private void SpawnPress(GroundAutomatically chunk)
     {
+        //清水 たまに2列にする（手前と奥）
+        if (Random.value < PressSecondRowChance)
+        {
+            SpawnPressRow(chunk, chunk.ChunkLength * 0.3f);
+            SpawnPressRow(chunk, chunk.ChunkLength * 0.7f);
+        }
+        else
+        {
+            SpawnPressRow(chunk, Random.Range(chunk.ChunkLength * 0.25f, chunk.ChunkLength * 0.75f));
+        }
+    }
+
+    private void SpawnPressRow(GroundAutomatically chunk, float z)
+    {
         int count = Mathf.Max(1, PressCount);
-        float z = Random.Range(chunk.ChunkLength * 0.25f, chunk.ChunkLength * 0.75f);
         float section = chunk.ChunkWidth / count;
 
         for (int i = 0; i < count; i++)

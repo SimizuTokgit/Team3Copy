@@ -76,8 +76,36 @@ MonoBehaviour:
     ScaleRange: {x: 1, y: 1}
     YawStep: 90
     HeightOffset: 0
-  CountEasy: 7
-  CountNormal: 10
-  CountHard: 13
+  - Name: Thunder_Highway
+    Prefab: {fileID: 7682828082362047979, guid: 3132db5b5770da53548c0b9e5acb6473, type: 3}
+    Weight: 2
+    DamageRate: -1
+    ScaleRange: {x: 1, y: 1}
+    YawStep: 180
+    HeightOffset: 0
+  - Name: Thunder_Train
+    Prefab: {fileID: 5716781507468053607, guid: fbeb637e7f101c705f99f0dd37ff0cf3, type: 3}
+    Weight: 2
+    DamageRate: -1
+    ScaleRange: {x: 1, y: 1}
+    YawStep: 180
+    HeightOffset: 0
+  - Name: Thunder_TransmissiontowerArch
+    Prefab: {fileID: 2007946044593001316, guid: 8657a2e2c133dbed37bb83834ed28747, type: 3}
+    Weight: 2
+    DamageRate: -1
+    ScaleRange: {x: 1, y: 1}
+    YawStep: 90
+    HeightOffset: 0
+  - Name: Thunder_Bigsignboard
+    Prefab: {fileID: 4083696341838707610, guid: 4ea0c373524319646c4210bd25f9136a, type: 3}
+    Weight: 2
+    DamageRate: -1
+    ScaleRange: {x: 1, y: 1}
+    YawStep: 90
+    HeightOffset: 0
+  CountEasy: 8
+  CountNormal: 12
+  CountHard: 15
   MinSpacing: 7
   EdgeMargin: 3

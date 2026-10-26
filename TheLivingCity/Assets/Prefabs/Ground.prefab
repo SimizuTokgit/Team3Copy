@@ -67,6 +67,9 @@ MonoBehaviour:
   RampPrefab: {fileID: 8029206362356471024, guid: d1a88fc7220c6ee46a68df2f4fe472bd, type: 3}
   RampChance: 0.15
   RampAngle: 12
+  PressPrefab: {fileID: 619177239890749399, guid: c134fa403d607b9bb0b552df79dd9fbb, type: 3}
+  PressChance: 0.3
+  PressScale: 1.6
 --- !u!114 &1469693730816571860
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -28,9 +28,9 @@ public class ObstacleCatalog : ScriptableObject
     public List<Entry> Entries = new List<Entry>();
 
     [Header("地面1枚（96m）に置く数")]
-    public int CountEasy = 7;
-    public int CountNormal = 10;
-    public int CountHard = 13;
+    public int CountEasy = 8;
+    public int CountNormal = 12;
+    public int CountHard = 15;
 
     [Header("置き方")]
     public float MinSpacing = 7f;   //障害物どうしの最低の間隔

@@ -20,12 +20,6 @@ public class PlayerStatus
 
 
     public int MAX_SPEED_LIMIT { get; private set; } = 80;
-    private readonly float ACCELERATOR_POWER_LIMIT = 20f;
-    private readonly float PERSEVERANCE_POWER_LIMIT = 30f;
-    private readonly float BOOST_POWER_LIMIT = 10f;
-    private readonly float MAGNET_POWER_LIMIT = 30f;
-    private readonly float TURNING_POWER_LIMIT = 15f;
-
 
     //清水 ステータスは float なので、アイテムで 0.5 ずつのように細かく上げられる
 
@@ -40,7 +34,8 @@ public class PlayerStatus
         TURNING_POWER = 10;
     }
 
-    //清水 最高速度は上限なしで上がり続ける。走っているときの速さ（ここまで加速する）と、ブースト後に戻る速さを決める
+    //清水 ステータスはどれも上限なしで上がり続ける
+    //最高速度は走っているときの速さ（ここまで加速する）と、ブースト後に戻る速さを決める
     //MAX_SPEED_LIMIT はスピードメーターの目盛り（1周分）として使う
     public void MaxSpeedUpGrade(float speed)
     {
@@ -51,65 +46,35 @@ public class PlayerStatus
 
     public void AcceleratorUpGrade(float accel)
     {
-        if (ACCELERATOR_POWER >= ACCELERATOR_POWER_LIMIT)
-        {
-            Debug.Log("加速力はこれ以上上がらない");
-            ACCELERATOR_POWER = ACCELERATOR_POWER_LIMIT;
-            return;
-        }
-        ACCELERATOR_POWER = Mathf.Min(ACCELERATOR_POWER + accel, ACCELERATOR_POWER_LIMIT);
+        ACCELERATOR_POWER += accel;
 
         GetAcceleratorPowerItem?.Invoke();
     }
 
     public void PerseveranceUpGrade(float perseverance)
     {
-        if (PERSEVERANCE_POWER >= PERSEVERANCE_POWER_LIMIT)
-        {
-            Debug.Log("忍耐力はこれ以上上がらない");
-            PERSEVERANCE_POWER = PERSEVERANCE_POWER_LIMIT;
-            return;
-        }
-        PERSEVERANCE_POWER = Mathf.Min(PERSEVERANCE_POWER + perseverance, PERSEVERANCE_POWER_LIMIT);
+        PERSEVERANCE_POWER += perseverance;
 
         GetPerseverancePowerItem?.Invoke();
     }
 
     public void BoostUpGrade(float boost)
     {
-        if (BOOST_POWER >= BOOST_POWER_LIMIT)
-        {
-            Debug.Log("ブースト力はこれ以上上がらない");
-            BOOST_POWER = BOOST_POWER_LIMIT;
-            return;
-        }
-        BOOST_POWER = Mathf.Min(BOOST_POWER + boost, BOOST_POWER_LIMIT);
+        BOOST_POWER += boost;
 
         GetBoostPowerItem?.Invoke();
     }
 
     public void MagnetUpGrade(float magnet)
     {
-        if (MAGNET_POWER >= MAGNET_POWER_LIMIT)
-        {
-            Debug.Log("マグネットはこれ以上上がらない");
-            MAGNET_POWER = MAGNET_POWER_LIMIT;
-            return;
-        }
-        MAGNET_POWER = Mathf.Min(MAGNET_POWER + magnet, MAGNET_POWER_LIMIT);
+        MAGNET_POWER += magnet;
 
         GetMagnetPowerItem?.Invoke();
     }
 
     public void TurningUpGrade(float turning)
     {
-        if (TURNING_POWER >= TURNING_POWER_LIMIT)
-        {
-            Debug.Log("旋回力はこれ以上上がらない");
-            TURNING_POWER = TURNING_POWER_LIMIT;
-            return;
-        }
-        TURNING_POWER = Mathf.Min(TURNING_POWER + turning, TURNING_POWER_LIMIT);
+        TURNING_POWER += turning;
 
         GetTurningPowerItem?.Invoke();
     }

@@ -39,6 +39,7 @@ public class GenerateObstacle : MonoBehaviour
     [SerializeField] private float ObstacleOutlineWidth = 4f;
     [SerializeField] private Color SmallOutlineColor = new Color(1f, 0.9f, 0.35f); //細い物（HPの減りが小さい物）
     [SerializeField] private float SmallOutlineWidth = 2f;
+    private static readonly Color ElectricOutlineColor = new Color(0.3f, 0.9f, 1f);
 
     //清水 カタログから1つずつ並べる（マッププレハブを手で組まなくてよい）
     [Header("カタログで並べる")]
@@ -318,6 +319,13 @@ public class GenerateObstacle : MonoBehaviour
     private void OutlineUnit(GameObject unit)
     {
         if (!HasEnabledCollider(unit)) return;
+
+        //触手が巻き付いた物（一撃死）は水色の太い線
+        if (unit.GetComponentInChildren<ElectricHazard>())
+        {
+            AddOutline(unit, ElectricOutlineColor, 6f);
+            return;
+        }
 
         ObstacleInfo info = unit.GetComponent<ObstacleInfo>();
         if (info && info.IsSmall) AddOutline(unit, SmallOutlineColor, SmallOutlineWidth);
