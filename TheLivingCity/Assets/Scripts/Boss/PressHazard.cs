@@ -1,11 +1,11 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 // 清水
 // プレス機
 // 上で停止 → 予告 → 振り下ろし → 下で停止 → 上昇
-// 振り下ろし中と下で停止している間だけ当たり判定を有効にする
+// 当たり判定はコンテナの下側だけ。振り下ろしている間だけ有効で、コンテナの底から地面までをおおう（下にいたら挟まれる）
+// 下りきったコンテナにさわっても一撃死にはならない
 public class PressHazard : MonoBehaviour
 {
     [Header("モデル")]
@@ -34,6 +34,12 @@ public class PressHazard : MonoBehaviour
     private float _bottom;
     private float _time;
     private bool _slammed;
+
+    //当たり判定（コンテナの底の板）の元の形。振り下ろし中だけ地面までのばす
+    private Vector3 _crushCenter;
+    private Vector3 _crushSize;
+    private bool _crushOnModel;  //当たり判定がコンテナと一緒に動くか（モデルの子に付いているか）
+    private const float CrushOverlap = 0.3f; //コンテナの底面より少し上までふくめる
 
     private float Cycle =>
         Mathf.Max(0.01f, UpTime) +
@@ -225,6 +231,9 @@ public class PressHazard : MonoBehaviour
         // Triggerとして使用
         _crush.isTrigger = true;
         _crush.enabled = false;
+        _crushCenter = _crush.center;
+        _crushSize = _crush.size;
+        _crushOnModel = _model != transform && _crush.transform.IsChildOf(_model);
 
         // 既存の即死処理
         BossHazard.MakeDeadly(gameObject);
@@ -239,7 +248,13 @@ public class PressHazard : MonoBehaviour
                 _crush.transform.TransformPoint(_crush.center)
             );
 
-        Vector3 size = _crush.bounds.size;
+        //当たり判定を切ったあとは bounds の大きさが 0 になるので、Collider の size から測る
+        Vector3 ls = _crush.transform.lossyScale;
+        Vector3 rs = transform.lossyScale;
+        Vector3 size = new Vector3(
+            _crushSize.x * ls.x / Mathf.Max(0.0001f, rs.x),
+            _crushSize.y * ls.y / Mathf.Max(0.0001f, rs.y),
+            _crushSize.z * ls.z / Mathf.Max(0.0001f, rs.z));
 
         _marker = DangerMarker.Create(
             transform,
@@ -333,8 +348,13 @@ public class PressHazard : MonoBehaviour
             shake +
             Vector3.down * (_bottom * drop);
 
-        // 振り下ろし中と下で停止中だけ有効
-        bool deadly = falling || down;
+        // 振り下ろしている間だけ有効（下りきったコンテナにさわっても大丈夫）
+        bool deadly = falling;
+
+        if (deadly)
+        {
+            StretchCrushToGround(drop);
+        }
 
         if (_crush.enabled != deadly)
         {
@@ -348,6 +368,29 @@ public class PressHazard : MonoBehaviour
                 warn || falling || down
             );
         }
+    }
+
+    /// <summary>
+    /// コンテナの底から地面までを当たり判定にする
+    /// 振り下ろしは速いので、底の薄い板のままだと1フレームでプレイヤーを通りすぎてしまう
+    /// </summary>
+    private void StretchCrushToGround(float drop)
+    {
+        Transform ct = _crush.transform;
+        Vector3 faceLocal = _crushCenter + Vector3.up * (_crushSize.y * 0.5f);
+
+        // 今のコンテナの底（プレス機の根元から見た高さ）
+        Vector3 faceRoot = transform.InverseTransformPoint(ct.TransformPoint(faceLocal));
+        if (!_crushOnModel) faceRoot.y -= _bottom * drop;
+
+        // 当たり判定の座標に直す（地面はプレス機の根元の高さ）
+        float top = ct.InverseTransformPoint(transform.TransformPoint(faceRoot)).y;
+        float ground = ct.InverseTransformPoint(transform.TransformPoint(new Vector3(faceRoot.x, 0f, faceRoot.z))).y;
+        top += CrushOverlap;
+
+        float height = Mathf.Max(0.05f, top - ground);
+        _crush.center = new Vector3(_crushCenter.x, ground + height * 0.5f, _crushCenter.z);
+        _crush.size = new Vector3(_crushSize.x, height, _crushSize.z);
     }
 
     /// <summary>

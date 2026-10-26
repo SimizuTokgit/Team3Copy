@@ -24,6 +24,15 @@ EditorBuildSettings:
     path: Assets/Scenes/Game/GameOverScene.unity
     guid: 409fe2ba9f63e244bbbb3eaaec664844
   - enabled: 1
+    path: Assets/Scenes/Game/GameOverScenePress.unity
+    guid: e7ed7a40b44e00e4983476b0833144bf
+  - enabled: 1
+    path: Assets/Scenes/Game/GameOverSceneBurner.unity
+    guid: da0bc5cc34cfea8458a13958fabb4066
+  - enabled: 1
+    path: Assets/Scenes/Game/GameOverSceneShock.unity
+    guid: b16328f78aebe4040a6827976742eafb
+  - enabled: 1
     path: Assets/Scenes/Game/ResultScene.unity
     guid: 9fc8f455fab1d56488d979186d8f247f
   m_configObjects:

@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         PlayModeInfo.Current = Mode;
+        GameOverCause.Reset(); //清水 前の回のやられ方を消す
 
         TimeManager = GetComponentInChildren<TimeManager>();
         CountDownManager = GetComponentInChildren<CountDownManager>();
@@ -123,7 +124,10 @@ public class GameManager : MonoBehaviour
         GetPlayerDistance();
         ScoreManager.ScoreCalculation(PLAYER_DIS, TimeManager._remainingTime, false);
         ScoreManager.SetScore();
-        FindFirstObjectByType<FadeImageController>().SceneChange("GameOverScene");
+        //清水 プレス機・バーナー・電撃でやられたときは、それぞれの演出のシーンへ（HP切れなどはいつものシーン）
+        string scene = GameOverCause.SceneName;
+        GameOverCause.Reset();
+        FindFirstObjectByType<FadeImageController>().SceneChange(scene);
     }
 
     private void GameClear()

@@ -41,6 +41,8 @@ public class PlayerCollider : MonoBehaviour
             if (!_player.isInvincible)  //無敵かどうか
             {
                 _damageScreen.Damage();
+                //清水 何にやられたかで、ゲームオーバーの演出を変える
+                GameOverCause.Set(GameOverCause.FromHazard(other));
                 _player.DeadDamage();
 
                 if (_player.tutorialManager != null)

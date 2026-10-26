@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameOverShock : MonoBehaviour
 {
@@ -13,7 +13,7 @@ public class GameOverShock : MonoBehaviour
 
         if (renderer != null)
         {
-            // num��0�Ȃ猳�̐F�A1�Ȃ獕
+            // numが0なら元の色、1なら黒
             renderer.material.color = Color.Lerp(
                 Color.white,
                 Color.black,
