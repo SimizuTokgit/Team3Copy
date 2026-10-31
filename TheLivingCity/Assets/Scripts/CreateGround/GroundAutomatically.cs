@@ -231,6 +231,7 @@ public class GroundAutomatically : MonoBehaviour
 
         //メッシュに反映
         mesh.vertices = vertices;
+        _vertices = vertices; //清水 高さを調べるときに使う（mesh.vertices は呼ぶたびに配列を丸ごとコピーするので重い）
         mesh.triangles = triangles;
         mesh.uv = uv;
 
@@ -426,13 +427,24 @@ public class GroundAutomatically : MonoBehaviour
     /// </summary>
     public float GetLocalHeight(float localX, float localZ)
     {
-        if (mesh == null) return 0f;
+        if (_vertices == null || _vertices.Length == 0) return 0f;
 
-        int x = Mathf.Clamp(Mathf.RoundToInt(localX / scale), 0, width);
-        int z = Mathf.Clamp(Mathf.RoundToInt(localZ / scale), 0, length);
-
-        return mesh.vertices[x + z * (width + 1)].y;
+        //清水 まわりの4つの頂点からなめらかに求める（一番近い頂点だけだと、坂で1m近くずれていた）
+        float fx = Mathf.Clamp(localX / scale, 0f, width);
+        float fz = Mathf.Clamp(localZ / scale, 0f, length);
+        int x0 = Mathf.Min(Mathf.FloorToInt(fx), width - 1);
+        int z0 = Mathf.Min(Mathf.FloorToInt(fz), length - 1);
+        float tx = fx - x0;
+        float tz = fz - z0;
+        int row = width + 1;
+        float h00 = _vertices[x0 + z0 * row].y;
+        float h10 = _vertices[x0 + 1 + z0 * row].y;
+        float h01 = _vertices[x0 + (z0 + 1) * row].y;
+        float h11 = _vertices[x0 + 1 + (z0 + 1) * row].y;
+        return Mathf.Lerp(Mathf.Lerp(h00, h10, tx), Mathf.Lerp(h01, h11, tx), tz);
     }
+
+    private Vector3[] _vertices;
 
     /// <summary>
     /// 清水 置いた障害物を地面の高さに合わせる

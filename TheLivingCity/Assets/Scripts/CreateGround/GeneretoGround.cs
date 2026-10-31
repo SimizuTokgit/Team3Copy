@@ -148,86 +148,88 @@ public class GeneretoGround : MonoBehaviour
 
         InBranch();
 
-        if(_isBoss)
+        //清水 ボス戦でもふつうの道でも、地面の作り方は同じ
+        UpdateChunks();
+    }
+
+    private void FixedUpdate()
+    {
+        KeepPlayerAboveGround();
+    }
+
+    /// <summary>
+    /// 清水 プレイヤーより後ろの地面をしまって、前の地面を作る
+    /// 今までは1回に1枚ずつだったので、速すぎて1フレームで2枚またぐと、その間の地面が作られず穴になっていた
+    /// </summary>
+    private void UpdateChunks()
+    {
+        if (playerChunkZ <= currentPlayerChunkZ) return;
+        currentPlayerChunkZ = playerChunkZ;
+
+        //後ろの地面をしまう（先にしまっておくと、前の地面に使い回せる）
+        List<Vector2Int> remove = new List<Vector2Int>();
+        foreach (Vector2Int key in chunks.Keys)
         {
-            if (playerChunkZ > currentPlayerChunkZ)
+            if (key.y < playerChunkZ) remove.Add(key);
+        }
+        foreach (Vector2Int key in remove)
+        {
+            GameObject g = chunks[key];
+            g.SetActive(false);
+            pool.Enqueue(g);
+            chunks.Remove(key);
+        }
+
+        //前の地面を、手前から順に全部そろえる（必ず通れる道がつながるように手前から）
+        for (int z = playerChunkZ; z <= playerChunkZ + Maxz - 1; z++)
+        {
+            for (int x = 0; x <= Maxx - 1; x++)
             {
-                currentPlayerChunkZ = playerChunkZ;
-
-                int newZ = playerChunkZ + Maxz - 1;
-
-                for (int x = 0; x <= Maxx - 1; x++)
-                {
-                    CreateChunk(x, newZ, true);
-                }
-
-                int removeZ = playerChunkZ - 1;
-
-                for (int x = 0; x <= Maxx - 1; x++)
-                {
-                    Vector2Int key = new Vector2Int(x, removeZ);
-
-                    if (chunks.ContainsKey(key))
-                    {
-                        GameObject g = chunks[key];
-
-                        g.SetActive(false);
-                        pool.Enqueue(g);
-
-                        chunks.Remove(key);
-                    }
-                }
+                CreateChunk(x, z, true);
             }
         }
-        else
+    }
+
+    [SerializeField] private float FallThroughMargin = 1.2f; //地面よりこれ以上下にいたら、すり抜けたとみなす
+    private Rigidbody _playerBody;
+
+    /// <summary>
+    /// 清水 もし地面をすり抜けて下に落ちても、地面の上にもどす（落ちてゲームオーバーにならないように）
+    /// </summary>
+    private void KeepPlayerAboveGround()
+    {
+        if (!player) return;
+        if (!TryGetGroundHeight(player.position, out float groundY)) return;
+        if (player.position.y >= groundY - FallThroughMargin) return;
+
+        if (!_playerBody) _playerBody = player.GetComponent<Rigidbody>();
+        Vector3 pos = player.position;
+        pos.y = groundY + 0.5f;
+        if (_playerBody)
         {
-            if (playerChunkZ > currentPlayerChunkZ)
-            {
-                currentPlayerChunkZ = playerChunkZ;
-
-                int newZ = playerChunkZ + Maxz - 1;
-
-                ////分岐区間
-                //if (Branches)
-                //{
-                //    for (int x = 0; x <= Maxx - 1; x++)
-                //    {
-                //        CreateChunk(x, newZ, true);
-                //    }
-                //}
-                ////通常地形生成
-                //else
-                //{
-                //    for (int x = 0; x <= Maxx - 1; x++)
-                //    {
-                //        CreateChunk(x, newZ, true);
-                //    }
-                //}
-
-                for (int x = 0; x <= Maxx - 1; x++)
-                {
-                    CreateChunk(x, newZ, true);
-                }
-
-
-                int removeZ = playerChunkZ - 1;
-
-                for (int x = 0; x <= Maxx - 1; x++)
-                {
-                    Vector2Int key = new Vector2Int(x, removeZ);
-
-                    if (chunks.ContainsKey(key))
-                    {
-                        GameObject g = chunks[key];
-
-                        g.SetActive(false);
-                        pool.Enqueue(g);
-
-                        chunks.Remove(key);
-                    }
-                }
-            }
+            _playerBody.position = pos;
+            Vector3 v = _playerBody.linearVelocity;
+            if (v.y < 0f) v.y = 0f;
+            _playerBody.linearVelocity = v;
         }
+        player.position = pos;
+    }
+
+    /// <summary>
+    /// 清水 その場所の地面（でこぼこの面）の高さ。地面がまだ無いところは false
+    /// </summary>
+    public bool TryGetGroundHeight(Vector3 world, out float y)
+    {
+        y = 0f;
+        if (chunkLength <= 0f) return false;
+        float chunkWidth = meshInfo.width * meshInfo.scale;
+        Vector2Int key = new Vector2Int(Mathf.FloorToInt(world.x / chunkWidth), Mathf.FloorToInt(world.z / chunkLength));
+        if (!chunks.TryGetValue(key, out GameObject g) || !g.activeInHierarchy) return false;
+
+        GroundAutomatically chunk = g.GetComponent<GroundAutomatically>();
+        Vector3 local = g.transform.InverseTransformPoint(world);
+        y = g.transform.position.y + chunk.GetLocalHeight(local.x, local.z);
+        return true;
     }
 
     public void PlayerPosGet()
