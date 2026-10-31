@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Jobs;
+using UnityEngine;
 
 public class GroundAutomatically : MonoBehaviour
 {
@@ -140,6 +141,12 @@ public class GroundAutomatically : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
         }
 
+        //清水 前の当たり判定の計算が残っていたら終わらせてから、メッシュを作り直す
+        //（当たり判定に付けたままメッシュを書きかえると、そのたびに計算し直しになるので先に外す）
+        FinishBake(false);
+        MeshCollider oldCollider = GetComponent<MeshCollider>();
+        if (oldCollider) oldCollider.sharedMesh = null;
+
         if (mesh == null)
             mesh = new Mesh();
         else
@@ -260,8 +267,20 @@ public class GroundAutomatically : MonoBehaviour
             collider = gameObject.AddComponent<MeshCollider>();
 
         //Coliderの更新
-        collider.sharedMesh = null;
-        collider.sharedMesh = mesh;
+        //清水 当たり判定の形（クッキング）は重いので、先に進んだ地面は別のスレッドで計算して、できたら付ける
+        //スタート地点の地面（Instance が false）はすぐに要るので、その場で付ける
+        collider.cookingOptions = Cooking;
+        _collider = collider;
+        if (Instance)
+        {
+            _bakeHandle = new BakeJob { MeshId = mesh.GetInstanceID() }.Schedule();
+            JobHandle.ScheduleBatchedJobs();
+            _baking = true;
+        }
+        else
+        {
+            collider.sharedMesh = mesh;
+        }
 
         //外に出ないように見えない壁を生成
         CreateSideWalls();
@@ -445,6 +464,42 @@ public class GroundAutomatically : MonoBehaviour
     }
 
     private Vector3[] _vertices;
+
+    //清水 地面の当たり判定を別のスレッドで作る
+    private const MeshColliderCookingOptions Cooking =
+        MeshColliderCookingOptions.CookForFasterSimulation | MeshColliderCookingOptions.UseFastMidphase; //格子の地面なので頂点の掃除はいらない
+
+    private struct BakeJob : IJob
+    {
+        public int MeshId;
+        public void Execute()
+        {
+            Physics.BakeMesh(MeshId, false, Cooking);
+        }
+    }
+
+    private JobHandle _bakeHandle;
+    private bool _baking;
+    private MeshCollider _collider;
+
+    private void LateUpdate()
+    {
+        //計算が終わっていたら当たり判定に付ける（同じ設定で計算済みなので、ここでは重くない）
+        if (_baking && _bakeHandle.IsCompleted) FinishBake(true);
+    }
+
+    private void OnDisable()
+    {
+        FinishBake(false);
+    }
+
+    private void FinishBake(bool attach)
+    {
+        if (!_baking) return;
+        _bakeHandle.Complete();
+        _baking = false;
+        if (attach && _collider && mesh) _collider.sharedMesh = mesh;
+    }
 
     /// <summary>
     /// 清水 置いた障害物を地面の高さに合わせる
