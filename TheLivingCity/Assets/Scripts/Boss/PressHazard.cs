@@ -5,7 +5,7 @@ using UnityEngine;
 // プレス機
 // 上で停止 → 予告 → 振り下ろし → 下で停止 → 上昇
 // 当たり判定はコンテナの下側だけ。振り下ろしている間だけ有効で、コンテナの底から地面までをおおう（下にいたら挟まれる）
-// 下りきったコンテナにさわっても一撃死にはならない
+// 下りきったコンテナにさわっても一撃死にはならず、ふつうの障害物と同じようにダメージを受ける
 public class PressHazard : MonoBehaviour
 {
     [Header("モデル")]
@@ -21,6 +21,9 @@ public class PressHazard : MonoBehaviour
     [SerializeField] private float SlamTime = 0.2f;
     [SerializeField] private float DownTime = 1.0f;
     [SerializeField] private float RiseTime = 1.0f;
+
+    [Header("下りたコンテナ")]
+    [SerializeField] private float BodyDamageHeight = 3.5f; //コンテナの底がこれより低いと、ぶつかったときにダメージ（一撃死ではない）
 
     [Header("演出")]
     [SerializeField] private float WarnShake = 0.25f;
@@ -40,6 +43,7 @@ public class PressHazard : MonoBehaviour
     private Vector3 _crushSize;
     private bool _crushOnModel;  //当たり判定がコンテナと一緒に動くか（モデルの子に付いているか）
     private const float CrushOverlap = 0.3f; //コンテナの底面より少し上までふくめる
+    private BoxCollider _body;               //下りたコンテナの体（ふつうの障害物）
 
     private float Cycle =>
         Mathf.Max(0.01f, UpTime) +
@@ -242,6 +246,9 @@ public class PressHazard : MonoBehaviour
         _crush.isTrigger = true;
         _crush.enabled = false;
 
+        //清水 下りたコンテナの体。一撃死の層ではなく障害物の層にして、ぶつかったら HP が減るだけにする
+        CreateBody(min, max);
+
         // 危険マーカー
         Vector3 center =
             transform.InverseTransformPoint(
@@ -361,6 +368,13 @@ public class PressHazard : MonoBehaviour
             _crush.enabled = deadly;
         }
 
+        //下りている（低い所にある）コンテナにぶつかったらダメージ
+        bool hurt = !falling && _bottom * (1f - drop) < BodyDamageHeight;
+        if (_body && _body.enabled != hurt)
+        {
+            _body.enabled = hurt;
+        }
+
         // 危険マーカー
         if (_marker)
         {
@@ -368,6 +382,34 @@ public class PressHazard : MonoBehaviour
                 warn || falling || down
             );
         }
+    }
+
+    /// <summary>
+    /// 清水 コンテナの体の当たり判定を作る（コンテナと一緒に動く）
+    /// 横と奥行きは一撃死の当たり判定（_crush）と同じ広さ、高さはコンテナの高さ
+    /// min / max はモデルから見たコンテナの範囲
+    /// </summary>
+    private void CreateBody(Vector3 min, Vector3 max)
+    {
+        GameObject obj = new GameObject("ContainerBody");
+        obj.transform.SetParent(_model, false);
+        int obstacleLayer = LayerMask.NameToLayer("Obstacle");
+        if (obstacleLayer >= 0) obj.layer = obstacleLayer;
+
+        Vector3 c = _model.InverseTransformPoint(_crush.transform.TransformPoint(_crushCenter));
+        Vector3 cs = _crush.transform.lossyScale;
+        Vector3 ms = _model.lossyScale;
+
+        _body = obj.AddComponent<BoxCollider>();
+        _body.isTrigger = true; //PlayerCollider は OnTriggerEnter で当たりを調べている
+        _body.center = new Vector3(c.x, (min.y + max.y) * 0.5f, c.z);
+        _body.size = new Vector3(
+            _crushSize.x * cs.x / Mathf.Max(0.0001f, ms.x),
+            Mathf.Max(0.1f, max.y - min.y),
+            _crushSize.z * cs.z / Mathf.Max(0.0001f, ms.z));
+        _body.enabled = false;
+
+        obj.AddComponent<ObstacleInfo>(); //HP の減りはふつうの障害物と同じ
     }
 
     /// <summary>
