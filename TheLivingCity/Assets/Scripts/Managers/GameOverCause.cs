@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 //清水
 //どうやってやられたか。ゲームオーバーの演出（シーン）を変えるのに使う
@@ -18,6 +18,7 @@ public static class GameOverCause
     public static void Set(Cause cause)
     {
         Current = cause;
+        Debug.Log("やられ方: " + cause + "（ゲームオーバーのシーン: " + SceneName + "）");
     }
 
     public static void Reset()
@@ -35,6 +36,14 @@ public static class GameOverCause
         if (other.GetComponentInParent<BurnerHazard>()) return Cause.Burner;
         if (other.GetComponentInParent<ElectricHazard>()) return Cause.Shock;
         return Cause.Normal;
+    }
+
+    /// <summary>
+    /// 無敵中（ブーストやダメージの直後）でもやられるか。プレス機に挟まれたら助からない
+    /// </summary>
+    public static bool IgnoresInvincibility(Cause cause)
+    {
+        return cause == Cause.Press;
     }
 
     /// <summary>
