@@ -22,6 +22,10 @@ public class PressHazard : MonoBehaviour
     [SerializeField] private float DownTime = 1.0f;
     [SerializeField] private float RiseTime = 1.0f;
 
+    [Header("一撃死の当たり判定")]
+    [SerializeField] private bool CrushUseContainerSize = true;  //当たり判定の横幅と奥行きをコンテナの大きさに合わせる（false なら _crush の設定のまま）
+    [SerializeField] private float CrushAfterLanding = 0.15f;    //下りきってからこの秒数も一撃死（挟まれた）
+
     [Header("下りたコンテナ")]
     [SerializeField] private float BodyDamageHeight = 3.5f; //コンテナの底がこれより低いと、ぶつかったときにダメージ（一撃死ではない）
 
@@ -239,6 +243,9 @@ public class PressHazard : MonoBehaviour
         _crushSize = _crush.size;
         _crushOnModel = _model != transform && _crush.transform.IsChildOf(_model);
 
+        //清水 当たり判定の横幅と奥行きを、コンテナの大きさに合わせる（_crush の板が細いと、速いときにほとんど当たらなかった）
+        if (CrushUseContainerSize) FitCrushToContainer(min, max);
+
         // 既存の即死処理
         BossHazard.MakeDeadly(gameObject);
 
@@ -290,6 +297,7 @@ public class PressHazard : MonoBehaviour
         bool warn = false;
         bool falling = false;
         bool down = false;
+        bool justLanded = false;
 
         // 上で停止
         if (t < UpTime)
@@ -316,6 +324,7 @@ public class PressHazard : MonoBehaviour
         {
             drop = 1f;
             down = true;
+            justLanded = t < CrushAfterLanding;
 
             if (!_slammed)
             {
@@ -355,8 +364,8 @@ public class PressHazard : MonoBehaviour
             shake +
             Vector3.down * (_bottom * drop);
 
-        // 振り下ろしている間だけ有効（下りきったコンテナにさわっても大丈夫）
-        bool deadly = falling;
+        // 振り下ろしている間と、下りきった直後だけ一撃死（そのあとは、さわるとダメージだけ）
+        bool deadly = falling || justLanded;
 
         if (deadly)
         {
@@ -369,7 +378,7 @@ public class PressHazard : MonoBehaviour
         }
 
         //下りている（低い所にある）コンテナにぶつかったらダメージ
-        bool hurt = !falling && _bottom * (1f - drop) < BodyDamageHeight;
+        bool hurt = !deadly && _bottom * (1f - drop) < BodyDamageHeight;
         if (_body && _body.enabled != hurt)
         {
             _body.enabled = hurt;
@@ -382,6 +391,20 @@ public class PressHazard : MonoBehaviour
                 warn || falling || down
             );
         }
+    }
+
+    /// <summary>
+    /// 清水 一撃死の当たり判定の横幅と奥行きを、コンテナ（モデルの範囲 min〜max）に合わせる
+    /// </summary>
+    private void FitCrushToContainer(Vector3 min, Vector3 max)
+    {
+        Transform ct = _crush.transform;
+        Vector3 a = ct.InverseTransformPoint(_model.TransformPoint(new Vector3(min.x, max.y, min.z)));
+        Vector3 b = ct.InverseTransformPoint(_model.TransformPoint(new Vector3(max.x, max.y, max.z)));
+        _crushCenter = new Vector3((a.x + b.x) * 0.5f, _crushCenter.y, (a.z + b.z) * 0.5f);
+        _crushSize = new Vector3(Mathf.Abs(b.x - a.x), _crushSize.y, Mathf.Abs(b.z - a.z));
+        _crush.center = _crushCenter;
+        _crush.size = _crushSize;
     }
 
     /// <summary>

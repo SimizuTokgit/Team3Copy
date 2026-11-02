@@ -117,8 +117,8 @@ MonoBehaviour:
     YawStep: 90
     HeightOffset: 0
     ElectricBattleOnly: 1
-  CountEasy: 8
-  CountNormal: 12
-  CountHard: 15
-  MinSpacing: 7
+  CountEasy: 13
+  CountNormal: 19
+  CountHard: 24
+  MinSpacing: 6
   EdgeMargin: 3

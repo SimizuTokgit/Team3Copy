@@ -30,12 +30,12 @@ public class ObstacleCatalog : ScriptableObject
     public List<Entry> Entries = new List<Entry>();
 
     [Header("地面1枚（96m）に置く数")]
-    public int CountEasy = 8;
-    public int CountNormal = 12;
-    public int CountHard = 15;
+    public int CountEasy = 13;
+    public int CountNormal = 19;
+    public int CountHard = 24;
 
     [Header("置き方")]
-    public float MinSpacing = 7f;   //障害物どうしの最低の間隔
+    public float MinSpacing = 6f;   //障害物どうしの最低の間隔
     public float EdgeMargin = 3f;   //道の端からどれだけ離すか
 
     public int GetCount(GenerateObstacle.Difficulty difficulty)

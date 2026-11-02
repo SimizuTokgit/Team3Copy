@@ -11,6 +11,7 @@ public class NumberImage : MonoBehaviour
     [SerializeField] private Vector2 digitSize = new Vector2(233, 233);
     [SerializeField] private float digitSpace = 150; // 数字の間隔
     [SerializeField] private float periodSpace = 70; // 小数点の間隔
+    [SerializeField, Range(0.1f, 1f)] private float periodScale = 1f; // 清水 小数点の大きさ（数字の高さに対する割合）。1 なら数字と同じ高さ（タイマーのコロン用）
 
     [SerializeField, Range(0, 3)] private int decimals = 0; // 小数第何位まで出すか。0なら整数のまま
 
@@ -57,7 +58,9 @@ public class NumberImage : MonoBehaviour
 
         digitSize = new Vector2(height * aspect, height);
         digitSpace = digitSize.x * font.Spacing;
-        periodSpace = digitSpace * 0.45f;
+        //清水 HUD の数字の小数点は、四角い画像なので小さな点にする（数字と同じ高さだと大きな■に見えていた）
+        periodScale = 0.22f;
+        periodSpace = Mathf.Max(digitSpace * 0.45f, height * periodScale * 1.6f);
 
         // 作り直す
         if (text != null)
@@ -184,7 +187,9 @@ public class NumberImage : MonoBehaviour
                 digitImages[i].rectTransform.sizeDelta = GetSize(text[i], sprite);
             }
 
-            digitImages[i].rectTransform.anchoredPosition = new Vector2(x + space * 0.5f, 0);
+            //清水 小さい小数点は、数字の下のほうにそろえる
+            float y = (text[i] == '.' && periodScale < 1f) ? -digitSize.y * (0.5f - periodScale * 0.5f - 0.06f) : 0f;
+            digitImages[i].rectTransform.anchoredPosition = new Vector2(x + space * 0.5f, y);
             x += space;
         }
     }
@@ -208,6 +213,7 @@ public class NumberImage : MonoBehaviour
         if (c != '.') return digitSize;
 
         float height = sprite.rect.height > 0 ? sprite.rect.height : 1f;
-        return new Vector2(digitSize.y * sprite.rect.width / height, digitSize.y);
+        float h = digitSize.y * periodScale;
+        return new Vector2(h * sprite.rect.width / height, h);
     }
 }

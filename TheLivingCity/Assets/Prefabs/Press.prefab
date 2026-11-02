@@ -51,7 +51,7 @@ MonoBehaviour:
   _crush: {fileID: 154631772937433143}
   UpTime: 1.2
   WarnTime: 0.6
-  SlamTime: 0.2
+  SlamTime: 0.35
   DownTime: 1
   RiseTime: 1
   WarnShake: 0.25
