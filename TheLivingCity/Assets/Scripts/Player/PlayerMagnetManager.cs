@@ -52,7 +52,8 @@ public class PlayerMagnetManager : MonoBehaviour
                 Instantiate(item.ItemEffect,player.transform);
 
                 //清水 何を取ったか分かるように文字を出す
-                GameHUD.Get().Popup(item.PopupLabel, item.PopupColor, item.GetPopupValue(player.PlayerStatus));
+                //清水 数字は出さず、取ったアイテムの種類＋UP だけ（MAX SPEED UP! など）
+                GameHUD.Get().Popup(item.PopupLabel, item.PopupColor);
 
                 if (player.tutorialManager != null)
                 {
