@@ -38,6 +38,8 @@ public class TutorialManager : MonoBehaviour
         [TextArea(2, 4)] public string Body;
         public string Goal;   //目標。{0} に進み具合が入る
         public string Keys;   //使うキー（空なら出さない）
+        public Texture2D Picture;   //やり方の画像（空なら Resources/Tutorial/PictureName を読む）
+        public string PictureName;
     }
 
     [SerializeField] private List<Step> Steps = DefaultSteps();
@@ -77,6 +79,11 @@ public class TutorialManager : MonoBehaviour
 
     //パネル
     private Text _stepLabel, _title, _body, _goal, _keys;
+    private RectTransform _panel;
+    private RawImage _picture;
+    private const float PanelWidth = 1240f;
+    private const float PictureWidth = 480f;   //16:9 の画像を右に出す
+    private const float PictureHeight = 270f;
     private static readonly Color Cyan = new Color(0.47f, 0.88f, 1f);
     private static readonly Color GoalColor = new Color(1f, 0.85f, 0.3f);
     private static readonly Color ClearColor = new Color(0.45f, 1f, 0.55f);
@@ -189,6 +196,7 @@ public class TutorialManager : MonoBehaviour
         _title.text = step.Title;
         _body.text = step.Body;
         _keys.text = string.IsNullOrEmpty(step.Keys) ? "" : "操作：" + step.Keys;
+        ShowPicture(step);
 
         switch (step.Kind)
         {
@@ -224,6 +232,7 @@ public class TutorialManager : MonoBehaviour
             _title.text = "チュートリアル完了！";
             _body.text = "これで準備はばっちり。\nさあ、崩壊した街を、希望を捨てずに走り抜けよう！";
             _keys.text = "";
+            ShowPicture(null);
             ShowGoal("Enterキー / Aボタンでタイトルへ", ClearColor);
             GameHUD.Get().Banner("ALL CLEAR!", GameHUD.Gold, 2.0f);
 
@@ -290,7 +299,8 @@ public class TutorialManager : MonoBehaviour
         pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 1f);
         pr.pivot = new Vector2(0.5f, 1f);
         pr.anchoredPosition = new Vector2(0f, -24f);
-        pr.sizeDelta = new Vector2(1240f, 330f);
+        pr.sizeDelta = new Vector2(PanelWidth, 330f);
+        _panel = pr;
         Image bg = panel.GetComponent<Image>();
         bg.color = new Color(0.02f, 0.04f, 0.12f, 0.82f);
         bg.raycastTarget = false;
@@ -311,6 +321,51 @@ public class TutorialManager : MonoBehaviour
         _body = MakeText(panel.transform, font, 28, new Color(0.88f, 0.92f, 1f), FontStyle.Normal, -118f, 120f);
         _goal = MakeText(panel.transform, font, 34, GoalColor, FontStyle.Bold, -240f, 44f);
         _keys = MakeText(panel.transform, font, 24, Cyan, FontStyle.Normal, -286f, 34f);
+
+        //右側のやり方の画像（水色のふち付き）
+        GameObject frame = new GameObject("PictureFrame", typeof(RectTransform), typeof(Image));
+        frame.transform.SetParent(panel.transform, false);
+        RectTransform fr = (RectTransform)frame.transform;
+        fr.anchorMin = fr.anchorMax = new Vector2(1f, 0.5f);
+        fr.pivot = new Vector2(1f, 0.5f);
+        fr.anchoredPosition = new Vector2(-24f, 0f);
+        fr.sizeDelta = new Vector2(PictureWidth + 8f, PictureHeight + 8f);
+        frame.GetComponent<Image>().color = Cyan;
+        frame.GetComponent<Image>().raycastTarget = false;
+
+        GameObject pic = new GameObject("Picture", typeof(RectTransform), typeof(RawImage));
+        pic.transform.SetParent(frame.transform, false);
+        RectTransform pir = (RectTransform)pic.transform;
+        pir.anchorMin = Vector2.zero;
+        pir.anchorMax = Vector2.one;
+        pir.offsetMin = new Vector2(4f, 4f);
+        pir.offsetMax = new Vector2(-4f, -4f);
+        _picture = pic.GetComponent<RawImage>();
+        _picture.raycastTarget = false;
+        ShowPicture(null);
+    }
+
+    //画像があればパネルを右に広げて出す。無ければ文字だけ
+    private void ShowPicture(Step step)
+    {
+        Texture2D tex = null;
+        if (step != null)
+        {
+            tex = step.Picture;
+            if (!tex && !string.IsNullOrEmpty(step.PictureName)) tex = Resources.Load<Texture2D>("Tutorial/" + step.PictureName);
+        }
+
+        bool show = tex != null;
+        _picture.texture = tex;
+        _picture.transform.parent.gameObject.SetActive(show);
+
+        float extra = show ? PictureWidth + 40f : 0f;
+        _panel.sizeDelta = new Vector2(PanelWidth + extra, _panel.sizeDelta.y);
+        foreach (Text t in new[] { _stepLabel, _title, _body, _goal, _keys })
+        {
+            RectTransform r = t.rectTransform;
+            r.offsetMax = new Vector2(-56f - extra, r.offsetMax.y);
+        }
     }
 
     private static Text MakeText(Transform parent, Font font, int size, Color color, FontStyle style, float y, float height)
@@ -350,6 +405,7 @@ public class TutorialManager : MonoBehaviour
             new Step
             {
                 Kind = StepKind.Move,
+                PictureName = "step1_move",
                 Title = "左右に曲がろう",
                 Body = "走るのは自動。プレイヤーは左右に曲がって進む向きを決めるよ。\n障害物や危ないものは、曲がってよけよう。",
                 Goal = "目標：左と右、両方に曲がってみよう",
@@ -358,6 +414,7 @@ public class TutorialManager : MonoBehaviour
             new Step
             {
                 Kind = StepKind.Landing,
+                PictureName = "step2_landing",
                 Title = "ジャスト着地でブースト！",
                 Body = "丘を越えると空を飛ぶ。W キーで急降下して、<b>下り坂に向かって</b>着地すると PERFECT！\nスピードが一気に上がって、ブースト中は障害物に当たってもへっちゃら。",
                 Goal = "目標：PERFECT 着地を1回しよう",
@@ -366,6 +423,7 @@ public class TutorialManager : MonoBehaviour
             new Step
             {
                 Kind = StepKind.Items,
+                PictureName = "step3_items",
                 Title = "アイテムで強化しよう",
                 Body = "近づくだけで吸い寄せられて取れる。取るほど強くなって、上限はなし！\n最高速度・加速・ブースト・マグネット・小回り・防御の6種類があるよ。",
                 Goal = "目標：アイテムを集めよう　{0}",
@@ -374,6 +432,7 @@ public class TutorialManager : MonoBehaviour
             new Step
             {
                 Kind = StepKind.Dodge,
+                PictureName = "step4_obstacles",
                 Title = "障害物をよけよう",
                 Body = "障害物に当たると HP が減って、スピードも落ちる。HP が 0 になるとゲームオーバー。\n木や看板など細いものは、当たっても減りが少ないよ。",
                 Goal = "目標：当たらずに走り続けよう　{0}",
@@ -383,6 +442,7 @@ public class TutorialManager : MonoBehaviour
             {
                 Kind = StepKind.Read,
                 Title = "チェックポイントと分かれ道",
+                PictureName = "step5_checkpoint",
                 Body = "チェックポイントを通ると HP が回復する（エンドレスでは残り時間も）。\nその先の分かれ道では、左右の看板のアイテムを見て道を選ぼう。道によって難しさともらえるアイテムが変わるよ。",
                 Goal = "Enterキー / Aボタンで次へ",
                 Keys = "",
@@ -391,6 +451,7 @@ public class TutorialManager : MonoBehaviour
             {
                 Kind = StepKind.Read,
                 Title = "ボスと一撃必殺のギミック",
+                PictureName = "step6_boss",
                 Body = "ストーリーでは4体の中ボスと、最後にマザーコンピューターが現れる。ジャンプ台から最高速で突っ込もう、<b>速いほど大ダメージ</b>！\n震える・赤く光る・地面に赤い帯が出るものは一撃必殺の合図。よく見てかわそう。",
                 Goal = "Enterキー / Aボタンで次へ",
                 Keys = "",
