@@ -109,7 +109,7 @@ public class PlayerMoveController
                 moveright = true;
             }
 
-            if (moveleft & moveright & manager.tutorialCount == 0)
+            if (moveleft & moveright & manager.IsStep(TutorialManager.StepKind.Move))
             {
                 //チュートリアル1 クリア
                 manager.ClearTutorial();
@@ -162,7 +162,7 @@ public class PlayerMoveController
 
             if (manager != null)
             {
-                if (manager.tutorialCount == 1)
+                if (manager.IsStep(TutorialManager.StepKind.Landing))
                     manager.ClearTutorial();
             }
         }

@@ -26,7 +26,7 @@ public class PlayerCollider : MonoBehaviour
 
                 if (_player.tutorialManager != null)
                 {
-                    if (_player.tutorialManager.tutorialCount == 3)
+                    if (_player.tutorialManager.IsStep(TutorialManager.StepKind.Dodge))
                     {
                         _player.tutorialManager.DodgeTimeReset();
                     }
@@ -48,7 +48,7 @@ public class PlayerCollider : MonoBehaviour
 
                 if (_player.tutorialManager != null)
                 {
-                    if (_player.tutorialManager.tutorialCount == 3)
+                    if (_player.tutorialManager.IsStep(TutorialManager.StepKind.Dodge))
                     {
                         _player.tutorialManager.DodgeTimeReset();
                     }
