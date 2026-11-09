@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 //清水 チュートリアルを今のゲームに合わせて作り直した
-//画面上のパネルに「STEP 番号・タイトル・説明・目標（進み具合）・使うキー」を出す
-//やってみるステップ（左右移動・ジャスト着地・アイテム・障害物）と、読むだけのステップ（チェックポイント・ボス）がある
+//ステップのはじめにゲームを止めて、やり方の画像と説明を大きく出す（説明画面）
+//説明画面は3秒たつまでボタンを受け付けない（走っているときに押していたボタンで飛ばさないように）。そのあと何かボタンで再開
+//やってみるステップは、画面上の小さなパネルに目標と進み具合を出す。読むだけのステップは、説明画面を閉じたら次へ
 public class TutorialManager : MonoBehaviour
 {
     public enum TutorialState
@@ -16,7 +18,8 @@ public class TutorialManager : MonoBehaviour
         Clear,
         Next,
         Finish,
-        Read,      //読むだけのステップ（Enter / Aボタンで次へ）
+        Read,      //説明画面（ゲームは止まっている）
+        WaitStart, //スタートのカウントダウンが終わるのを待つ
     };
     public TutorialState tutorialstate;
 
@@ -26,8 +29,8 @@ public class TutorialManager : MonoBehaviour
         Move,     //左右移動
         Landing,  //ジャスト着地
         Items,    //アイテムを集める
-        Dodge,    //障害物をよけ続ける
-        Read,     //説明を読む
+        Dodge,    //障害物をよけ続ける（今のチュートリアルは障害物を出さないので使っていない）
+        Read,     //説明を読むだけ
     }
 
     [System.Serializable]
@@ -36,7 +39,7 @@ public class TutorialManager : MonoBehaviour
         public StepKind Kind;
         public string Title;
         [TextArea(2, 4)] public string Body;
-        public string Goal;   //目標。{0} に進み具合が入る
+        public string Goal;   //目標。{0} に進み具合が入る（読むだけのステップは空でよい）
         public string Keys;   //使うキー（空なら出さない）
         public Texture2D Picture;   //やり方の画像（空なら Resources/Tutorial/PictureName を読む）
         public string PictureName;
@@ -44,7 +47,7 @@ public class TutorialManager : MonoBehaviour
 
     [SerializeField] private List<Step> Steps = DefaultSteps();
 
-    //チュートリアルのテキスト（シーンにある古い1行の表示。今は下のパネルを使うので隠す）
+    //チュートリアルのテキスト（シーンにある古い表示。今はパネルと説明画面を使うので隠す）
     public Text tutorialText;
 
     //チュートリアル何番目か
@@ -67,23 +70,30 @@ public class TutorialManager : MonoBehaviour
     //アイテムをいくつ集めたらクリアか（PlayerMagnetManager と同じ数）
     private const int ItemGoal = 5;
 
-    //読むだけのステップは、これより早くは進めない（読み飛ばし防止）／これだけたったら自動で進む
-    [SerializeField] private float ReadMinTime = 1.0f;
-    [SerializeField] private float ReadAutoTime = 15f;
+    //説明画面は、この秒数たつまでボタンを受け付けない
+    [SerializeField] private float ExplainWaitTime = 3f;
 
     //チュートリアルすべて完了したかどうか
     public bool tutorialClearAll;
 
-    //すべて完了したときに出すテキスト（今はパネルに出すので隠す）
+    //すべて完了したときに出すテキスト（今は説明画面に出すので隠す）
     public Text FinishText;
 
-    //パネル
-    private Text _stepLabel, _title, _body, _goal, _keys;
-    private RectTransform _panel;
-    private RawImage _picture;
-    private const float PanelWidth = 1240f;
-    private const float PictureWidth = 480f;   //16:9 の画像を右に出す
-    private const float PictureHeight = 270f;
+    //上の小さなパネル（やってみるステップの目標）
+    private GameObject _panelObj;
+    private Text _stepLabel, _title, _goal, _keys;
+
+    //説明画面
+    private GameObject _modal;
+    private Text _mStep, _mTitle, _mBody, _mPrompt;
+    private RawImage _mPicture;
+    private Image _mWaitBar;
+    private float _explainTime;
+    private bool _explainOpen;
+    private bool _finishing;
+
+    private GameManager _gameManager;
+
     private static readonly Color Cyan = new Color(0.47f, 0.88f, 1f);
     private static readonly Color GoalColor = new Color(1f, 0.85f, 0.3f);
     private static readonly Color ClearColor = new Color(0.45f, 1f, 0.55f);
@@ -91,15 +101,15 @@ public class TutorialManager : MonoBehaviour
     public Step Current => tutorialCount < Steps.Count ? Steps[tutorialCount] : null;
 
     /// <summary>
-    /// 今そのステップをやっているか（クリアしたあとの待ち時間は false）
+    /// 今そのステップをやっているか（説明画面の間と、クリアしたあとの待ち時間は false）
     /// </summary>
     public bool IsStep(StepKind kind)
     {
-        return !tutorialClearAll && !tutorialClear && Current != null && Current.Kind == kind;
+        return !tutorialClearAll && !tutorialClear && !_explainOpen && Current != null && Current.Kind == kind;
     }
 
     /// <summary>
-    /// 障害物とアイテムを出してよいか（左右移動とジャスト着地のあいだは、走ることに集中できるように出さない）
+    /// アイテムを出してよいか（左右移動とジャスト着地のあいだは、走ることに集中できるように出さない）
     /// </summary>
     public bool SpawnObstacles
     {
@@ -123,16 +133,34 @@ public class TutorialManager : MonoBehaviour
         if (nexttutorialTime <= 0f) nexttutorialTime = 2f;
         if (DodgeTime <= 0f) DodgeTime = 5f;
 
+        _gameManager = FindAnyObjectByType<GameManager>();
+
         BuildPanel();
+        BuildModal();
         if (tutorialText) tutorialText.enabled = false;
         if (FinishText) FinishText.enabled = false;
 
-        BeginStep();
+        //スタートの 3, 2, 1, GO が終わってから最初の説明を出す
+        tutorialstate = TutorialState.WaitStart;
+    }
+
+    private void OnDestroy()
+    {
+        //止めたまま別のシーンに行かないように
+        Time.timeScale = 1f;
     }
 
     void Update()
     {
-        if (tutorialstate == TutorialState.Challenge)
+        if (tutorialstate == TutorialState.WaitStart)
+        {
+            if (!_gameManager || _gameManager._currentState == GameManager.GameState.Playing) BeginStep();
+        }
+        else if (tutorialstate == TutorialState.Read || tutorialstate == TutorialState.Finish)
+        {
+            UpdateExplain();
+        }
+        else if (tutorialstate == TutorialState.Challenge)
         {
             if (tutorialClear)
                 tutorialstate = TutorialState.Clear;
@@ -150,15 +178,6 @@ public class TutorialManager : MonoBehaviour
             if (tutorialClear)
                 tutorialstate = TutorialState.Clear;
         }
-        else if (tutorialstate == TutorialState.Read)
-        {
-            elapsedTime += Time.deltaTime;
-            if ((elapsedTime >= ReadMinTime && ConfirmPressed()) || elapsedTime >= ReadAutoTime)
-            {
-                ClearTutorial();
-                tutorialstate = TutorialState.Clear;
-            }
-        }
         else if (tutorialstate == TutorialState.Clear)
         {
             NextTutorial();
@@ -173,18 +192,9 @@ public class TutorialManager : MonoBehaviour
                 BeginStep();
             }
         }
-        else if (tutorialstate == TutorialState.Finish)
-        {
-            //全てのチュートリアルを完了したときの処理
-            if (ConfirmPressed())
-            {
-                //タイトルに戻る
-                SceneManager.LoadScene("Title");
-            }
-        }
     }
 
-    //今のステップを始める
+    //ステップのはじめ：ゲームを止めて説明画面を出す
     private void BeginStep()
     {
         tutorialClear = false;
@@ -192,27 +202,38 @@ public class TutorialManager : MonoBehaviour
         dodgeTime = 0f;
 
         Step step = Current;
+        OpenExplain("STEP " + (tutorialCount + 1) + " / " + Steps.Count, step.Title, step.Body, LoadPicture(step),
+                    step.Kind == StepKind.Read ? "何かボタンを押して次へ" : "何かボタンを押して、やってみよう！");
+        tutorialstate = TutorialState.Read;
+    }
+
+    //説明画面を閉じたあと：やってみるステップなら目標のパネルを出して再開
+    private void StartChallenge()
+    {
+        Step step = Current;
+        if (step.Kind == StepKind.Read)
+        {
+            ClearTutorial();
+            tutorialstate = TutorialState.Clear;
+            return;
+        }
+
+        _panelObj.SetActive(true);
         _stepLabel.text = "STEP " + (tutorialCount + 1) + " / " + Steps.Count;
         _title.text = step.Title;
-        _body.text = step.Body;
         _keys.text = string.IsNullOrEmpty(step.Keys) ? "" : "操作：" + step.Keys;
-        ShowPicture(step);
 
         switch (step.Kind)
         {
             case StepKind.Dodge:
                 tutorialstate = TutorialState.ChallengeDodge;
                 break;
-            case StepKind.Read:
-                ShowGoal(step.Goal, GoalColor);
-                tutorialstate = TutorialState.Read;
-                break;
             case StepKind.Items:
                 ItemGetTextNumberChange(0);
                 tutorialstate = TutorialState.Challenge;
                 break;
             default:
-                ShowGoal(string.Format(step.Goal, ""), GoalColor);
+                ShowGoal(string.Format(step.Goal ?? "", ""), GoalColor);
                 tutorialstate = TutorialState.Challenge;
                 break;
         }
@@ -227,25 +248,23 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialClearAll = true;
             Debug.Log("チュートリアル完了");
-
-            _stepLabel.text = "COMPLETE";
-            _title.text = "チュートリアル完了！";
-            _body.text = "これで準備はばっちり。\nさあ、崩壊した街を、希望を捨てずに走り抜けよう！";
-            _keys.text = "";
-            ShowPicture(null);
-            ShowGoal("Enterキー / Aボタンでタイトルへ", ClearColor);
+            _panelObj.SetActive(false);
             GameHUD.Get().Banner("ALL CLEAR!", GameHUD.Gold, 2.0f);
-
+            OpenExplain("COMPLETE", "チュートリアル完了！", "これで準備はばっちり。\nさあ、崩壊した街を、希望を捨てずに走り抜けよう！", null, "何かボタンを押してタイトルへ");
             tutorialstate = TutorialState.Finish;
             return;
         }
 
-        //読むだけのステップのあとは、CLEAR は出さずにすぐ次へ
+        //読むだけのステップのあとは、CLEAR は出さずにすぐ次の説明へ
         bool wasRead = Steps[tutorialCount - 1].Kind == StepKind.Read;
         if (!wasRead)
         {
             ShowGoal("クリア！", ClearColor);
             GameHUD.Get().Banner("CLEAR!", GameHUD.Good, 1.2f);
+        }
+        else
+        {
+            _panelObj.SetActive(false);
         }
 
         elapsedTime = wasRead ? nexttutorialTime : 0.0f;
@@ -277,62 +296,134 @@ public class TutorialManager : MonoBehaviour
         _goal.color = color;
     }
 
-    //Enter・スペース・ゲームパッドのAボタン
-    private static bool ConfirmPressed()
+    // ===== 説明画面 =====
+
+    private void OpenExplain(string step, string title, string body, Texture2D picture, string prompt)
     {
-        Keyboard k = Keyboard.current;
-        if (k != null && (k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame || k.spaceKey.wasPressedThisFrame)) return true;
-        Gamepad g = Gamepad.current;
-        return g != null && g.buttonSouth.wasPressedThisFrame;
+        _mStep.text = step;
+        _mTitle.text = title;
+        _mBody.text = body;
+        _mPrompt.text = prompt;
+        _mPicture.texture = picture;
+        _mPicture.transform.parent.gameObject.SetActive(picture != null);
+
+        _modal.SetActive(true);
+        _explainOpen = true;
+        _explainTime = 0f;
+        Time.timeScale = 0f; //ゲームを止める
     }
 
-    // ===== パネル =====
+    private void UpdateExplain()
+    {
+        _explainTime += Time.unscaledDeltaTime;
+        float k = Mathf.Clamp01(_explainTime / Mathf.Max(0.01f, ExplainWaitTime));
+        bool ready = k >= 1f;
 
+        //3秒たつまでは残り時間のバーを出して、ボタンを受け付けない
+        _mWaitBar.rectTransform.anchorMax = new Vector2(1f - k, 1f); //残り時間に合わせて短くなる
+        _mWaitBar.transform.parent.gameObject.SetActive(!ready);
+        Color c = _mPrompt.color;
+        c.a = ready ? Mathf.Lerp(0.45f, 1f, Mathf.PingPong(Time.unscaledTime * 2f, 1f)) : 0.25f;
+        _mPrompt.color = c;
+
+        if (!ready || !AnyButtonPressed()) return;
+
+        if (tutorialstate == TutorialState.Finish)
+        {
+            if (_finishing) return;
+            _finishing = true;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("Title");
+            return;
+        }
+
+        //閉じて再開
+        _modal.SetActive(false);
+        _explainOpen = false;
+        Time.timeScale = 1f;
+        StartChallenge();
+    }
+
+    //何かのボタン（キーボードのどのキーでも、ゲームパッドのどのボタンでも、マウスのクリックでも）
+    private static bool AnyButtonPressed()
+    {
+        if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) return true;
+        if (Mouse.current != null && (Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame)) return true;
+        Gamepad g = Gamepad.current;
+        if (g != null)
+        {
+            foreach (InputControl control in g.allControls)
+            {
+                if (control is ButtonControl b && !b.synthetic && b.wasPressedThisFrame) return true;
+            }
+        }
+        return false;
+    }
+
+    private Texture2D LoadPicture(Step step)
+    {
+        if (step == null) return null;
+        if (step.Picture) return step.Picture;
+        return string.IsNullOrEmpty(step.PictureName) ? null : Resources.Load<Texture2D>("Tutorial/" + step.PictureName);
+    }
+
+    // ===== 画面の部品 =====
+
+    private Canvas GetCanvas()
+    {
+        return tutorialText ? tutorialText.canvas.rootCanvas : FindAnyObjectByType<Canvas>();
+    }
+
+    private Font GetFont()
+    {
+        return tutorialText ? tutorialText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+    }
+
+    //上の小さなパネル
     private void BuildPanel()
     {
-        Canvas canvas = tutorialText ? tutorialText.canvas.rootCanvas : FindAnyObjectByType<Canvas>();
-        Font font = tutorialText ? tutorialText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-
-        GameObject panel = new GameObject("TutorialPanel", typeof(RectTransform), typeof(Image));
-        panel.transform.SetParent(canvas.transform, false);
-        RectTransform pr = (RectTransform)panel.transform;
+        Font font = GetFont();
+        _panelObj = NewImage("TutorialPanel", GetCanvas().transform, new Color(0.02f, 0.04f, 0.12f, 0.82f));
+        RectTransform pr = (RectTransform)_panelObj.transform;
         pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 1f);
         pr.pivot = new Vector2(0.5f, 1f);
         pr.anchoredPosition = new Vector2(0f, -24f);
-        pr.sizeDelta = new Vector2(PanelWidth, 330f);
-        _panel = pr;
-        Image bg = panel.GetComponent<Image>();
-        bg.color = new Color(0.02f, 0.04f, 0.12f, 0.82f);
-        bg.raycastTarget = false;
+        pr.sizeDelta = new Vector2(1100f, 190f);
+        AccentBar(_panelObj.transform);
 
-        //左のアクセントの線
-        GameObject bar = new GameObject("Accent", typeof(RectTransform), typeof(Image));
-        bar.transform.SetParent(panel.transform, false);
-        RectTransform br = (RectTransform)bar.transform;
-        br.anchorMin = new Vector2(0f, 0f);
-        br.anchorMax = new Vector2(0f, 1f);
-        br.pivot = new Vector2(0f, 0.5f);
-        br.sizeDelta = new Vector2(10f, 0f);
-        bar.GetComponent<Image>().color = Cyan;
-        bar.GetComponent<Image>().raycastTarget = false;
+        _stepLabel = MakeText(_panelObj.transform, font, 24, Cyan, FontStyle.Bold, TextAnchor.UpperLeft, -14f, 30f);
+        _title = MakeText(_panelObj.transform, font, 44, Color.white, FontStyle.Bold, TextAnchor.UpperLeft, -42f, 56f);
+        _goal = MakeText(_panelObj.transform, font, 34, GoalColor, FontStyle.Bold, TextAnchor.UpperLeft, -100f, 44f);
+        _keys = MakeText(_panelObj.transform, font, 24, Cyan, FontStyle.Normal, TextAnchor.UpperLeft, -148f, 32f);
+        _panelObj.SetActive(false);
+    }
 
-        _stepLabel = MakeText(panel.transform, font, 26, Cyan, FontStyle.Bold, -16f, 34f);
-        _title = MakeText(panel.transform, font, 50, Color.white, FontStyle.Bold, -48f, 64f);
-        _body = MakeText(panel.transform, font, 28, new Color(0.88f, 0.92f, 1f), FontStyle.Normal, -118f, 120f);
-        _goal = MakeText(panel.transform, font, 34, GoalColor, FontStyle.Bold, -240f, 44f);
-        _keys = MakeText(panel.transform, font, 24, Cyan, FontStyle.Normal, -286f, 34f);
+    //説明画面（全体を暗くして、まん中に大きなカード）
+    private void BuildModal()
+    {
+        Font font = GetFont();
+        _modal = NewImage("TutorialExplain", GetCanvas().transform, new Color(0f, 0f, 0f, 0.6f));
+        RectTransform mr = (RectTransform)_modal.transform;
+        mr.anchorMin = Vector2.zero;
+        mr.anchorMax = Vector2.one;
+        mr.offsetMin = mr.offsetMax = Vector2.zero;
 
-        //右側のやり方の画像（水色のふち付き）
-        GameObject frame = new GameObject("PictureFrame", typeof(RectTransform), typeof(Image));
-        frame.transform.SetParent(panel.transform, false);
+        GameObject card = NewImage("Card", _modal.transform, new Color(0.02f, 0.04f, 0.12f, 0.95f));
+        RectTransform cr = (RectTransform)card.transform;
+        cr.anchorMin = cr.anchorMax = new Vector2(0.5f, 0.5f);
+        cr.sizeDelta = new Vector2(1500f, 1000f);
+        AccentBar(card.transform);
+
+        _mStep = MakeText(card.transform, font, 28, Cyan, FontStyle.Bold, TextAnchor.UpperCenter, -24f, 36f);
+        _mTitle = MakeText(card.transform, font, 64, Color.white, FontStyle.Bold, TextAnchor.UpperCenter, -62f, 80f);
+
+        //画像（水色のふち付き）
+        GameObject frame = NewImage("PictureFrame", card.transform, Cyan);
         RectTransform fr = (RectTransform)frame.transform;
-        fr.anchorMin = fr.anchorMax = new Vector2(1f, 0.5f);
-        fr.pivot = new Vector2(1f, 0.5f);
-        fr.anchoredPosition = new Vector2(-24f, 0f);
-        fr.sizeDelta = new Vector2(PictureWidth + 8f, PictureHeight + 8f);
-        frame.GetComponent<Image>().color = Cyan;
-        frame.GetComponent<Image>().raycastTarget = false;
-
+        fr.anchorMin = fr.anchorMax = new Vector2(0.5f, 1f);
+        fr.pivot = new Vector2(0.5f, 1f);
+        fr.anchoredPosition = new Vector2(0f, -150f);
+        fr.sizeDelta = new Vector2(968f, 552f);
         GameObject pic = new GameObject("Picture", typeof(RectTransform), typeof(RawImage));
         pic.transform.SetParent(frame.transform, false);
         RectTransform pir = (RectTransform)pic.transform;
@@ -340,35 +431,50 @@ public class TutorialManager : MonoBehaviour
         pir.anchorMax = Vector2.one;
         pir.offsetMin = new Vector2(4f, 4f);
         pir.offsetMax = new Vector2(-4f, -4f);
-        _picture = pic.GetComponent<RawImage>();
-        _picture.raycastTarget = false;
-        ShowPicture(null);
+        _mPicture = pic.GetComponent<RawImage>();
+        _mPicture.raycastTarget = false;
+
+        _mBody = MakeText(card.transform, font, 32, new Color(0.88f, 0.92f, 1f), FontStyle.Normal, TextAnchor.UpperCenter, -716f, 150f);
+        _mPrompt = MakeText(card.transform, font, 40, GoalColor, FontStyle.Bold, TextAnchor.UpperCenter, -880f, 52f);
+
+        //ボタンを受け付けるまでの残り時間のバー
+        GameObject barBg = NewImage("WaitBar", card.transform, new Color(1f, 1f, 1f, 0.15f));
+        RectTransform bb = (RectTransform)barBg.transform;
+        bb.anchorMin = bb.anchorMax = new Vector2(0.5f, 1f);
+        bb.pivot = new Vector2(0.5f, 1f);
+        bb.anchoredPosition = new Vector2(0f, -946f);
+        bb.sizeDelta = new Vector2(600f, 12f);
+        GameObject bar = NewImage("Fill", barBg.transform, GoalColor);
+        RectTransform br = (RectTransform)bar.transform;
+        br.anchorMin = Vector2.zero;
+        br.anchorMax = Vector2.one;
+        br.offsetMin = br.offsetMax = Vector2.zero;
+        _mWaitBar = bar.GetComponent<Image>();
+
+        _modal.SetActive(false);
     }
 
-    //画像があればパネルを右に広げて出す。無ければ文字だけ
-    private void ShowPicture(Step step)
+    private static GameObject NewImage(string name, Transform parent, Color color)
     {
-        Texture2D tex = null;
-        if (step != null)
-        {
-            tex = step.Picture;
-            if (!tex && !string.IsNullOrEmpty(step.PictureName)) tex = Resources.Load<Texture2D>("Tutorial/" + step.PictureName);
-        }
-
-        bool show = tex != null;
-        _picture.texture = tex;
-        _picture.transform.parent.gameObject.SetActive(show);
-
-        float extra = show ? PictureWidth + 40f : 0f;
-        _panel.sizeDelta = new Vector2(PanelWidth + extra, _panel.sizeDelta.y);
-        foreach (Text t in new[] { _stepLabel, _title, _body, _goal, _keys })
-        {
-            RectTransform r = t.rectTransform;
-            r.offsetMax = new Vector2(-56f - extra, r.offsetMax.y);
-        }
+        GameObject obj = new GameObject(name, typeof(RectTransform), typeof(Image));
+        obj.transform.SetParent(parent, false);
+        Image img = obj.GetComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+        return obj;
     }
 
-    private static Text MakeText(Transform parent, Font font, int size, Color color, FontStyle style, float y, float height)
+    private static void AccentBar(Transform parent)
+    {
+        GameObject bar = NewImage("Accent", parent, Cyan);
+        RectTransform br = (RectTransform)bar.transform;
+        br.anchorMin = new Vector2(0f, 0f);
+        br.anchorMax = new Vector2(0f, 1f);
+        br.pivot = new Vector2(0f, 0.5f);
+        br.sizeDelta = new Vector2(10f, 0f);
+    }
+
+    private static Text MakeText(Transform parent, Font font, int size, Color color, FontStyle style, TextAnchor align, float y, float height)
     {
         GameObject obj = new GameObject("Text", typeof(RectTransform), typeof(Text), typeof(Shadow));
         obj.transform.SetParent(parent, false);
@@ -376,15 +482,15 @@ public class TutorialManager : MonoBehaviour
         r.anchorMin = new Vector2(0f, 1f);
         r.anchorMax = new Vector2(1f, 1f);
         r.pivot = new Vector2(0.5f, 1f);
-        r.anchoredPosition = new Vector2(16f, y);
-        r.sizeDelta = new Vector2(-72f, height);
+        r.anchoredPosition = new Vector2(0f, y);
+        r.sizeDelta = new Vector2(-96f, height);
 
         Text t = obj.GetComponent<Text>();
         t.font = font;
         t.fontSize = size;
         t.fontStyle = style;
         t.color = color;
-        t.alignment = TextAnchor.UpperLeft;
+        t.alignment = align;
         t.horizontalOverflow = HorizontalWrapMode.Wrap;
         t.verticalOverflow = VerticalWrapMode.Overflow;
         t.lineSpacing = 1.1f;
@@ -407,7 +513,7 @@ public class TutorialManager : MonoBehaviour
                 Kind = StepKind.Move,
                 PictureName = "step1_move",
                 Title = "左右に曲がろう",
-                Body = "走るのは自動。プレイヤーは左右に曲がって進む向きを決めるよ。\n障害物や危ないものは、曲がってよけよう。",
+                Body = "走るのは自動。プレイヤーは左右に曲がって、進む向きを決めるよ。\nA / D キー（← / → キー、左スティック）で曲がろう。",
                 Goal = "目標：左と右、両方に曲がってみよう",
                 Keys = "A / D キー（← / → キー）、左スティック",
             },
@@ -416,7 +522,7 @@ public class TutorialManager : MonoBehaviour
                 Kind = StepKind.Landing,
                 PictureName = "step2_landing",
                 Title = "ジャスト着地でブースト！",
-                Body = "丘を越えると空を飛ぶ。W キーで急降下して、<b>下り坂に向かって</b>着地すると PERFECT！\nスピードが一気に上がって、ブースト中は障害物に当たってもへっちゃら。",
+                Body = "丘を越えると空を飛ぶ。W キー（ゲームパッドは Aボタン）で急降下して、\n<b>下り坂に向かって</b>着地すると PERFECT！ スピードが一気に上がるよ。",
                 Goal = "目標：PERFECT 着地を1回しよう",
                 Keys = "W キー（ゲームパッドは Aボタン）で急降下",
             },
@@ -431,29 +537,29 @@ public class TutorialManager : MonoBehaviour
             },
             new Step
             {
-                Kind = StepKind.Dodge,
-                PictureName = "step4_obstacles",
-                Title = "障害物をよけよう",
-                Body = "障害物に当たると HP が減って、スピードも落ちる。HP が 0 になるとゲームオーバー。\n木や看板など細いものは、当たっても減りが少ないよ。",
-                Goal = "目標：当たらずに走り続けよう　{0}",
-                Keys = "当たると、数えなおし",
-            },
-            new Step
-            {
                 Kind = StepKind.Read,
-                Title = "チェックポイントと分かれ道",
-                PictureName = "step5_checkpoint",
-                Body = "チェックポイントを通ると HP が回復する（エンドレスでは残り時間も）。\nその先の分かれ道では、左右の看板のアイテムを見て道を選ぼう。道によって難しさともらえるアイテムが変わるよ。",
-                Goal = "Enterキー / Aボタンで次へ",
+                PictureName = "step4_obstacles",
+                Title = "障害物に気をつけよう",
+                Body = "本番の道には障害物がある。当たると HP が減って、スピードも落ちる。HP が 0 でゲームオーバー。\n木や看板など細いものは、当たっても減りが少ないよ。ブースト中は当たっても平気！",
+                Goal = "",
                 Keys = "",
             },
             new Step
             {
                 Kind = StepKind.Read,
-                Title = "ボスと一撃必殺のギミック",
+                PictureName = "step5_checkpoint",
+                Title = "チェックポイントと分かれ道",
+                Body = "チェックポイントを通ると HP が回復する（エンドレスでは残り時間も）。\nその先の分かれ道では、左右の看板のアイテムを見て道を選ぼう。道によって難しさともらえるアイテムが変わるよ。",
+                Goal = "",
+                Keys = "",
+            },
+            new Step
+            {
+                Kind = StepKind.Read,
                 PictureName = "step6_boss",
-                Body = "ストーリーでは4体の中ボスと、最後にマザーコンピューターが現れる。ジャンプ台から最高速で突っ込もう、<b>速いほど大ダメージ</b>！\n震える・赤く光る・地面に赤い帯が出るものは一撃必殺の合図。よく見てかわそう。",
-                Goal = "Enterキー / Aボタンで次へ",
+                Title = "ボスと一撃必殺のギミック",
+                Body = "ストーリーでは4体の中ボスと、最後にマザーコンピューターが現れる。最高速で突っ込もう、<b>速いほど大ダメージ</b>！\n震える・赤く光る・地面に赤い帯が出るものは一撃必殺の合図。よく見てかわそう。",
+                Goal = "",
                 Keys = "",
             },
         };

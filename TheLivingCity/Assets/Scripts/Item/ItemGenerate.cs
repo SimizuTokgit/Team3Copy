@@ -79,6 +79,28 @@ public class ItemGenerate : MonoBehaviour
     }
 
     /// <summary>
+    /// 清水 チュートリアル用：道の真ん中あたりの、地面のすぐ上にアイテムを置く（高く浮いて取れない物を作らない）
+    /// </summary>
+    public void ItemGenOnGround(Mesh mesh, int width, int length, float laneRate = 0.6f, float height = 1.2f)
+    {
+        if (items == null || items.Length == 0 || mesh == null) return;
+        Vector3[] vertices = mesh.vertices;
+        int margin = Mathf.RoundToInt(width * (1f - laneRate) * 0.5f);
+
+        for (int i = 0; i < GenerateCount; i++)
+        {
+            int x = Random.Range(margin, width - margin + 1);
+            int z = Random.Range(1, length);
+            int index = x + z * (width + 1);
+            if (index >= vertices.Length) continue;
+
+            Vector3 pos = vertices[index];
+            GameObject item = Instantiate(items[GetWeightedRandom()].prefab, transform);
+            item.transform.localPosition = new Vector3(pos.x, pos.y + height, pos.z);
+        }
+    }
+
+    /// <summary>
     /// 清水 取れる場所にアイテムを置く
     /// 今までは高さが「地面の高さ×最大ItemUpRate倍」で、山の上だと10m以上浮いて取れなかった
     /// 障害物の中も避ける。一部は必ず通れる道の上に置く

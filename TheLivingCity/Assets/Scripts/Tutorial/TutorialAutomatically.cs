@@ -253,7 +253,7 @@ public class TutorialAutomatically : MonoBehaviour
     /// </summary>
     public void GenObsItem()
     {
-        _generateObstacle.Generate(mesh, width, length, currentDifficulty, SmallPosY);
+        //清水 チュートリアルでは障害物は出さない（アイテムだけ）
 
         CheckScript();
 
@@ -271,7 +271,8 @@ public class TutorialAutomatically : MonoBehaviour
             _ground.ConnectEnd();
         }
 
-        _itemGenerate.ItemGen(mesh, width, length);
+        //清水 地面のすぐ上の、取りやすい場所に置く（前は山の上で高く浮いて取れない物があった）
+        _itemGenerate.ItemGenOnGround(mesh, width, length);
     }
 
     public void GenTentacles()
