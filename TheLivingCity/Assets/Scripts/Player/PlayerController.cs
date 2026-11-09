@@ -45,21 +45,34 @@ public class PlayerController : MonoBehaviour
     private GameManager.GameState prevState;
     private void OnPause(InputValue value)
     {
-        //清水 演出中はポーズさせない
-        if (_gameManager._currentState == GameManager.GameState.Event) return;
+        //清水 Esc でポーズ画面を開く / もう一度押すとゲームに戻る（ポーズ画面の Back ボタンと同じ）
+        if (_gameManager._currentState == GameManager.GameState.Pause) Resume();
+        else Pause();
+    }
 
-        if (_gameManager._currentState != GameManager.GameState.Pause)
-        {
-            prevState = _gameManager._currentState;
-            _player.PausePlayer();
-            _gameManager.SetState(GameManager.GameState.Pause);
-        }
+    /// <summary>
+    /// 清水 ポーズする。遊んでいる最中だけ
+    /// （演出中・3,2,1のカウント中・ゲームオーバー/クリアのあと・チュートリアルの説明中はしない）
+    /// </summary>
+    public void Pause()
+    {
+        if (_gameManager._currentState != GameManager.GameState.Playing) return;
+        if (Time.timeScale <= 0f) return; //ほかで時間を止めているとき（チュートリアルの説明画面など）
 
+        prevState = _gameManager._currentState;
+        _player.PausePlayer();
+        _gameManager.SetState(GameManager.GameState.Pause);
+    }
 
-        else
-        {
-            _gameManager.SetState(prevState);
-            _player.ReStartPlayer();
-        }
+    /// <summary>
+    /// 清水 ポーズをやめてゲームに戻る（Esc / ポーズ画面の Back ボタン）
+    /// </summary>
+    public void Resume()
+    {
+        if (_gameManager._currentState != GameManager.GameState.Pause) return;
+        if (PauseMenu.IsQuitting) return; //タイトルに戻る途中
+
+        _gameManager.SetState(prevState);
+        _player.ReStartPlayer();
     }
 }

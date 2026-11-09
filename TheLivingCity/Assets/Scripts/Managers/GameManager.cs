@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour
         ScoreManager = GetComponentInChildren<ScoreManager>();
 
         Player = FindAnyObjectByType<Player>();
+
+        //清水 ポーズ画面に Back（ゲームに戻る）/ Quit（タイトルへ）のボタンを作る
+        PauseMenu.Create(PauseImage);
     }
 
     private void Update()

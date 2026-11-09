@@ -33,11 +33,29 @@ public class GameOver : MonoBehaviour
 
     private bool isPushButton = false;
 
+    private bool isScoreShown = false;
+
     void Start()
     {
+        ShowScore();
+
+        //爆発音はアニメーションイベントで鳴らすので、ここでは警告音だけ予約する
+        if (alertSE) Invoke(nameof(PlayAlertSE), Mathf.Max(alertStartTime, 0f));
+    }
+
+    /// <summary>
+    /// 清水 スコアの表示と Yes / No の操作の準備。
+    /// 電撃のシーンのように GameOver が非アクティブ（Start が来ない）でも、ほかの演出スクリプトから呼べるようにした
+    /// 何回呼んでも1回だけ動く
+    /// </summary>
+    public void ShowScore()
+    {
+        if (isScoreShown) return;
+        isScoreShown = true;
+
         //スコア取得&表示
         float score = PlayerPrefs.GetFloat("Score", 0f);
-        ScoreNumber.SetNumber(Mathf.FloorToInt(score));
+        if (ScoreNumber) ScoreNumber.SetNumber(Mathf.FloorToInt(score));
 
         if (HighScoreNumber) HighScoreNumber.SetNumber(Mathf.FloorToInt(PlayerPrefs.GetFloat(PlayModeInfo.HighScoreKey, 0f)));
         if (NewRecordObject) NewRecordObject.SetActive(PlayerPrefs.GetInt("IsNewRecord", 0) == 1);
@@ -51,8 +69,8 @@ public class GameOver : MonoBehaviour
             reveal.SetSE(scoreTickSE, null);
         }
 
-        //爆発音はアニメーションイベントで鳴らすので、ここでは警告音だけ予約する
-        if (alertSE) Invoke(nameof(PlayAlertSE), Mathf.Max(alertStartTime, 0f));
+        //清水 Yes / No を A・D / 左スティック / 十字キーで選べるようにする（Texts が出たときに Yes を選ぶ）
+        if (Texts) MenuNavigation.Attach(Texts, MenuNavigation.Direction.Horizontal, true, null);
     }
 
     public void MainButton()

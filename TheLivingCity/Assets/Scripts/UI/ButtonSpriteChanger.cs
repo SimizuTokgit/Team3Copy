@@ -26,13 +26,37 @@ public class ButtonSpriteChanger : MonoBehaviour, ISelectHandler, IDeselectHandl
         if (!offSprite) offSprite = image.sprite;
         if (!onSprite) onSprite = offSprite;
 
+        CalcPixelScale();
+
+        Button button = GetComponent<Button>();
+        if (button) button.onClick.AddListener(() => PlaySE(pushSE));
+    }
+
+    /// <summary>
+    /// 清水 スクリプトからボタンを作るとき用。画像とSEを入れる（AddComponent の直後に呼ぶ）
+    /// 大きさは「今の幅 ÷ OFF画像の幅」の倍率で、ON画像にも同じ倍率がかかる
+    /// </summary>
+    public void Setup(Sprite off, Sprite on, AudioClip select, AudioClip push)
+    {
+        offSprite = off;
+        onSprite = on ? on : off;
+        selectSE = select;
+        pushSE = push;
+
+        // 非アクティブの下で作ると Awake がまだなので、そのときは Awake に任せる
+        if (image)
+        {
+            CalcPixelScale();
+            SetSprite(EventSystem.current && EventSystem.current.currentSelectedGameObject == gameObject);
+        }
+    }
+
+    private void CalcPixelScale()
+    {
         // 幅が0（ストレッチ配置など）のときは大きさを変えない
         float width = image.rectTransform.sizeDelta.x;
         bool canScale = offSprite && width > 0 && offSprite.rect.width > 0;
         pixelScale = canScale ? width / offSprite.rect.width : 0f;
-
-        Button button = GetComponent<Button>();
-        if (button) button.onClick.AddListener(() => PlaySE(pushSE));
     }
 
     private void OnEnable()
@@ -65,6 +89,7 @@ public class ButtonSpriteChanger : MonoBehaviour, ISelectHandler, IDeselectHandl
     {
         Sprite sprite = isOn ? onSprite : offSprite;
         if (!sprite) return;
+        if (!image) image = GetComponent<Image>();
 
         image.sprite = sprite;
 

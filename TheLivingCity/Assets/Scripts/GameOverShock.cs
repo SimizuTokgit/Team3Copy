@@ -7,6 +7,13 @@ public class GameOverShock : MonoBehaviour
     [SerializeField] private GameObject Texts;
     [SerializeField] private GameObject Fade;
 
+    private void Start()
+    {
+        //清水 このシーンでは GameOver が非アクティブで Start が来ないので、スコアの表示と Yes / No の準備をここから呼ぶ
+        GameOver gameOver = FindAnyObjectByType<GameOver>(FindObjectsInactive.Include);
+        if (gameOver) gameOver.ShowScore();
+    }
+
     public void MaterialBlack(float num)
     {
         Renderer renderer = Player.GetComponent<Renderer>();

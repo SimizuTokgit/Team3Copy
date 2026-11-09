@@ -152,6 +152,9 @@ public class TutorialManager : MonoBehaviour
 
     void Update()
     {
+        //清水 ポーズ中（Esc）は止めておく（よける秒数が進んだり、次の説明が出たりしないように）
+        if (_gameManager && _gameManager._currentState == GameManager.GameState.Pause) return;
+
         if (tutorialstate == TutorialState.WaitStart)
         {
             if (!_gameManager || _gameManager._currentState == GameManager.GameState.Playing) BeginStep();
