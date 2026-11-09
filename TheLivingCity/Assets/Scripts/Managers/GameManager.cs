@@ -127,12 +127,6 @@ public class GameManager : MonoBehaviour
         //清水 プレス機・バーナー・電撃でやられたときは、それぞれの演出のシーンへ（HP切れなどはいつものシーン）
         string scene = GameOverCause.SceneName;
         GameOverCause.Reset();
-        //清水 Build Settings に入っていないシーンは読めずに止まってしまうので、いつものシーンにする
-        if (!Application.CanStreamedLevelBeLoaded(scene))
-        {
-            Debug.LogWarning(scene + " が Build Settings に入っていないので、GameOverScene を使います。File → Build Profiles の Scene List に追加してください");
-            scene = "GameOverScene";
-        }
         FindFirstObjectByType<FadeImageController>().SceneChange(scene);
     }
 

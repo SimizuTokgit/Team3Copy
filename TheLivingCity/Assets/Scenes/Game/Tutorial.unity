@@ -312,6 +312,7 @@ MonoBehaviour:
   LOW_TIME_THRESHOLD: 10
   REMAINING_TIME_NUMBER: {fileID: 881348956}
   _remainingTime: 0
+  USE_TIME_LIMIT: 1
 --- !u!1 &28032742
 GameObject:
   m_ObjectHideFlags: 0
@@ -1697,6 +1698,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CountDownManager
   countdownNumber: {fileID: 479353512}
   goImage: {fileID: 1288422735}
+  startSE: {fileID: 0}
+  startDelay: 0.6
+  count3Time: 0
+  count2Time: 0.88
+  count1Time: 1.74
+  goTime: 2.59
+  finishTime: 3.59
+  cueOffset: 0
+  numberPop: {fileID: 0}
+  goPop: {fileID: 0}
 --- !u!1 &450108489
 GameObject:
   m_ObjectHideFlags: 0
@@ -2021,8 +2032,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 819512b5386bd2c4c9ba528d6773862c, type: 3}
   - {fileID: 21300000, guid: a382bc0716b49d34aa31e24a80165e99, type: 3}
   warningSprites: []
+  periodSprite: {fileID: 0}
   digitSize: {x: 233, y: 233}
   digitSpace: 150
+  periodSpace: 70
+  periodScale: 1
+  decimals: 0
+  warningColor: {r: 1, g: 0.28, b: 0.22, a: 1}
 --- !u!1 &526594571
 GameObject:
   m_ObjectHideFlags: 0
@@ -3135,9 +3151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 456c9118657784542b7f36281f6c4321, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageScreen
-  volume: {fileID: 1297615699}
-  DAMAGE_INTENDITY: 0.625
-  RETURN_SPEED: 0.1
+  DAMAGE_STRENGTH: 1
 --- !u!4 &824076761
 Transform:
   m_ObjectHideFlags: 0
@@ -3306,8 +3320,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5f6af20a76a3a4e43b51d96dd39f0403, type: 3}
   - {fileID: 21300000, guid: f5adccafc189fe646897964a63d43927, type: 3}
   - {fileID: 21300000, guid: 7e69bd6c03c06f544b961d8043a482eb, type: 3}
+  periodSprite: {fileID: 0}
   digitSize: {x: 233, y: 233}
   digitSpace: 150
+  periodSpace: 70
+  periodScale: 1
+  decimals: 0
+  warningColor: {r: 1, g: 0.28, b: 0.22, a: 1}
 --- !u!1 &927972866
 GameObject:
   m_ObjectHideFlags: 0
@@ -5340,8 +5359,9 @@ MonoBehaviour:
   tutorialstate: 0
   tutorialText: {fileID: 1889757410}
   tutorialContents:
-  - "\u5DE6\u53F3\u79FB\u52D5\u3092\u3057\u3088\u3046"
-  - "\u30B8\u30E3\u30B9\u30C8\u7740\u5730\u3092\u3057\u3088\u3046"
+  - "\u5DE6\u53F3\u79FB\u52D5\u3092\u3057\u3088\u3046 \u5DE6\u30B9\u30C6\u30A3\u30C3\u30AF
+    / A.D\u30AD\u30FC"
+  - "\u30B8\u30E3\u30B9\u30C8\u7740\u5730\u3092\u3057\u3088\u3046\u3000A / W\u30AD\u30FC"
   - "\u30A2\u30A4\u30C6\u30E0\u3092\u62FE\u304A\u3046"
   - "\u969C\u5BB3\u7269\u3092\u3088\u3051\u3088\u3046"
   tutorialCount: 0
@@ -5482,6 +5502,8 @@ MonoBehaviour:
   groundScripts: []
   SameGroundCount: 0
   _isBoss: 0
+  FallThroughMargin: 1.2
+  RegenerateSafeDistance: 120
 --- !u!4 &1699439686
 Transform:
   m_ObjectHideFlags: 0
@@ -5838,7 +5860,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 350}
-  m_SizeDelta: {x: 800, y: 100}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1889757410
 MonoBehaviour:
@@ -5853,7 +5875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 0, b: 0.9294224, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6276,6 +6298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   StartPos: {x: 0, y: 0, z: 0}
   PauseImage: {fileID: 946878974}
+  Mode: 0
   _currentState: 0
 --- !u!4 &2067306730
 Transform:

@@ -38,12 +38,11 @@ public class PlayerCollider : MonoBehaviour
         //一撃死亡オブジェクトに当たった時の処理
         else if(other.gameObject.layer == LayerMask.NameToLayer("Dead"))
         {
-            //清水 何にやられたかで、ゲームオーバーの演出を変える。プレス機に挟まれたときは無敵中でもやられる
-            GameOverCause.Cause cause = GameOverCause.FromHazard(other);
-            if (!_player.isInvincible || GameOverCause.IgnoresInvincibility(cause))  //無敵かどうか
+            if (!_player.isInvincible)  //無敵かどうか
             {
                 _damageScreen.Damage();
-                GameOverCause.Set(cause);
+                //清水 何にやられたかで、ゲームオーバーの演出を変える
+                GameOverCause.Set(GameOverCause.FromHazard(other));
                 _player.DeadDamage();
 
                 if (_player.tutorialManager != null)
