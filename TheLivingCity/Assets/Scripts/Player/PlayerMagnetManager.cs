@@ -57,7 +57,7 @@ public class PlayerMagnetManager : MonoBehaviour
 
                 if (player.tutorialManager != null)
                 {
-                    if (player.tutorialManager.tutorialCount == 2)
+                    if (player.tutorialManager.IsStep(TutorialManager.StepKind.Items))
                     {
                         GetItemCount++;
 

@@ -140,7 +140,7 @@ public class TutorialGenereto : MonoBehaviour
 
                 for (int x = 0; x <= Maxx - 1; x++)
                 {
-                    if (tutorialmanager.tutorialCount < 2)
+                    if (!tutorialmanager.SpawnObstacles)
                         CreateChunk(x, newZ, false);//
                     else
                         CreateChunk(x, newZ, true);//
